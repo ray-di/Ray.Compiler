@@ -16,6 +16,9 @@ use PhpParser\Node\Scalar;
 use PhpParser\Node\Stmt;
 use Ray\Di\InjectorInterface;
 
+/**
+ * Value to code(Node) converter
+ */
 class Normalizer
 {
     /**

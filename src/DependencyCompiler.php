@@ -6,7 +6,6 @@
  */
 namespace Ray\Compiler;
 
-use PhpParser\Comment;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
@@ -43,6 +42,8 @@ final class DependencyCompiler
     }
 
     /**
+     * Return compiled dependency code
+     *
      * @param DependencyInterface $dependency
      *
      * @return Code
@@ -60,6 +61,13 @@ final class DependencyCompiler
         throw new \DomainException(get_class($dependency));
     }
 
+    /**
+     * Compile DependencyInstance
+     *
+     * @param Instance $instance
+     *
+     * @return Code
+     */
     private function compileInstance(Instance $instance)
     {
         $node = $this->normalizer->normalizeValue($instance->value);
@@ -67,6 +75,13 @@ final class DependencyCompiler
         return new Code(new Node\Stmt\Return_($node));
     }
 
+    /**
+     * Compile generic object dependency
+     *
+     * @param Dependency $dependency
+     *
+     * @return Code
+     */
     private function compileDependency(Dependency $dependency)
     {
         $node = $this->getFactoryNode($dependency);
@@ -77,6 +92,13 @@ final class DependencyCompiler
         return new Code($node);
     }
 
+    /**
+     * Compile dependency provider
+     *
+     * @param DependencyProvider $provider
+     *
+     * @return Code
+     */
     private function compileDependencyProvider(DependencyProvider $provider)
     {
         $dependency = $this->getPrivateProperty($provider, 'dependency');
@@ -87,6 +109,15 @@ final class DependencyCompiler
         return new Code($node);
     }
 
+    /**
+     * Return generic factory code
+     *
+     * This code is used by Dependency and DependencyProvider
+     *
+     * @param DependencyInterface $dependency
+     *
+     * @return \PhpParser\Node[]
+     */
     private function getFactoryNode(DependencyInterface $dependency)
     {
         $newInstance = $this->getPrivateProperty($dependency, 'newInstance');
@@ -206,6 +237,13 @@ final class DependencyCompiler
         $node[] = new Expr\Assign($bindingsProp, new Expr\Array_($methodBinding));
     }
 
+    /**
+     * Return method argument code
+     *
+     * @param Argument $argument
+     *
+     * @return Expr|Expr\FuncCall
+     */
     private function getArgStmt(Argument $argument)
     {
         $dependencyIndex = (string) $argument;
@@ -232,11 +270,23 @@ final class DependencyCompiler
         return $node;
     }
 
+    /**
+     * Return "$injection_point()"
+     *
+     * @return Expr\FuncCall
+     */
     private function getInjectionPoint()
     {
         return new Expr\FuncCall(new Expr\Variable('injection_point'));
     }
 
+    /**
+     * Return arguments code for "$singleton" and "$prototype"
+     *
+     * @param Argument $argument
+     *
+     * @return array
+     */
     private function getInjectionFuncParams(Argument $argument)
     {
         $dependencyIndex = (string) $argument;
@@ -248,6 +298,15 @@ final class DependencyCompiler
         return [new Node\Arg(new Scalar\String_((string) $argument))];
     }
 
+    /**
+     * Return code for provider
+     *
+     * "$provider" needs [class, method, parameter] for InjectionPoint (Contextual Dependency Injection)
+     *
+     * @param Argument $argument
+     *
+     * @return array
+     */
     private function getInjectionProviderParams(Argument $argument)
     {
         $param = $argument->get();
@@ -262,6 +321,13 @@ final class DependencyCompiler
         ];
     }
 
+    /**
+     * @param object $object
+     * @param string $prop
+     * @param mixed  $default
+     *
+     * @return mixed|null
+     */
     private function getPrivateProperty($object, $prop, $default = null)
     {
         try {

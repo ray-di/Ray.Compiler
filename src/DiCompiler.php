@@ -53,6 +53,8 @@ final class DiCompiler implements InjectorInterface
     }
 
     /**
+     * Compile and return instance
+     *
      * @param string $interface
      * @param string $name
      *
@@ -66,6 +68,9 @@ final class DiCompiler implements InjectorInterface
         return $instance;
     }
 
+    /**
+     * Compile all dependencies in container
+     */
     public function compile()
     {
         $container = $this->container->getContainer();
