@@ -113,7 +113,7 @@ final class DependencyCompiler
         $node = [];
         $instance = new Expr\Variable('instance');
         // constructor injection
-        $constructorInjection =  $this->constructorInjection($class, $arguments, $setterMethods);
+        $constructorInjection =  $this->constructorInjection($class, $arguments);
         $node[] = new Expr\Assign(new Expr\Variable('is_singleton'), $this->normalizer->normalizeValue($isSingleton));
         $node[] = new Expr\Assign($instance, $constructorInjection);
         $setters = $this->setterInjection($instance, $setterMethods);
@@ -184,8 +184,9 @@ final class DependencyCompiler
         $newInstance = $this->getPrivateProperty($dependency, 'newInstance');
         $bind = $this->getPrivateProperty($newInstance, 'bind');
         $bind = $this->getPrivateProperty($bind, 'bind');
-        $bindings = $this->getPrivateProperty($bind, 'bindings', null);
-        if (is_null($bindings)) {
+        /** @var array $bindings */
+        $bindings = (array) $this->getPrivateProperty($bind, 'bindings', null);
+        if (! $bindings) {
             return;
         }
         $methodBinding = [];
@@ -254,9 +255,9 @@ final class DependencyCompiler
         return [
             new Node\Arg(new Scalar\String_((string) $argument)),
             new Expr\Array_([
-                new Node\Arg(new Scalar\String_($param->getDeclaringClass()->getName())),
-                new Node\Arg(new Scalar\String_($param->getDeclaringFunction()->getName())),
-                new Node\Arg(new Scalar\String_($param->getName()))
+                new Node\Arg(new Scalar\String_($param->getDeclaringClass()->name)),
+                new Node\Arg(new Scalar\String_($param->getDeclaringFunction()->name)),
+                new Node\Arg(new Scalar\String_($param->name))
             ])
         ];
     }
