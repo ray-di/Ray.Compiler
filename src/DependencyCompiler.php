@@ -185,8 +185,8 @@ final class DependencyCompiler
         $bind = $this->getPrivateProperty($newInstance, 'bind');
         $bind = $this->getPrivateProperty($bind, 'bind');
         /** @var array $bindings */
-        $bindings = (array) $this->getPrivateProperty($bind, 'bindings', null);
-        if (! $bindings) {
+        $bindings = $this->getPrivateProperty($bind, 'bindings', null);
+        if (! $bindings || ! is_array($bindings)) {
             return;
         }
         $methodBinding = [];
