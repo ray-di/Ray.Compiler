@@ -51,6 +51,7 @@ final class DiCompiler implements InjectorInterface
         $this->injector = new Injector($module, $classDir);
         $this->dependencyCompiler = new DependencyCompiler($this->container);
         $this->module = $module;
+        $this->dependencySaver = new DependencySaver($classDir);
     }
 
     /**
@@ -76,11 +77,11 @@ final class DiCompiler implements InjectorInterface
     {
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
-            $file = sprintf('%s/%s.php', $this->classDir, str_replace('\\', '_', $dependencyIndex));
             if (! $dependency instanceof DependencyInterface) {
                 continue;
             }
-            $this->putCompileFile($dependency, $file);
+            $code = $this->dependencyCompiler->compile($dependency);
+            $this->dependencySaver->__invoke($dependencyIndex, $code);
         }
     }
 

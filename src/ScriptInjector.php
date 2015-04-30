@@ -147,10 +147,7 @@ class ScriptInjector implements InjectorInterface
         }
         $dependency = (new Bind(new Container, $class))->getBound();
         $code = (new DependencyCompiler(new Container, $this))->compile($dependency);
-        $file = sprintf('%s/%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
-        file_put_contents($file, (string) $code);
-        $meta = json_encode(['is_singleton' => $code->isSingleton]);
-        file_put_contents($file . '.meta.php', $meta, LOCK_EX);
+        (new DependencySaver($this->scriptDir))->__invoke($dependencyIndex, $code);
         try {
             return $this->getScriptInstance($dependencyIndex);
         } catch (Unbound $e) {
