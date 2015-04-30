@@ -11,6 +11,7 @@ class FakeInterceptor implements MethodInterceptor
     public function invoke(MethodInvocation $invocation)
     {
         self::$args = $invocation->getArguments();
+
         return $invocation->proceed();
     }
 }

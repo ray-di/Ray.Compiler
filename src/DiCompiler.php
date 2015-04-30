@@ -8,6 +8,7 @@ namespace Ray\Compiler;
 
 use Ray\Di\AbstractModule;
 use Ray\Di\Container;
+use Ray\Di\DependencyInterface;
 use Ray\Di\Injector;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
@@ -76,13 +77,22 @@ final class DiCompiler implements InjectorInterface
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
             $file = sprintf('%s/%s.php', $this->classDir, str_replace('\\', '_', $dependencyIndex));
-            if (! file_exists($file)) {
-                $code = $this->dependencyCompiler->compile($dependency);
-                file_put_contents($file, (string) $code, LOCK_EX);
+            if (! $dependency instanceof DependencyInterface) {
+                continue;
             }
+            $this->putCompileFile($dependency, $file);
         }
-        $file = $this->classDir . '/module.php';
-        $module = sprintf('<?php return unserialize(\'%s\');', serialize($this->module));
-        file_put_contents($file, $module);
+    }
+
+    /**
+     * @param DependencyInterface $dependency
+     * @param string $file
+     */
+    private function putCompileFile(DependencyInterface $dependency, $file)
+    {
+        $code = $this->dependencyCompiler->compile($dependency);
+        file_put_contents($file, (string) $code, LOCK_EX);
+        $meta = json_encode(['is_singleton' => $code->isSingleton]);
+        file_put_contents($file . '.meta.php', $meta, LOCK_EX);
     }
 }

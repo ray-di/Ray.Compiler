@@ -28,7 +28,8 @@ class DiCompilerTest extends \PHPUnit_Framework_TestCase
             'Ray_Compiler_FakeTyreInterface-*.php',
         ];
         foreach ($files as $file) {
-            $this->assertTrue(file_exists($_ENV['TMP_DIR'] . '/'. $file));
+            $filePath = $_ENV['TMP_DIR'] . '/'. $file;
+            $this->assertTrue(file_exists($filePath), $filePath);
         }
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
         $car = $injector->getInstance(FakeCarInterface::class);

@@ -8,6 +8,8 @@ namespace Ray\Compiler;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Ray\Compiler\Exception\NotCompiled;
+use Ray\Di\Bind;
+use Ray\Di\Container;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectionPoint;
 use Ray\Di\InjectorInterface;
@@ -28,11 +30,6 @@ class ScriptInjector implements InjectorInterface
      * @var array
      */
     private $ip;
-
-    /**
-     * @var bool
-     */
-    private $isSingleton;
 
     /**
      * Singleton instance container
@@ -60,7 +57,7 @@ class ScriptInjector implements InjectorInterface
             return $this->singletons[$dependencyIndex];
         }
         $instance = $this->getScriptInstance($dependencyIndex);
-        if ($this->isSingleton === true) {
+        if ($this->isSingleton($dependencyIndex) === true) {
             $this->singletons[$dependencyIndex] = $instance;
         }
 
@@ -74,6 +71,9 @@ class ScriptInjector implements InjectorInterface
      */
     private function getScriptInstance($dependencyIndex)
     {
+        if ($dependencyIndex === 'Ray\Di\InjectorInterface-*') {
+            return $this;
+        }
         $file = sprintf('%s/%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
         if (! file_exists($file)) {
             return $this->onDemandCompile($dependencyIndex);
@@ -104,7 +104,6 @@ class ScriptInjector implements InjectorInterface
         };
 
         $instance = require $file;
-        $this->isSingleton = $is_singleton;
 
         return $instance;
     }
@@ -120,6 +119,20 @@ class ScriptInjector implements InjectorInterface
     }
 
     /**
+     * @param string $dependencyIndex
+     *
+     * @return bool
+     */
+    public function isSingleton($dependencyIndex)
+    {
+        $file = sprintf('%s/%s.php.meta.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
+        $meta = json_decode(file_get_contents($file));
+        $isSingleton = $meta->is_singleton;
+
+        return $isSingleton;
+    }
+
+    /**
      * Return instance with compile on demand
      *
      * @param string $dependencyIndex
@@ -129,14 +142,17 @@ class ScriptInjector implements InjectorInterface
     private function onDemandCompile($dependencyIndex)
     {
         list($class, ) = explode('-', $dependencyIndex);
-        $moduleFile = $this->scriptDir . '/module.php';
-        if (! file_exists($moduleFile)) {
+        if (! class_exists($class)) {
             throw new NotCompiled($class);
         }
-        $module = require $moduleFile;
-        $compiler = new DiCompiler($module, $this->scriptDir);
+        $dependency = (new Bind(new Container, $class))->getBound();
+        $code = (new DependencyCompiler(new Container, $this))->compile($dependency);
+        $file = sprintf('%s/%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
+        file_put_contents($file, (string) $code);
+        $meta = json_encode(['is_singleton' => $code->isSingleton]);
+        file_put_contents($file . '.meta.php', $meta, LOCK_EX);
         try {
-            return $compiler->getInstance($class);
+            return $this->getScriptInstance($dependencyIndex);
         } catch (Unbound $e) {
             throw new NotCompiled($class, 500, $e);
         }
