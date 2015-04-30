@@ -2,6 +2,7 @@
 
 namespace Ray\Compiler;
 
+use Ray\Aop\WeavedInterface;
 use Ray\Compiler\FakeToBindSingletonModule;
 use Ray\Di\Exception\Unbound;
 
@@ -15,7 +16,6 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $compiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
-        $compiler->compile();
         $this->injector = new ScriptInjector($_ENV['TMP_DIR']);
         parent::setUp();
     }
@@ -55,5 +55,17 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
     {
         $injector = unserialize(serialize($this->injector));
         $this->assertInstanceOf(ScriptInjector::class, $injector);
+    }
+
+    public function testAop()
+    {
+        $classDir =  $_ENV['TMP_DIR'] . '/aop';
+        $compiler = new DiCompiler(new FakeCarModule, $classDir);
+        $compiler->compile();
+        $injector = new ScriptInjector($classDir);
+        $instance1 = $injector->getInstance(FakeCarInterface::class);
+        $instance2 = $injector->getInstance(FakeCar::class);
+        $this->assertInstanceOf(WeavedInterface::class, $instance1);
+        $this->assertInstanceOf(WeavedInterface::class, $instance2);
     }
 }
