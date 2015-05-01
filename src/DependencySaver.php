@@ -26,7 +26,7 @@ class DependencySaver
      */
     public function __invoke($dependencyIndex, Code $code)
     {
-        $file = sprintf('%s/%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
+        $file = sprintf('%s/__%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
         file_put_contents($file, (string) $code, LOCK_EX);
         $meta = json_encode(['is_singleton' => $code->isSingleton]);
         file_put_contents($file . '.meta.php', $meta, LOCK_EX);

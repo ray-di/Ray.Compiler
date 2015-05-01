@@ -74,7 +74,7 @@ class ScriptInjector implements InjectorInterface
         if ($dependencyIndex === 'Ray\Di\InjectorInterface-*') {
             return $this;
         }
-        $file = sprintf('%s/%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
+        $file = sprintf('%s/__%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
         if (! file_exists($file)) {
             return $this->onDemandCompile($dependencyIndex);
         }
@@ -125,7 +125,7 @@ class ScriptInjector implements InjectorInterface
      */
     public function isSingleton($dependencyIndex)
     {
-        $file = sprintf('%s/%s.php.meta.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
+        $file = sprintf('%s/__%s.php.meta.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
         $meta = json_decode(file_get_contents($file));
         $isSingleton = $meta->is_singleton;
 
