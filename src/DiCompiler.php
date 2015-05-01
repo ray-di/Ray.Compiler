@@ -87,7 +87,7 @@ final class DiCompiler implements InjectorInterface
 
     /**
      * @param DependencyInterface $dependency
-     * @param string $file
+     * @param string              $file
      */
     private function putCompileFile(DependencyInterface $dependency, $file)
     {

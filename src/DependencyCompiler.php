@@ -265,6 +265,7 @@ final class DependencyCompiler
         if ($dependency instanceof Instance) {
             return $this->normalizer->normalizeValue($dependency->value);
         }
+
         return $this->getPullDependency($argument, $dependency);
     }
 
