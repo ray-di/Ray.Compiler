@@ -30,15 +30,21 @@ final class DependencyCompiler
     private $container;
 
     /**
+     * @var ScriptInjector
+     */
+    private $injector;
+
+    /**
      * @var Normalizer
      */
     private $normalizer;
 
-    public function __construct(Container $container)
+    public function __construct(Container $container, ScriptInjector $injector = null)
     {
         $this->factory = new \PhpParser\BuilderFactory;
         $this->container = $container;
         $this->normalizer = new Normalizer;
+        $this->injector = $injector;
     }
 
     /**
@@ -72,7 +78,7 @@ final class DependencyCompiler
     {
         $node = $this->normalizer->normalizeValue($instance->value);
 
-        return new Code(new Node\Stmt\Return_($node));
+        return new Code(new Node\Stmt\Return_($node), false);
     }
 
     /**
@@ -88,8 +94,9 @@ final class DependencyCompiler
         $this->getAopCode($dependency, $node);
         $node[] = new Node\Stmt\Return_(new Node\Expr\Variable('instance'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
+        $isSingleton = $this->getPrivateProperty($dependency, 'isSingleton');
 
-        return new Code($node);
+        return new Code($node, $isSingleton);
     }
 
     /**
@@ -105,8 +112,9 @@ final class DependencyCompiler
         $node = $this->getFactoryNode($dependency);
         $node[] = new Stmt\Return_(new Expr\MethodCall(new Expr\Variable('instance'), 'get'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
+        $isSingleton = $this->getPrivateProperty($provider, 'isSingleton');
 
-        return new Code($node);
+        return new Code($node, $isSingleton);
     }
 
     /**
@@ -145,7 +153,6 @@ final class DependencyCompiler
         $instance = new Expr\Variable('instance');
         // constructor injection
         $constructorInjection =  $this->constructorInjection($class, $arguments);
-        $node[] = new Expr\Assign(new Expr\Variable('is_singleton'), $this->normalizer->normalizeValue($isSingleton));
         $node[] = new Expr\Assign($instance, $constructorInjection);
         $setters = $this->setterInjection($instance, $setterMethods);
         foreach ($setters as $setter) {
@@ -251,16 +258,50 @@ final class DependencyCompiler
             return $this->getInjectionPoint();
         }
         $hasDependency = isset($this->container->getContainer()[$dependencyIndex]);
-        if (! $hasDependency && $argument->isDefaultAvailable()) {
-            $default = $argument->getDefaultValue();
-            $node = $this->normalizer->normalizeValue($default);
-
-            return $node;
+        if (! $hasDependency) {
+            return $this->getOnDemandDependency($argument);
         }
         $dependency = $this->container->getContainer()[$dependencyIndex];
         if ($dependency instanceof Instance) {
             return $this->normalizer->normalizeValue($dependency->value);
         }
+
+        return $this->getPullDependency($argument, $dependency);
+    }
+
+    /**
+     * Return on-demand dependency pull code for not compiled
+     *
+     * @param Argument $argument
+     *
+     * @return Expr|Expr\FuncCall
+     */
+    private function getOnDemandDependency(Argument $argument)
+    {
+        if ($argument->isDefaultAvailable()) {
+            $default = $argument->getDefaultValue();
+            $node = $this->normalizer->normalizeValue($default);
+
+            return $node;
+        }
+        $dependencyIndex = (string) $argument;
+        $func = $this->injector->isSingleton($dependencyIndex) ? 'singleton' : 'prototype';
+        $args = $this->getInjectionProviderParams($argument);
+        $node = new Expr\FuncCall(new Expr\Variable($func), $args);
+
+        return $node;
+    }
+
+    /**
+     * Return arguments code for "$singleton" and "$prototype"
+     *
+     * @param Argument $argument
+     * @param bool     $isSingleton
+     *
+     * @return Expr\FuncCall
+     */
+    private function getPullDependency(Argument $argument, DependencyInterface $dependency)
+    {
         $isSingleton = $this->getPrivateProperty($dependency, 'isSingleton');
         $func = $isSingleton ? 'singleton' : 'prototype';
         $args = $this->getInjectionFuncParams($argument);
@@ -281,7 +322,9 @@ final class DependencyCompiler
     }
 
     /**
-     * Return arguments code for "$singleton" and "$prototype"
+     * Return dependency index argument
+     *
+     * [class, method, param] is added if dependency is provider for DI context
      *
      * @param Argument $argument
      *
@@ -290,8 +333,7 @@ final class DependencyCompiler
     private function getInjectionFuncParams(Argument $argument)
     {
         $dependencyIndex = (string) $argument;
-        $isProviderDependency = $this->container->getContainer()[$dependencyIndex] instanceof DependencyProvider;
-        if ($isProviderDependency) {
+        if ($this->container->getContainer()[$dependencyIndex] instanceof DependencyProvider) {
             return $this->getInjectionProviderParams($argument);
         }
 

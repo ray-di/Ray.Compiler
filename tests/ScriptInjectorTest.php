@@ -5,6 +5,7 @@ namespace Ray\Compiler;
 use Ray\Aop\WeavedInterface;
 use Ray\Compiler\FakeToBindSingletonModule;
 use Ray\Di\Exception\Unbound;
+use Ray\Di\FakeWalkRobotModule;
 
 class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
 {
@@ -15,7 +16,6 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $compiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
         $this->injector = new ScriptInjector($_ENV['TMP_DIR']);
         parent::setUp();
     }
@@ -67,5 +67,30 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
         $instance2 = $injector->getInstance(FakeCar::class);
         $this->assertInstanceOf(WeavedInterface::class, $instance1);
         $this->assertInstanceOf(WeavedInterface::class, $instance2);
+    }
+
+    public function testOnDemandSingleton()
+    {
+        (new DiCompiler(new FakeToBindSingletonModule, $_ENV['TMP_DIR']))->compile();
+        /* @var  $dependSingleton1 FakeDependSingleton */
+        $dependSingleton1 = $this->injector->getInstance(FakeDependSingleton::class);
+        /* @var  $dependSingleton2 FakeDependSingleton */
+        $dependSingleton2 = $this->injector->getInstance(FakeDependSingleton::class);
+        $hash1 = spl_object_hash($dependSingleton1->robot);
+        $hash2 = spl_object_hash($dependSingleton2->robot);
+        $this->assertSame($hash1, $hash2);
+        $this->testOnDemandPrototype();
+    }
+
+    public function testOnDemandPrototype()
+    {
+        (new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']))->compile();
+        /* @var  $fakeDependPrototype1 FakeDependPrototype */
+        $fakeDependPrototype1 = $this->injector->getInstance(FakeDependPrototype::class);
+        /* @var  $fakeDependPrototype2 FakeDependPrototype */
+        $fakeDependPrototype2 = $this->injector->getInstance(FakeDependPrototype::class);
+        $hash1 = spl_object_hash($fakeDependPrototype1->car);
+        $hash2 = spl_object_hash($fakeDependPrototype2->car);
+        $this->assertNotSame($hash1, $hash2);
     }
 }

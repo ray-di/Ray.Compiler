@@ -8,6 +8,7 @@ namespace Ray\Compiler;
 
 use Ray\Di\AbstractModule;
 use Ray\Di\Container;
+use Ray\Di\DependencyInterface;
 use Ray\Di\Injector;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
@@ -17,7 +18,7 @@ final class DiCompiler implements InjectorInterface
     /**
      * @var string
      */
-    private $classDir;
+    private $scriptDir;
 
     /**
      * @var Container
@@ -41,15 +42,16 @@ final class DiCompiler implements InjectorInterface
 
     /**
      * @param AbstractModule $module
-     * @param string         $classDir
+     * @param string         $scriptDir
      */
-    public function __construct(AbstractModule $module = null, $classDir = null)
+    public function __construct(AbstractModule $module = null, $scriptDir = null)
     {
-        $this->classDir = $classDir ?: sys_get_temp_dir();
+        $this->scriptDir = $scriptDir ?: sys_get_temp_dir();
         $this->container =  $module ? $module->getContainer() : new Container;
-        $this->injector = new Injector($module, $classDir);
+        $this->injector = new Injector($module, $scriptDir);
         $this->dependencyCompiler = new DependencyCompiler($this->container);
         $this->module = $module;
+        $this->dependencySaver = new DependencySaver($scriptDir);
     }
 
     /**
@@ -75,14 +77,23 @@ final class DiCompiler implements InjectorInterface
     {
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
-            $file = sprintf('%s/%s.php', $this->classDir, str_replace('\\', '_', $dependencyIndex));
-            if (! file_exists($file)) {
-                $code = $this->dependencyCompiler->compile($dependency);
-                file_put_contents($file, (string) $code, LOCK_EX);
+            if (! $dependency instanceof DependencyInterface) {
+                continue;
             }
+            $code = $this->dependencyCompiler->compile($dependency);
+            $this->dependencySaver->__invoke($dependencyIndex, $code);
         }
-        $file = $this->classDir . '/module.php';
-        $module = sprintf('<?php return unserialize(\'%s\');', serialize($this->module));
-        file_put_contents($file, $module);
+    }
+
+    /**
+     * @param DependencyInterface $dependency
+     * @param string              $file
+     */
+    private function putCompileFile(DependencyInterface $dependency, $file)
+    {
+        $code = $this->dependencyCompiler->compile($dependency);
+        file_put_contents($file, (string) $code, LOCK_EX);
+        $meta = json_encode(['is_singleton' => $code->isSingleton]);
+        file_put_contents($file . '.meta.php', $meta, LOCK_EX);
     }
 }
