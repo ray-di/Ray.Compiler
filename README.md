@@ -5,5 +5,94 @@
 
 ### Script injector
 
-`ScriptInjector` generates raw factory code for better performance and to clarify how the instance is created.
-This package is sub component package for [Ray.Di](https://github.com/ray-di/Ray.Di)
+`DiCompiler` generates raw factory code for better performance and to clarify how the instance is created.
+
+```php
+<?php
+
+use Ray\Compiler\DiCompiler;
+use Ray\Compiler\ScriptInjector;
+use Ray\Di\AbstractModule;
+use Ray\Di\Di\Inject;
+use Ray\Di\Di\Named;
+use Ray\Di\Scope;
+
+require dirname(dirname(__DIR__)) . '/vendor/autoload.php';
+
+interface ListerInterface{}
+class Lister implements ListerInterface{}
+
+class Consumer
+{
+    public $lister;
+    public $msg;
+
+    /**
+     * @Inject
+     * @Named("msg")
+     */
+    public function setMessage($msg)
+    {
+        $this->msg = $msg;
+    }
+
+    public function __construct(ListerInterface $lister)
+    {
+        $this->lister = $lister;
+    }
+}
+
+class Module extends AbstractModule
+{
+    protected function configure()
+    {
+        $this->bind(ListerInterface::class)->to(Lister::class);
+        $this->bind()->annotatedWith('msg')->toInstance('hello world');
+        $this->bind(Consumer::class)->in(Scope::SINGLETON);
+    }
+}
+$tmpDir = __DIR__ . '/tmp';
+$compiler = new DiCompiler(new Module, $tmpDir);
+$compiler->compile();
+var_dump(file_get_contents($tmpDir . '/__Consumer-*.php'));
+```
+
+for Consumer
+```php
+<?php
+
+namespace Ray\Di\Compiler;
+
+$instance = new \Consumer($prototype('ListerInterface-*'));
+$instance->setMessage('hello world');
+return $instance;
+```
+
+for Lister
+```php
+<?php
+
+namespace Ray\Di\Compiler;
+
+$instance = new \Lister();
+return $instance;
+```
+
+`ScriptInjector` use these generated PHP scripts to inject dependency. It is almost as fast as if there was no injector.
+
+```php
+use Ray\Compiler\ScriptInjector;
+
+$injector = new ScriptInjector($tmpDir);
+$instance = $injector->getInstance(Consumer::class);
+var_dump($instance);
+
+//class Consumer#41 (2) {
+//  public $lister =>
+//  class Lister#17 (0) {
+//  }
+//  public $msg =>
+//  string(11) "hello world"
+//}
+```
+This **Ray.Compiler** package is a sub component package for [Ray.Di](https://github.com/ray-di/Ray.Di)
