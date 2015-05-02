@@ -57,7 +57,7 @@ $compiler->compile();
 var_dump(file_get_contents($tmpDir . '/__Consumer-*.php'));
 ```
 
-for Consumer
+*generated code for `Consumer` class*
 ```php
 <?php
 
@@ -68,7 +68,7 @@ $instance->setMessage('hello world');
 return $instance;
 ```
 
-for Lister
+*generated code for `ListerInterface` inteface*
 ```php
 <?php
 
