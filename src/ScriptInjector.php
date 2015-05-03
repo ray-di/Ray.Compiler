@@ -7,9 +7,12 @@
 namespace Ray\Compiler;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Ray\Aop\Compiler;
+use Ray\Aop\Pointcut;
 use Ray\Compiler\Exception\NotCompiled;
 use Ray\Di\Bind;
 use Ray\Di\Container;
+use Ray\Di\Dependency;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectionPoint;
 use Ray\Di\InjectorInterface;
@@ -145,7 +148,12 @@ class ScriptInjector implements InjectorInterface
         if (! class_exists($class)) {
             throw new NotCompiled($class);
         }
+        /* @var $dependency Dependency */
         $dependency = (new Bind(new Container, $class))->getBound();
+        $pointCuts = $this->loadPointcuts();
+        if ($pointCuts) {
+            $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
+        }
         $code = (new DependencyCompiler(new Container, $this))->compile($dependency);
         (new DependencySaver($this->scriptDir))->__invoke($dependencyIndex, $code);
         try {
@@ -154,6 +162,15 @@ class ScriptInjector implements InjectorInterface
             throw new NotCompiled($class, 500, $e);
         }
     }
+
+    /**
+     * @return Pointcut
+     */
+    private function loadPointcuts()
+    {
+       return  unserialize(file_get_contents($this->scriptDir . '/pointcut.txt'));
+    }
+
 
     public function __wakeup()
     {
