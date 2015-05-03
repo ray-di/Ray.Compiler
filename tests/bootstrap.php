@@ -16,4 +16,5 @@ $clear = function ($dir) {
         }
     }
 };
-$clear($_ENV['TMP_DIR']);
+$clear(__DIR__ . '/tmp');
+$clear(__DIR__ . '/tmp-aop');

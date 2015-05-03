@@ -59,7 +59,7 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
 
     public function testAop()
     {
-        $classDir =  $_ENV['TMP_DIR'] . '/aop';
+        $classDir =  $_ENV['TMP_DIR'] . '-aop';
         $compiler = new DiCompiler(new FakeCarModule, $classDir);
         $compiler->compile();
         $injector = new ScriptInjector($classDir);
