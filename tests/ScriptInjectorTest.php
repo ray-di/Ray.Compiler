@@ -3,10 +3,7 @@
 namespace Ray\Compiler;
 
 use Ray\Aop\WeavedInterface;
-use Ray\Compiler\FakeToBindSingletonModule;
 use Ray\Di\Exception\Unbound;
-use Ray\Di\FakeRobot;
-use Ray\Di\FakeWalkRobotModule;
 
 class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
 {
