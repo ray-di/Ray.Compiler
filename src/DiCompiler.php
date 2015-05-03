@@ -83,17 +83,14 @@ final class DiCompiler implements InjectorInterface
             $code = $this->dependencyCompiler->compile($dependency);
             $this->dependencySaver->__invoke($dependencyIndex, $code);
         }
+        $this->savePointcuts($this->container);
     }
 
-    /**
-     * @param DependencyInterface $dependency
-     * @param string              $file
-     */
-    private function putCompileFile(DependencyInterface $dependency, $file)
+    private function savePointcuts(Container $container)
     {
-        $code = $this->dependencyCompiler->compile($dependency);
-        file_put_contents($file, (string) $code, LOCK_EX);
-        $meta = json_encode(['is_singleton' => $code->isSingleton]);
-        file_put_contents($file . '.meta.php', $meta, LOCK_EX);
+        $ref = (new \ReflectionProperty($container, 'pointcuts'));
+        $ref->setAccessible(true);
+        $pointcuts = $ref->getValue($container);
+        file_put_contents($this->scriptDir . '/pointcut.txt', serialize($pointcuts));
     }
 }
