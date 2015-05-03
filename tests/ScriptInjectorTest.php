@@ -65,8 +65,10 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
         $injector = new ScriptInjector($classDir);
         $instance1 = $injector->getInstance(FakeCarInterface::class);
         $instance2 = $injector->getInstance(FakeCar::class);
+        $instance3 = $injector->getInstance(FakeCar2::class);
         $this->assertInstanceOf(WeavedInterface::class, $instance1);
         $this->assertInstanceOf(WeavedInterface::class, $instance2);
+        $this->assertInstanceOf(WeavedInterface::class, $instance3);
     }
 
     public function testOnDemandSingleton()
