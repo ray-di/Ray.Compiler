@@ -278,7 +278,9 @@ final class DependencyCompiler
      */
     private function getOnDemandDependency(Argument $argument)
     {
-        if ($argument->isDefaultAvailable()) {
+        $container = $this->container->getContainer();
+        $inContainer = isset($container[(string) $argument]);
+        if (! $inContainer && $argument->isDefaultAvailable()) {
             $default = $argument->getDefaultValue();
             $node = $this->normalizer->normalizeValue($default);
 
