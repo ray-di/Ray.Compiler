@@ -10,11 +10,13 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Stmt;
+use Ray\Compiler\Exception\NotCompiled;
 use Ray\Di\Argument;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
+use Ray\Di\Exception\Unbound;
 use Ray\Di\Instance;
 
 final class DependencyCompiler
@@ -270,6 +272,14 @@ final class DependencyCompiler
     }
 
     /**
+     * @param string $dependencyIndex
+     */
+    private function IsCompiledDependencySingleton($dependencyIndex)
+    {
+
+    }
+
+    /**
      * Return on-demand dependency pull code for not compiled
      *
      * @param Argument $argument
@@ -278,20 +288,38 @@ final class DependencyCompiler
      */
     private function getOnDemandDependency(Argument $argument)
     {
-        $container = $this->container->getContainer();
-        $inContainer = isset($container[(string) $argument]);
-        if (! $inContainer && $argument->isDefaultAvailable()) {
+        $dependencyIndex = (string) $argument;
+        if (! $this->injector instanceof ScriptInjector) {
+            return $this->getDefault($argument);
+        }
+        try {
+            $isSingleton = $this->injector->isSingleton($dependencyIndex);
+        } catch (NotCompiled $e) {
+            return $this->getDefault($argument);
+        }
+        $func = $isSingleton ? 'singleton' : 'prototype';
+        $args = $this->getInjectionProviderParams($argument);
+        $node = new Expr\FuncCall(new Expr\Variable($func), $args);
+
+        return $node;
+    }
+
+    /**
+     * Return default argument value
+     *
+     * @param Argument $argument
+     * @return Expr
+     */
+    private function getDefault(Argument $argument)
+    {
+        if ($argument->isDefaultAvailable()) {
             $default = $argument->getDefaultValue();
             $node = $this->normalizer->normalizeValue($default);
 
             return $node;
         }
-        $dependencyIndex = (string) $argument;
-        $func = $this->injector->isSingleton($dependencyIndex) ? 'singleton' : 'prototype';
-        $args = $this->getInjectionProviderParams($argument);
-        $node = new Expr\FuncCall(new Expr\Variable($func), $args);
 
-        return $node;
+        throw new Unbound((string) $argument);
     }
 
     /**
