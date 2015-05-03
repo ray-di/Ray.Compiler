@@ -23,5 +23,6 @@ class FakeCarModule extends AbstractModule
             [FakeInterceptor::class]
         );
         $this->bind(FakeCar::class);
+        $this->bind(FakeRobot::class);
     }
 }
