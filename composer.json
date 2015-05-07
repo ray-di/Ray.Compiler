@@ -6,7 +6,6 @@
         "compiler",
         "code-gen"
     ],
-    "version": "0.1.4",
     "license": "MIT",
     "require-dev": {
         "ray/di": "~2.1"
