@@ -6,9 +6,10 @@
         "compiler",
         "code-gen"
     ],
+    "version": "0.1.4",
     "license": "MIT",
     "require-dev": {
-        "ray/di": "~2.0"
+        "ray/di": "~2.1"
     },
     "autoload": {
         "psr-4": {
@@ -20,7 +21,5 @@
             "Ray\\Compiler\\": "tests/",
             "Ray\\Compiler\\": "tests/Fake"
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }
