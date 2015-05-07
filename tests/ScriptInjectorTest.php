@@ -95,4 +95,12 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
         $hash2 = spl_object_hash($fakeDependPrototype2->car);
         $this->assertNotSame($hash1, $hash2);
     }
+
+    public function testOptional()
+    {
+        $injector = new ScriptInjector($_ENV['TMP_DIR']);
+        /* @var $optional FakeOptional */
+        $optional = $injector->getInstance(FakeOptional::class);
+        $this->assertNull($optional->robot);
+    }
 }
