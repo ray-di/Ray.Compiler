@@ -14,6 +14,12 @@ class DependencyCompilerTest extends \PHPUnit_Framework_TestCase
      */
     private $dependency;
 
+    protected function setUp()
+    {
+        clear($_ENV['TMP_DIR']);
+        parent::setUp();
+    }
+
     public function testInstanceCompileString()
     {
         $dependencyInstance = new Instance('bear');
@@ -117,6 +123,6 @@ EOT;
     public function testDomainException()
     {
         $this->setExpectedException(\DomainException::class);
-        $code = (new DependencyCompiler(new Container))->compile(new FakeInvalidDependency);
+        (new DependencyCompiler(new Container))->compile(new FakeInvalidDependency);
     }
 }

@@ -18,6 +18,7 @@ use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\Instance;
+use Ray\Di\SetterMethod;
 
 final class DependencyCompiler
 {
@@ -149,7 +150,7 @@ final class DependencyCompiler
      *
      * @return Node[]
      */
-    private function getFactoryCode($class, array $arguments, array $setterMethods, $postConstruct, $isSingleton)
+    private function getFactoryCode($class, array $arguments, array $setterMethods, $postConstruct)
     {
         $node = [];
         $instance = new Expr\Variable('instance');
@@ -186,18 +187,24 @@ final class DependencyCompiler
         return $constructor;
     }
 
+    /**
+     * @param Expr\Variable  $instance
+     * @param SetterMethod[] $setterMethods
+     *
+     * @return Expr\MethodCall[]
+     */
     private function setterInjection(Expr\Variable $instance, array $setterMethods)
     {
         $setters = [];
         foreach ($setterMethods as $setterMethod) {
+            $isOptional = $this->getPrivateProperty($setterMethod, 'isOptional');
             $method = $this->getPrivateProperty($setterMethod, 'method');
             $argumentsObject = $this->getPrivateProperty($setterMethod, 'arguments');
-            $argumentsArray = $this->getPrivateProperty($argumentsObject, 'arguments');
-            $args = [];
-            foreach ($argumentsArray as $argument) {
-                $args[] = $this->getArgStmt($argument);
+            $arguments = $this->getPrivateProperty($argumentsObject, 'arguments');
+            $args = $this->getSetterParams($arguments, $isOptional);
+            if (! $args) {
+                continue;
             }
-
             $setters[] = new Expr\MethodCall($instance, $method, $args);
         }
 
@@ -272,14 +279,6 @@ final class DependencyCompiler
     }
 
     /**
-     * @param string $dependencyIndex
-     */
-    private function IsCompiledDependencySingleton($dependencyIndex)
-    {
-
-    }
-
-    /**
      * Return on-demand dependency pull code for not compiled
      *
      * @param Argument $argument
@@ -308,6 +307,7 @@ final class DependencyCompiler
      * Return default argument value
      *
      * @param Argument $argument
+     *
      * @return Expr
      */
     private function getDefault(Argument $argument)
@@ -325,8 +325,8 @@ final class DependencyCompiler
     /**
      * Return arguments code for "$singleton" and "$prototype"
      *
-     * @param Argument $argument
-     * @param bool     $isSingleton
+     * @param Argument            $argument
+     * @param DependencyInterface $dependency
      *
      * @return Expr\FuncCall
      */
@@ -411,5 +411,31 @@ final class DependencyCompiler
         $value = $refProp->getValue($object);
 
         return $value;
+    }
+
+    /**
+     * Return setter method parameters
+     *
+     * Return false when no dependency given and @ Inject(optional=true) annotated to setter method.
+     *
+     * @param Argument[] $arguments
+     * @param bool       $isOptional
+     *
+     * @return Node\Arg[]
+     */
+    private function getSetterParams($arguments, $isOptional)
+    {
+        $args = [];
+        foreach ($arguments as $argument) {
+            try {
+                $args[] = $this->getArgStmt($argument);
+            } catch (Unbound $e) {
+                if ($isOptional) {
+                    return false;
+                }
+            }
+        }
+
+        return $args;
     }
 }

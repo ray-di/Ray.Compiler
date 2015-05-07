@@ -171,7 +171,12 @@ class ScriptInjector implements InjectorInterface
      */
     private function loadPointcuts()
     {
-        return  unserialize(file_get_contents($this->scriptDir . '/pointcut.txt'));
+        $pointcuts = $this->scriptDir . '/pointcut.txt';
+        if (! file_exists($pointcuts)) {
+            return false;
+        }
+
+        return  unserialize(file_get_contents($pointcuts));
     }
 
     public function __wakeup()

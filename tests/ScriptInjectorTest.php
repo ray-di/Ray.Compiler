@@ -15,11 +15,14 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->injector = new ScriptInjector($_ENV['TMP_DIR']);
+        clear($_ENV['TMP_DIR']);
         parent::setUp();
     }
 
     public function testGetInstance()
     {
+        $diCompiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
+        $diCompiler->compile();
         $car = $this->injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $car);
 
@@ -57,10 +60,9 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
 
     public function testAop()
     {
-        $classDir =  $_ENV['TMP_DIR'] . '-aop';
-        $compiler = new DiCompiler(new FakeCarModule, $classDir);
+        $compiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
         $compiler->compile();
-        $injector = new ScriptInjector($classDir);
+        $injector = new ScriptInjector($_ENV['TMP_DIR']);
         $instance1 = $injector->getInstance(FakeCarInterface::class);
         $instance2 = $injector->getInstance(FakeCar::class);
         /** @var  $instance3 FakeCar2 */
@@ -94,5 +96,13 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
         $hash1 = spl_object_hash($fakeDependPrototype1->car);
         $hash2 = spl_object_hash($fakeDependPrototype2->car);
         $this->assertNotSame($hash1, $hash2);
+    }
+
+    public function testOptional()
+    {
+        $injector = new ScriptInjector($_ENV['TMP_DIR']);
+        /* @var $optional FakeOptional */
+        $optional = $injector->getInstance(FakeOptional::class);
+        $this->assertNull($optional->robot);
     }
 }
