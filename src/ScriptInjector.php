@@ -175,6 +175,7 @@ class ScriptInjector implements InjectorInterface
         if (! file_exists($pointcuts)) {
             return false;
         }
+
         return  unserialize(file_get_contents($pointcuts));
     }
 

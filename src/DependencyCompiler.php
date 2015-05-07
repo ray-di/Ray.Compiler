@@ -18,6 +18,7 @@ use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\Instance;
+use Ray\Di\SetterMethod;
 
 final class DependencyCompiler
 {
@@ -149,7 +150,7 @@ final class DependencyCompiler
      *
      * @return Node[]
      */
-    private function getFactoryCode($class, array $arguments, array $setterMethods, $postConstruct, $isSingleton)
+    private function getFactoryCode($class, array $arguments, array $setterMethods, $postConstruct)
     {
         $node = [];
         $instance = new Expr\Variable('instance');
@@ -186,6 +187,12 @@ final class DependencyCompiler
         return $constructor;
     }
 
+    /**
+     * @param Expr\Variable  $instance
+     * @param SetterMethod[] $setterMethods
+     *
+     * @return Expr\MethodCall[]
+     */
     private function setterInjection(Expr\Variable $instance, array $setterMethods)
     {
         $setters = [];
@@ -318,8 +325,8 @@ final class DependencyCompiler
     /**
      * Return arguments code for "$singleton" and "$prototype"
      *
-     * @param Argument $argument
-     * @param bool     $isSingleton
+     * @param Argument            $argument
+     * @param DependencyInterface $dependency
      *
      * @return Expr\FuncCall
      */
