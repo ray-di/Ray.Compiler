@@ -117,6 +117,6 @@ EOT;
     public function testDomainException()
     {
         $this->setExpectedException(\DomainException::class);
-        $code = (new DependencyCompiler(new Container))->compile(new FakeInvalidDependency);
+        (new DependencyCompiler(new Container))->compile(new FakeInvalidDependency);
     }
 }
