@@ -14,6 +14,12 @@ class DependencyCompilerTest extends \PHPUnit_Framework_TestCase
      */
     private $dependency;
 
+    protected function setUp()
+    {
+        clear($_ENV['TMP_DIR']);
+        parent::setUp();
+    }
+
     public function testInstanceCompileString()
     {
         $dependencyInstance = new Instance('bear');

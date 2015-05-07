@@ -1,10 +1,12 @@
 <?php
+namespace Ray\Compiler;
 
 /** @var $loader \Composer\Autoload\ClassLoader */
 $loader = require dirname(__DIR__) . '/vendor/autoload.php';
 $_ENV['TMP_DIR'] =  __DIR__ . '/tmp';
 // cleanup
-$clear = function ($dir) {
+function clear($dir)
+{
     $iterator = new \RecursiveIteratorIterator(
         new \RecursiveDirectoryIterator($dir),
         \RecursiveIteratorIterator::SELF_FIRST
@@ -16,5 +18,4 @@ $clear = function ($dir) {
         }
     }
 };
-$clear(__DIR__ . '/tmp');
-$clear(__DIR__ . '/tmp-aop');
+clear(__DIR__ . '/tmp');
