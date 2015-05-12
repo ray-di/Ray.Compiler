@@ -8,7 +8,7 @@
     ],
     "license": "MIT",
     "require-dev": {
-        "ray/di": "~2.1"
+        "ray/di": "~2.0"
     },
     "autoload": {
         "psr-4": {
