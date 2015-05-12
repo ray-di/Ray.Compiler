@@ -183,4 +183,9 @@ class ScriptInjector implements InjectorInterface
     {
         $this->registerLoader();
     }
+
+    public function __sleep()
+    {
+        return ['scriptDir'];
+    }
 }
