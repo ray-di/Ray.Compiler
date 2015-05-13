@@ -18,6 +18,7 @@ use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\Instance;
+use Ray\Di\Name;
 use Ray\Di\SetterMethod;
 
 final class DependencyCompiler
@@ -241,7 +242,7 @@ final class DependencyCompiler
             $items = [];
             foreach ($interceptors as $interceptor) {
                 // $singleton('FakeAopInterface-*');
-                $dependencyIndex = "{$interceptor}-*";
+                $dependencyIndex = "{$interceptor}-" . Name::ANY;
                 $singleton = new Expr\FuncCall(new Expr\Variable('singleton'), [new Node\Arg(new Scalar\String_($dependencyIndex))]);
                 // [$singleton('FakeAopInterface-*'), $singleton('FakeAopInterface-*');]
                 $items[] = new Expr\ArrayItem($singleton);
@@ -263,7 +264,7 @@ final class DependencyCompiler
     private function getArgStmt(Argument $argument)
     {
         $dependencyIndex = (string) $argument;
-        if ($dependencyIndex === 'Ray\Di\InjectionPointInterface-*') {
+        if ($dependencyIndex === 'Ray\Di\InjectionPointInterface-' . Name::ANY) {
             return $this->getInjectionPoint();
         }
         $hasDependency = isset($this->container->getContainer()[$dependencyIndex]);

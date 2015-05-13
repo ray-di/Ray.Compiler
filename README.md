@@ -54,7 +54,7 @@ class Module extends AbstractModule
 $tmpDir = __DIR__ . '/tmp';
 $compiler = new DiCompiler(new Module, $tmpDir);
 $compiler->compile();
-var_dump(file_get_contents($tmpDir . '/__Consumer-*.php'));
+var_dump(file_get_contents($tmpDir . '/__Consumer-.php'));
 ```
 
 *generated code for `Consumer` class*

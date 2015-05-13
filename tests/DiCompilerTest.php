@@ -4,6 +4,7 @@ namespace Ray\Compiler;
 
 use Ray\Aop\WeavedInterface;
 use Ray\Compiler\Exception\NotCompiled;
+use Ray\Di\Name;
 
 class DiCompilerTest extends \PHPUnit_Framework_TestCase
 {
@@ -18,14 +19,15 @@ class DiCompilerTest extends \PHPUnit_Framework_TestCase
     {
         $compiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
         $compiler->compile();
+        $any = Name::ANY;
         $files = [
-            '__Ray_Compiler_FakeCarInterface-*.php',
-            '__Ray_Compiler_FakeEngineInterface-*.php',
-            '__Ray_Compiler_FakeHandleInterface-*.php',
-            '__Ray_Compiler_FakeHardtopInterface-*.php',
+            "__Ray_Compiler_FakeCarInterface-{$any}.php",
+            "__Ray_Compiler_FakeEngineInterface-{$any}.php",
+            "__Ray_Compiler_FakeHandleInterface-{$any}.php",
+            "__Ray_Compiler_FakeHardtopInterface-{$any}.php",
             '__Ray_Compiler_FakeMirrorInterface-right.php',
             '__Ray_Compiler_FakeMirrorInterface-left.php',
-            '__Ray_Compiler_FakeTyreInterface-*.php',
+            "__Ray_Compiler_FakeTyreInterface-{$any}.php",
         ];
         foreach ($files as $file) {
             $filePath = $_ENV['TMP_DIR'] . '/'. $file;
@@ -47,9 +49,10 @@ class DiCompilerTest extends \PHPUnit_Framework_TestCase
     {
         $compiler = new DiCompiler(new FakeAopModule, $_ENV['TMP_DIR']);
         $compiler->compile();
+        $any = Name::ANY;
         $files = [
-            '__Ray_Compiler_FakeAopInterface-*.php',
-            '__Ray_Compiler_FakeDoubleInterceptor-*.php'
+            "__Ray_Compiler_FakeAopInterface-{$any}.php",
+            "__Ray_Compiler_FakeDoubleInterceptor-{$any}.php"
         ];
         foreach ($files as $file) {
             $this->assertFileExists($_ENV['TMP_DIR'] . '/' . $file);
