@@ -6,6 +6,7 @@
  */
 namespace Ray\Compiler;
 
+use Koriym\Printo\Printo;
 use Ray\Di\AbstractModule;
 use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
@@ -84,6 +85,27 @@ final class DiCompiler implements InjectorInterface
             $this->dependencySaver->__invoke($dependencyIndex, $code);
         }
         $this->savePointcuts($this->container);
+    }
+
+    public function dumpGraph()
+    {
+        $container = $this->container->getContainer();
+        foreach ($container as $dependencyIndex => $dependency) {
+            if (! $dependency instanceof DependencyInterface) {
+                continue;
+            }
+            $instance = $dependency->inject($this->container);
+            $graph = (string) (new Printo($instance))
+                ->setRange(Printo::RANGE_PROPERTY)
+                ->setLinkDistance(130)
+                ->setCharge(-500);
+            $graphDir = $this->scriptDir . '/graph/';
+            if (! file_exists($graphDir)) {
+                mkdir($graphDir);
+            }
+            $file = $graphDir . str_replace('\\', '_', $dependencyIndex) . '.html';
+            file_put_contents($file, $graph);
+        }
     }
 
     private function savePointcuts(Container $container)
