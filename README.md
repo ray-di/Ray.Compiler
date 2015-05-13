@@ -94,5 +94,24 @@ var_dump($instance);
 //  public $msg =>
 //  string(11) "hello world"
 //}
+
 ```
+
+## Object graph visualization
+
+Object graph can be visualize with `dumpGraph()`.
+Graph HTML files will be output at `graph` folder under `$tmpDir`.
+
+```php
+$compiler = new DiCompiler(new Module, $tmpDir);
+$compiler->compile();
+$compiler->dumpGraph();
+```
+
+```
+open tmp/graph/Ray_Compiler_FakeCarInterface-.html
+```
+
+
+## Ray.Di
 This **Ray.Compiler** package is a sub component package for [Ray.Di](https://github.com/ray-di/Ray.Di)
