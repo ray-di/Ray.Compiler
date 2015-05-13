@@ -6,6 +6,7 @@ use Ray\Aop\Matcher;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\Instance;
+use Ray\Di\Name;
 
 class DependencyCompilerTest extends \PHPUnit_Framework_TestCase
 {
@@ -59,29 +60,30 @@ EOT;
     public function testDependencyCompile()
     {
         $container = (new FakeCarModule)->getContainer();
-        $dependency = $container->getContainer()['Ray\Compiler\FakeCarInterface-*'];
+        $dependency = $container->getContainer()['Ray\Compiler\FakeCarInterface-' . Name::ANY];
         $code = (new DependencyCompiler($container))->compile($dependency);
-        $expected = <<<'EOT'
+        $expectedTemplate = <<<'EOT'
 <?php
 
 namespace Ray\Di\Compiler;
 
-$instance = new \Ray\Compiler\FakeCar($prototype('Ray\\Compiler\\FakeEngineInterface-*'));
-$instance->setTires($prototype('Ray\\Compiler\\FakeTyreInterface-*'), $prototype('Ray\\Compiler\\FakeTyreInterface-*'), null);
-$instance->setHardtop($prototype('Ray\\Compiler\\FakeHardtopInterface-*'));
+$instance = new \Ray\Compiler\FakeCar($prototype('Ray\\Compiler\\FakeEngineInterface-{ANY}'));
+$instance->setTires($prototype('Ray\\Compiler\\FakeTyreInterface-{ANY}'), $prototype('Ray\\Compiler\\FakeTyreInterface-{ANY}'), null);
+$instance->setHardtop($prototype('Ray\\Compiler\\FakeHardtopInterface-{ANY}'));
 $instance->setMirrors($singleton('Ray\\Compiler\\FakeMirrorInterface-right'), $singleton('Ray\\Compiler\\FakeMirrorInterface-left'));
 $instance->setSpareMirror($singleton('Ray\\Compiler\\FakeMirrorInterface-right'));
-$instance->setHandle($prototype('Ray\\Compiler\\FakeHandleInterface-*', array('Ray\\Compiler\\FakeCar', 'setHandle', 'handle')));
+$instance->setHandle($prototype('Ray\\Compiler\\FakeHandleInterface-{ANY}', array('Ray\\Compiler\\FakeCar', 'setHandle', 'handle')));
 $instance->postConstruct();
 return $instance;
 EOT;
+        $expected = str_replace('{ANY}', Name::ANY, $expectedTemplate);
         $this->assertSame($expected, (string) $code);
     }
 
     public function testDependencyProviderCompile()
     {
         $container = (new FakeCarModule())->getContainer();
-        $dependency = $container->getContainer()['Ray\Compiler\FakeHandleInterface-*'];
+        $dependency = $container->getContainer()['Ray\Compiler\FakeHandleInterface-' . Name::ANY];
         $code = (new DependencyCompiler($container))->compile($dependency);
         $expected = <<<'EOT'
 <?php
