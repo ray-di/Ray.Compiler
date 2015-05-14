@@ -84,4 +84,12 @@ class DiCompilerTest extends \PHPUnit_Framework_TestCase
         $loggerConsumer = $injector->getInstance(FakeLoggerConsumer::class);
         $this->assertSame('Ray\Compiler\FakeLoggerConsumer', $loggerConsumer->logger->name);
     }
+
+    public function testDump()
+    {
+        $compiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
+        $compiler->dumpGraph();
+        $any = Name::ANY;
+        $this->assertFileExists($_ENV['TMP_DIR'] . '/graph/Ray_Compiler_FakeCarInterface-' . $any . '.html');
+    }
 }

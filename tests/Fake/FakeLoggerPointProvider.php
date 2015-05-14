@@ -2,7 +2,6 @@
 
 namespace Ray\Compiler;
 
-use Ray\Di\InjectionPoint;
 use Ray\Di\InjectionPointInterface;
 use Ray\Di\ProviderInterface;
 

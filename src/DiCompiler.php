@@ -6,6 +6,7 @@
  */
 namespace Ray\Compiler;
 
+use Koriym\Printo\Printo;
 use Ray\Di\AbstractModule;
 use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
@@ -84,6 +85,12 @@ final class DiCompiler implements InjectorInterface
             $this->dependencySaver->__invoke($dependencyIndex, $code);
         }
         $this->savePointcuts($this->container);
+    }
+
+    public function dumpGraph()
+    {
+        $dumper = new GraphDumper($this->container, $this->scriptDir);
+        $dumper();
     }
 
     private function savePointcuts(Container $container)

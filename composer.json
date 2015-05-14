@@ -20,5 +20,8 @@
             "Ray\\Compiler\\": "tests/",
             "Ray\\Compiler\\": "tests/Fake"
         }
+    },
+    "require": {
+        "koriym/printo": "~1.0"
     }
 }

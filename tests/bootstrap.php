@@ -18,4 +18,4 @@ function clear($dir)
         }
     }
 };
-clear(__DIR__ . '/tmp');
+clear($_ENV['TMP_DIR']);
