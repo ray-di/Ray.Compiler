@@ -12,11 +12,18 @@ use Koriym\Printo\Printo;
 use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
 use Ray\Di\InjectorInterface;
+use Ray\Di\Name;
 
 class GraphDumper
 {
+    /**
+     * @var Container
+     */
     private $container;
 
+    /**
+     * @var string
+     */
     private $scriptDir;
 
     public function __construct(Container $container, $scriptDir)
@@ -29,23 +36,31 @@ class GraphDumper
     {
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
-            if (!$dependency instanceof DependencyInterface) {
-                continue;
+            $isNorInjector =  $dependencyIndex !== 'Ray\Di\InjectorInterface-' . Name::ANY;
+            if ($dependency instanceof DependencyInterface && $isNorInjector) {
+                $this->write($dependency, $dependencyIndex);
             }
-            $instance = $dependency->inject($this->container);
-            if ($instance instanceof InjectorInterface) {
-                continue;
-            }
-            $graph = (string)(new Printo($instance))
-                ->setRange(Printo::RANGE_ALL)
-                ->setLinkDistance(130)
-                ->setCharge(-500);
-            $graphDir = $this->scriptDir . '/graph/';
-            if (!file_exists($graphDir)) {
-                mkdir($graphDir);
-            }
-            $file = $graphDir . str_replace('\\', '_', $dependencyIndex) . '.html';
-            file_put_contents($file, $graph);
         }
+    }
+
+    /**
+     * Write html
+     *
+     * @param DependencyInterface $dependency
+     * @param string              $dependencyIndex
+     */
+    private function write(DependencyInterface $dependency, $dependencyIndex)
+    {
+        $instance = $dependency->inject($this->container);
+        $graph = (string)(new Printo($instance))
+            ->setRange(Printo::RANGE_ALL)
+            ->setLinkDistance(130)
+            ->setCharge(-500);
+        $graphDir = $this->scriptDir . '/graph/';
+        if (!file_exists($graphDir)) {
+            mkdir($graphDir);
+        }
+        $file = $graphDir . str_replace('\\', '_', $dependencyIndex) . '.html';
+        file_put_contents($file, $graph);
     }
 }
