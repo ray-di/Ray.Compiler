@@ -89,6 +89,7 @@ class DiCompilerTest extends \PHPUnit_Framework_TestCase
     {
         $compiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
         $compiler->dumpGraph();
-        $this->assertFileExists($_ENV['TMP_DIR'] . '/graph/Ray_Compiler_FakeCarInterface-.html');
+        $any = Name::ANY;
+        $this->assertFileExists($_ENV['TMP_DIR'] . '/graph/Ray_Compiler_FakeCarInterface-' . $any . '.html');
     }
 }
