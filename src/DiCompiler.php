@@ -89,23 +89,8 @@ final class DiCompiler implements InjectorInterface
 
     public function dumpGraph()
     {
-        $container = $this->container->getContainer();
-        foreach ($container as $dependencyIndex => $dependency) {
-            if (! $dependency instanceof DependencyInterface) {
-                continue;
-            }
-            $instance = $dependency->inject($this->container);
-            $graph = (string) (new Printo($instance))
-                ->setRange(Printo::RANGE_PROPERTY)
-                ->setLinkDistance(130)
-                ->setCharge(-500);
-            $graphDir = $this->scriptDir . '/graph/';
-            if (! file_exists($graphDir)) {
-                mkdir($graphDir);
-            }
-            $file = $graphDir . str_replace('\\', '_', $dependencyIndex) . '.html';
-            file_put_contents($file, $graph);
-        }
+        $dumper = new GraphDumper($this->container, $this->scriptDir);
+        $dumper();
     }
 
     private function savePointcuts(Container $container)
