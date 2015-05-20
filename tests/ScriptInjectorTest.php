@@ -3,7 +3,9 @@
 namespace Ray\Compiler;
 
 use Ray\Aop\WeavedInterface;
+use Ray\Di\EmptyModule;
 use Ray\Di\Exception\Unbound;
+use Ray\Di\InjectorInterface;
 
 class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
 {
@@ -104,5 +106,24 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
         /* @var $optional FakeOptional */
         $optional = $injector->getInstance(FakeOptional::class);
         $this->assertNull($optional->robot);
+    }
+
+    public function testDependInjector()
+    {
+        $diCompiler = new DiCompiler(new EmptyModule, $_ENV['TMP_DIR']);
+        $diCompiler->compile();
+        $factory = $diCompiler->getInstance(FakeFactory::class);
+        $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
+        /* @var $optional FakeFactory */
+        $injector = new ScriptInjector($_ENV['TMP_DIR']);
+        $factory = $injector->getInstance(FakeFactory::class);
+        $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
+    }
+
+    public function testUnbound()
+    {
+        $this->setExpectedException(Unbound::class);
+        $injector = new ScriptInjector($_ENV['TMP_DIR']);
+        $injector->getInstance(FakeFactory::class);
     }
 }

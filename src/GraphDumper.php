@@ -11,7 +11,6 @@ namespace Ray\Compiler;
 use Koriym\Printo\Printo;
 use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
-use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
 class GraphDumper
@@ -26,6 +25,10 @@ class GraphDumper
      */
     private $scriptDir;
 
+    /**
+     * @param Container $container
+     * @param string    $scriptDir
+     */
     public function __construct(Container $container, $scriptDir)
     {
         $this->container = $container;
@@ -52,7 +55,7 @@ class GraphDumper
     private function write(DependencyInterface $dependency, $dependencyIndex)
     {
         $instance = $dependency->inject($this->container);
-        $graph = (string)(new Printo($instance))
+        $graph = (string) (new Printo($instance))
             ->setRange(Printo::RANGE_ALL)
             ->setLinkDistance(130)
             ->setCharge(-500);

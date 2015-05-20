@@ -6,10 +6,8 @@
  */
 namespace Ray\Compiler;
 
-use Koriym\Printo\Printo;
 use Ray\Di\AbstractModule;
 use Ray\Di\Container;
-use Ray\Di\DependencyInterface;
 use Ray\Di\Injector;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
@@ -78,9 +76,6 @@ final class DiCompiler implements InjectorInterface
     {
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
-            if (! $dependency instanceof DependencyInterface) {
-                continue;
-            }
             $code = $this->dependencyCompiler->compile($dependency);
             $this->dependencySaver->__invoke($dependencyIndex, $code);
         }

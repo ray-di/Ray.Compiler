@@ -10,6 +10,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Stmt;
+use Ray\Aop\Interceptor;
 use Ray\Compiler\Exception\NotCompiled;
 use Ray\Di\Argument;
 use Ray\Di\Container;
@@ -237,19 +238,7 @@ final class DependencyCompiler
         if (! $bindings || ! is_array($bindings)) {
             return;
         }
-        $methodBinding = [];
-        foreach ($bindings as $method => $interceptors) {
-            $items = [];
-            foreach ($interceptors as $interceptor) {
-                // $singleton('FakeAopInterface-*');
-                $dependencyIndex = "{$interceptor}-" . Name::ANY;
-                $singleton = new Expr\FuncCall(new Expr\Variable('singleton'), [new Node\Arg(new Scalar\String_($dependencyIndex))]);
-                // [$singleton('FakeAopInterface-*'), $singleton('FakeAopInterface-*');]
-                $items[] = new Expr\ArrayItem($singleton);
-            }
-            $arr = new Expr\Array_($items);
-            $methodBinding[] = new Expr\ArrayItem($arr, new Scalar\String_($method));
-        }
+        $methodBinding = $this->getMethodBinding($bindings);
         $bindingsProp = new Expr\PropertyFetch(new Expr\Variable('instance'), 'bindings');
         $node[] = new Expr\Assign($bindingsProp, new Expr\Array_($methodBinding));
     }
@@ -438,5 +427,29 @@ final class DependencyCompiler
         }
 
         return $args;
+    }
+
+    /**
+     * @param Interceptor[] $bindings
+     *
+     * @return Expr\ArrayItem[]
+     */
+    private function getMethodBinding($bindings)
+    {
+        $methodBinding = [];
+        foreach ($bindings as $method => $interceptors) {
+            $items = [];
+            foreach ($interceptors as $interceptor) {
+                // $singleton('FakeAopInterface-*');
+                $dependencyIndex = "{$interceptor}-" . Name::ANY;
+                $singleton = new Expr\FuncCall(new Expr\Variable('singleton'), [new Node\Arg(new Scalar\String_($dependencyIndex))]);
+                // [$singleton('FakeAopInterface-*'), $singleton('FakeAopInterface-*');]
+                $items[] = new Expr\ArrayItem($singleton);
+            }
+            $arr = new Expr\Array_($items);
+            $methodBinding[] = new Expr\ArrayItem($arr, new Scalar\String_($method));
+        }
+
+        return $methodBinding;
     }
 }
