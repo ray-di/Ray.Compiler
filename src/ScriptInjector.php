@@ -104,9 +104,6 @@ class ScriptInjector implements InjectorInterface
      */
     private function getScriptInstance($dependencyIndex)
     {
-        if ($dependencyIndex === 'Ray\Di\InjectorInterface-*') {
-            return $this;
-        }
         $file = sprintf('%s/__%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
         if (! file_exists($file)) {
             return $this->onDemandCompile($dependencyIndex);
