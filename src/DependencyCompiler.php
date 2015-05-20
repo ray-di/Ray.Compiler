@@ -11,16 +11,13 @@ use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Stmt;
 use Ray\Aop\Interceptor;
-use Ray\Compiler\Exception\NotCompiled;
 use Ray\Di\Argument;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
-use Ray\Di\Exception\Unbound;
 use Ray\Di\Instance;
 use Ray\Di\Name;
-use Ray\Di\SetterMethod;
 
 final class DependencyCompiler
 {
@@ -44,12 +41,18 @@ final class DependencyCompiler
      */
     private $normalizer;
 
+    /**
+     * @var FactoryCompiler
+     */
+    private $factoryCompiler;
+
     public function __construct(Container $container, ScriptInjector $injector = null)
     {
         $this->factory = new \PhpParser\BuilderFactory;
         $this->container = $container;
         $this->normalizer = new Normalizer;
         $this->injector = $injector;
+        $this->factoryCompiler = new FactoryCompiler($container, new Normalizer, $this, $injector);
     }
 
     /**
@@ -70,6 +73,25 @@ final class DependencyCompiler
         }
 
         throw new \DomainException(get_class($dependency));
+    }
+
+    /**
+     * Return arguments code for "$singleton" and "$prototype"
+     *
+     * @param Argument            $argument
+     * @param DependencyInterface $dependency
+     *
+     * @return Expr\FuncCall
+     */
+    public function getPullDependency(Argument $argument, DependencyInterface $dependency)
+    {
+        $isSingleton = $this->getPrivateProperty($dependency, 'isSingleton');
+        $func = $isSingleton ? 'singleton' : 'prototype';
+        $args = $this->getInjectionFuncParams($argument);
+
+        $node = new Expr\FuncCall(new Expr\Variable($func), $args);
+
+        return $node;
     }
 
     /**
@@ -141,85 +163,7 @@ final class DependencyCompiler
         $postConstruct = $this->getPrivateProperty($dependency, 'postConstruct');
         $isSingleton = $this->getPrivateProperty($dependency, 'isSingleton');
 
-        return $this->getFactoryCode($class, $arguments, $setterMethods, $postConstruct, $isSingleton);
-    }
-
-    /**
-     * @param string $class
-     * @param array  $arguments
-     * @param array  $setterMethods
-     * @param string $postConstruct
-     *
-     * @return Node[]
-     */
-    private function getFactoryCode($class, array $arguments, array $setterMethods, $postConstruct)
-    {
-        $node = [];
-        $instance = new Expr\Variable('instance');
-        // constructor injection
-        $constructorInjection =  $this->constructorInjection($class, $arguments);
-        $node[] = new Expr\Assign($instance, $constructorInjection);
-        $setters = $this->setterInjection($instance, $setterMethods);
-        foreach ($setters as $setter) {
-            $node[] = $setter;
-        }
-        if ($postConstruct) {
-            $node[] = $this->postConstruct($instance, $postConstruct);
-        }
-
-        return $node;
-    }
-
-    /**
-     * @param string $class
-     * @param array  $arguments
-     *
-     * @return Expr\New_
-     */
-    private function constructorInjection($class, array $arguments = [])
-    {
-        /* @var $arguments Argument[] */
-        $args = [];
-        foreach ($arguments as $argument) {
-            //            $argument = $argument->isDefaultAvailable() ? $argument->getDefaultValue() : $argument;
-            $args[] = $this->getArgStmt($argument);
-        }
-        $constructor = new Expr\New_(new Node\Name\FullyQualified($class), $args);
-
-        return $constructor;
-    }
-
-    /**
-     * @param Expr\Variable  $instance
-     * @param SetterMethod[] $setterMethods
-     *
-     * @return Expr\MethodCall[]
-     */
-    private function setterInjection(Expr\Variable $instance, array $setterMethods)
-    {
-        $setters = [];
-        foreach ($setterMethods as $setterMethod) {
-            $isOptional = $this->getPrivateProperty($setterMethod, 'isOptional');
-            $method = $this->getPrivateProperty($setterMethod, 'method');
-            $argumentsObject = $this->getPrivateProperty($setterMethod, 'arguments');
-            $arguments = $this->getPrivateProperty($argumentsObject, 'arguments');
-            $args = $this->getSetterParams($arguments, $isOptional);
-            if (! $args) {
-                continue;
-            }
-            $setters[] = new Expr\MethodCall($instance, $method, $args);
-        }
-
-        return $setters;
-    }
-
-    /**
-     * @param Expr\Variable $instance
-     * @param string        $postConstruct
-     */
-    private function postConstruct(Expr\Variable $instance, $postConstruct)
-    {
-        return new Expr\MethodCall($instance, $postConstruct);
+        return $this->factoryCompiler->getFactoryCode($class, $arguments, $setterMethods, $postConstruct, $isSingleton);
     }
 
     /**
@@ -241,104 +185,6 @@ final class DependencyCompiler
         $methodBinding = $this->getMethodBinding($bindings);
         $bindingsProp = new Expr\PropertyFetch(new Expr\Variable('instance'), 'bindings');
         $node[] = new Expr\Assign($bindingsProp, new Expr\Array_($methodBinding));
-    }
-
-    /**
-     * Return method argument code
-     *
-     * @param Argument $argument
-     *
-     * @return Expr|Expr\FuncCall
-     */
-    private function getArgStmt(Argument $argument)
-    {
-        $dependencyIndex = (string) $argument;
-        if ($dependencyIndex === 'Ray\Di\InjectionPointInterface-' . Name::ANY) {
-            return $this->getInjectionPoint();
-        }
-        $hasDependency = isset($this->container->getContainer()[$dependencyIndex]);
-        if (! $hasDependency) {
-            return $this->getOnDemandDependency($argument);
-        }
-        $dependency = $this->container->getContainer()[$dependencyIndex];
-        if ($dependency instanceof Instance) {
-            return $this->normalizer->normalizeValue($dependency->value);
-        }
-
-        return $this->getPullDependency($argument, $dependency);
-    }
-
-    /**
-     * Return on-demand dependency pull code for not compiled
-     *
-     * @param Argument $argument
-     *
-     * @return Expr|Expr\FuncCall
-     */
-    private function getOnDemandDependency(Argument $argument)
-    {
-        $dependencyIndex = (string) $argument;
-        if (! $this->injector instanceof ScriptInjector) {
-            return $this->getDefault($argument);
-        }
-        try {
-            $isSingleton = $this->injector->isSingleton($dependencyIndex);
-        } catch (NotCompiled $e) {
-            return $this->getDefault($argument);
-        }
-        $func = $isSingleton ? 'singleton' : 'prototype';
-        $args = $this->getInjectionProviderParams($argument);
-        $node = new Expr\FuncCall(new Expr\Variable($func), $args);
-
-        return $node;
-    }
-
-    /**
-     * Return default argument value
-     *
-     * @param Argument $argument
-     *
-     * @return Expr
-     */
-    private function getDefault(Argument $argument)
-    {
-        if ($argument->isDefaultAvailable()) {
-            $default = $argument->getDefaultValue();
-            $node = $this->normalizer->normalizeValue($default);
-
-            return $node;
-        }
-
-        throw new Unbound((string) $argument);
-    }
-
-    /**
-     * Return arguments code for "$singleton" and "$prototype"
-     *
-     * @param Argument            $argument
-     * @param DependencyInterface $dependency
-     *
-     * @return Expr\FuncCall
-     */
-    private function getPullDependency(Argument $argument, DependencyInterface $dependency)
-    {
-        $isSingleton = $this->getPrivateProperty($dependency, 'isSingleton');
-        $func = $isSingleton ? 'singleton' : 'prototype';
-        $args = $this->getInjectionFuncParams($argument);
-
-        $node = new Expr\FuncCall(new Expr\Variable($func), $args);
-
-        return $node;
-    }
-
-    /**
-     * Return "$injection_point()"
-     *
-     * @return Expr\FuncCall
-     */
-    private function getInjectionPoint()
-    {
-        return new Expr\FuncCall(new Expr\Variable('injection_point'));
     }
 
     /**
@@ -401,32 +247,6 @@ final class DependencyCompiler
         $value = $refProp->getValue($object);
 
         return $value;
-    }
-
-    /**
-     * Return setter method parameters
-     *
-     * Return false when no dependency given and @ Inject(optional=true) annotated to setter method.
-     *
-     * @param Argument[] $arguments
-     * @param bool       $isOptional
-     *
-     * @return Node\Arg[]
-     */
-    private function getSetterParams($arguments, $isOptional)
-    {
-        $args = [];
-        foreach ($arguments as $argument) {
-            try {
-                $args[] = $this->getArgStmt($argument);
-            } catch (Unbound $e) {
-                if ($isOptional) {
-                    return false;
-                }
-            }
-        }
-
-        return $args;
     }
 
     /**
