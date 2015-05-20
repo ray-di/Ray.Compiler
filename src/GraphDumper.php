@@ -11,7 +11,6 @@ namespace Ray\Compiler;
 use Koriym\Printo\Printo;
 use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
-use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
 class GraphDumper

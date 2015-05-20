@@ -13,7 +13,6 @@ use Ray\Compiler\Exception\NotCompiled;
 use Ray\Di\Bind;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
-use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectionPoint;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
