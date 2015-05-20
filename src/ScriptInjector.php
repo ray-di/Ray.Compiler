@@ -163,11 +163,8 @@ class ScriptInjector implements InjectorInterface
         }
         $code = (new DependencyCompiler(new Container, $this))->compile($dependency);
         (new DependencySaver($this->scriptDir))->__invoke($dependencyIndex, $code);
-        try {
-            return $this->getScriptInstance($dependencyIndex);
-        } catch (Unbound $e) {
-            throw new NotCompiled($class, 500, $e);
-        }
+
+        return $this->getScriptInstance($dependencyIndex);
     }
 
     /**

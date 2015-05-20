@@ -119,4 +119,11 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
         $factory = $injector->getInstance(FakeFactory::class);
         $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
     }
+
+    public function testUnbound()
+    {
+        $this->setExpectedException(Unbound::class);
+        $injector = new ScriptInjector($_ENV['TMP_DIR']);
+        $injector->getInstance(FakeFactory::class);
+    }
 }
