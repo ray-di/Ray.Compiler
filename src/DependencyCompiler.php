@@ -10,14 +10,12 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Stmt;
-use Ray\Aop\Interceptor;
 use Ray\Di\Argument;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 use Ray\Di\Instance;
-use Ray\Di\Name;
 
 final class DependencyCompiler
 {
@@ -46,6 +44,16 @@ final class DependencyCompiler
      */
     private $factoryCompiler;
 
+    /**
+     * @var PrivateProperty
+     */
+    private $privateProperty;
+
+    /**
+     * @var AopCode
+     */
+    private $aopCode;
+
     public function __construct(Container $container, ScriptInjector $injector = null)
     {
         $this->factory = new \PhpParser\BuilderFactory;
@@ -53,6 +61,8 @@ final class DependencyCompiler
         $this->normalizer = new Normalizer;
         $this->injector = $injector;
         $this->factoryCompiler = new FactoryCompiler($container, new Normalizer, $this, $injector);
+        $this->privateProperty = new PrivateProperty;
+        $this->aopCode = new AopCode($this->privateProperty);
     }
 
     /**
@@ -85,7 +95,8 @@ final class DependencyCompiler
      */
     public function getPullDependency(Argument $argument, DependencyInterface $dependency)
     {
-        $isSingleton = $this->getPrivateProperty($dependency, 'isSingleton');
+        $prop = $this->privateProperty;
+        $isSingleton = $prop($dependency, 'isSingleton');
         $func = $isSingleton ? 'singleton' : 'prototype';
         $args = $this->getInjectionFuncParams($argument);
 
@@ -117,11 +128,12 @@ final class DependencyCompiler
      */
     private function compileDependency(Dependency $dependency)
     {
+        $prop = $this->privateProperty;
         $node = $this->getFactoryNode($dependency);
-        $this->getAopCode($dependency, $node);
+        $this->aopCode->__invoke($dependency, $node);
         $node[] = new Node\Stmt\Return_(new Node\Expr\Variable('instance'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
-        $isSingleton = $this->getPrivateProperty($dependency, 'isSingleton');
+        $isSingleton = $prop($dependency, 'isSingleton');
 
         return new Code($node, $isSingleton);
     }
@@ -135,11 +147,12 @@ final class DependencyCompiler
      */
     private function compileDependencyProvider(DependencyProvider $provider)
     {
-        $dependency = $this->getPrivateProperty($provider, 'dependency');
+        $prop = $this->privateProperty;
+        $dependency = $prop($provider, 'dependency');
         $node = $this->getFactoryNode($dependency);
         $node[] = new Stmt\Return_(new Expr\MethodCall(new Expr\Variable('instance'), 'get'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
-        $isSingleton = $this->getPrivateProperty($provider, 'isSingleton');
+        $isSingleton = $prop($provider, 'isSingleton');
 
         return new Code($node, $isSingleton);
     }
@@ -155,36 +168,16 @@ final class DependencyCompiler
      */
     private function getFactoryNode(DependencyInterface $dependency)
     {
-        $newInstance = $this->getPrivateProperty($dependency, 'newInstance');
+        $prop = $this->privateProperty;
+        $newInstance = $prop($dependency, 'newInstance');
         // class name
-        $class = $this->getPrivateProperty($newInstance, 'class');
-        $setterMethods = (array) $this->getPrivateProperty($this->getPrivateProperty($newInstance, 'setterMethods'), 'setterMethods');
-        $arguments = (array) $this->getPrivateProperty($this->getPrivateProperty($newInstance, 'arguments'), 'arguments');
-        $postConstruct = $this->getPrivateProperty($dependency, 'postConstruct');
-        $isSingleton = $this->getPrivateProperty($dependency, 'isSingleton');
+        $class = $prop($newInstance, 'class');
+        $setterMethods = (array) $prop($prop($newInstance, 'setterMethods'), 'setterMethods');
+        $arguments = (array) $prop($prop($newInstance, 'arguments'), 'arguments');
+        $postConstruct = $prop($dependency, 'postConstruct');
+        $isSingleton = $prop($dependency, 'isSingleton');
 
         return $this->factoryCompiler->getFactoryCode($class, $arguments, $setterMethods, $postConstruct, $isSingleton);
-    }
-
-    /**
-     * Add aop factory code if bindings are given
-     *
-     * @param Dependency $dependency
-     * @param array      $node
-     */
-    private function getAopCode(Dependency $dependency, array &$node)
-    {
-        $newInstance = $this->getPrivateProperty($dependency, 'newInstance');
-        $bind = $this->getPrivateProperty($newInstance, 'bind');
-        $bind = $this->getPrivateProperty($bind, 'bind');
-        /** @var array $bindings */
-        $bindings = $this->getPrivateProperty($bind, 'bindings', null);
-        if (! $bindings || ! is_array($bindings)) {
-            return;
-        }
-        $methodBinding = $this->getMethodBinding($bindings);
-        $bindingsProp = new Expr\PropertyFetch(new Expr\Variable('instance'), 'bindings');
-        $node[] = new Expr\Assign($bindingsProp, new Expr\Array_($methodBinding));
     }
 
     /**
@@ -227,49 +220,5 @@ final class DependencyCompiler
                 new Node\Arg(new Scalar\String_($param->name))
             ])
         ];
-    }
-
-    /**
-     * @param object $object
-     * @param string $prop
-     * @param mixed  $default
-     *
-     * @return mixed|null
-     */
-    private function getPrivateProperty($object, $prop, $default = null)
-    {
-        try {
-            $refProp = (new \ReflectionProperty($object, $prop));
-        } catch (\Exception $e) {
-            return $default;
-        }
-        $refProp->setAccessible(true);
-        $value = $refProp->getValue($object);
-
-        return $value;
-    }
-
-    /**
-     * @param Interceptor[] $bindings
-     *
-     * @return Expr\ArrayItem[]
-     */
-    private function getMethodBinding($bindings)
-    {
-        $methodBinding = [];
-        foreach ($bindings as $method => $interceptors) {
-            $items = [];
-            foreach ($interceptors as $interceptor) {
-                // $singleton('FakeAopInterface-*');
-                $dependencyIndex = "{$interceptor}-" . Name::ANY;
-                $singleton = new Expr\FuncCall(new Expr\Variable('singleton'), [new Node\Arg(new Scalar\String_($dependencyIndex))]);
-                // [$singleton('FakeAopInterface-*'), $singleton('FakeAopInterface-*');]
-                $items[] = new Expr\ArrayItem($singleton);
-            }
-            $arr = new Expr\Array_($items);
-            $methodBinding[] = new Expr\ArrayItem($arr, new Scalar\String_($method));
-        }
-
-        return $methodBinding;
     }
 }

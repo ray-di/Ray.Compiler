@@ -17,7 +17,7 @@ use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\SetterMethod;
 
-class OnDemandDependencyCompiler
+final class OnDemandDependencyCompiler
 {
     /**
      * @var InjectorInterface
@@ -34,6 +34,11 @@ class OnDemandDependencyCompiler
      */
     private $factoryCompiler;
 
+    /**
+     * @var PrivateProperty
+     */
+    private $privateProperty;
+
     public function __construct(
         Normalizer $normalizer,
         FactoryCompiler $factoryCompiler,
@@ -42,6 +47,7 @@ class OnDemandDependencyCompiler
         $this->injector = $injector;
         $this->normalizer = $normalizer;
         $this->factoryCompiler = $factoryCompiler;
+        $this->privateProperty = new PrivateProperty;
     }
 
     /**
@@ -98,10 +104,10 @@ class OnDemandDependencyCompiler
     {
         $setters = [];
         foreach ($setterMethods as $setterMethod) {
-            $isOptional = $this->getPrivateProperty($setterMethod, 'isOptional');
-            $method = $this->getPrivateProperty($setterMethod, 'method');
-            $argumentsObject = $this->getPrivateProperty($setterMethod, 'arguments');
-            $arguments = $this->getPrivateProperty($argumentsObject, 'arguments');
+            $isOptional = $this->privateProperty->__invoke($setterMethod, 'isOptional');
+            $method = $this->privateProperty->__invoke($setterMethod, 'method');
+            $argumentsObject = $this->privateProperty->__invoke($setterMethod, 'arguments');
+            $arguments = $this->privateProperty->__invoke($argumentsObject, 'arguments');
             $args = $this->getSetterParams($arguments, $isOptional);
             if (! $args) {
                 continue;
