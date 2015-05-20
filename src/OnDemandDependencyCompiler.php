@@ -128,26 +128,6 @@ final class OnDemandDependencyCompiler
     }
 
     /**
-     * @param object $object
-     * @param string $prop
-     * @param mixed  $default
-     *
-     * @return mixed|null
-     */
-    private function getPrivateProperty($object, $prop, $default = null)
-    {
-        try {
-            $refProp = (new \ReflectionProperty($object, $prop));
-        } catch (\Exception $e) {
-            return $default;
-        }
-        $refProp->setAccessible(true);
-        $value = $refProp->getValue($object);
-
-        return $value;
-    }
-
-    /**
      * Return code for provider
      *
      * "$provider" needs [class, method, parameter] for InjectionPoint (Contextual Dependency Injection)
