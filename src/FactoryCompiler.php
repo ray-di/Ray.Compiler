@@ -15,7 +15,7 @@ use Ray\Di\InjectorInterface;
 use Ray\Di\Instance;
 use Ray\Di\Name;
 
-class FactoryCompiler
+final class FactoryCompiler
 {
     /**
      * @var Container

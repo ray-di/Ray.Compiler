@@ -13,7 +13,7 @@ use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
 use Ray\Di\Name;
 
-class GraphDumper
+final class GraphDumper
 {
     /**
      * @var Container

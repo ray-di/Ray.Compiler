@@ -19,7 +19,7 @@ use Ray\Di\InjectorInterface;
 /**
  * Value to code(Node) converter
  */
-class Normalizer
+final class Normalizer
 {
     /**
      * Normalizes a value: Converts nulls, booleans, integers,
