@@ -25,6 +25,10 @@ class GraphDumper
      */
     private $scriptDir;
 
+    /**
+     * @param Container $container
+     * @param string    $scriptDir
+     */
     public function __construct(Container $container, $scriptDir)
     {
         $this->container = $container;
