@@ -8,7 +8,8 @@ class FakeFactory implements FakeCarInterface
 {
     public $injector;
 
-    public function __construct(InjectorInterface $injector) {
+    public function __construct(InjectorInterface $injector)
+    {
         $this->injector = $injector;
     }
 }

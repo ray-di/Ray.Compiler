@@ -51,7 +51,7 @@ class GraphDumper
     private function write(DependencyInterface $dependency, $dependencyIndex)
     {
         $instance = $dependency->inject($this->container);
-        $graph = (string)(new Printo($instance))
+        $graph = (string) (new Printo($instance))
             ->setRange(Printo::RANGE_ALL)
             ->setLinkDistance(130)
             ->setCharge(-500);

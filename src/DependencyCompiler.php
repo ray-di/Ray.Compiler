@@ -449,6 +449,7 @@ final class DependencyCompiler
             $arr = new Expr\Array_($items);
             $methodBinding[] = new Expr\ArrayItem($arr, new Scalar\String_($method));
         }
+
         return $methodBinding;
     }
 }
