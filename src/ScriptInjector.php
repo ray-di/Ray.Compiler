@@ -8,7 +8,6 @@ namespace Ray\Compiler;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Ray\Aop\Compiler;
-use Ray\Aop\Pointcut;
 use Ray\Compiler\Exception\NotCompiled;
 use Ray\Di\Bind;
 use Ray\Di\Container;
@@ -169,7 +168,7 @@ class ScriptInjector implements InjectorInterface
     }
 
     /**
-     * @return Pointcut
+     * @return array|false
      */
     private function loadPointcuts()
     {

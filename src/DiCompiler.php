@@ -40,6 +40,11 @@ final class DiCompiler implements InjectorInterface
     private $module;
 
     /**
+     * @var DependencySaver
+     */
+    private $dependencySaver;
+
+    /**
      * @param AbstractModule $module
      * @param string         $scriptDir
      */

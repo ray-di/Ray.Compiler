@@ -37,6 +37,9 @@ final class FactoryCompiler
      */
     private $compiler;
 
+    /**
+     * @var OnDemandDependencyCompiler
+     */
     private $onDemandDependencyCompiler;
 
     public function __construct(

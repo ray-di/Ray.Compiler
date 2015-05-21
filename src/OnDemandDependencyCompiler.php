@@ -121,6 +121,8 @@ final class OnDemandDependencyCompiler
     /**
      * @param Expr\Variable $instance
      * @param string        $postConstruct
+     *
+     * @return Expr\MethodCall
      */
     public function postConstruct(Expr\Variable $instance, $postConstruct)
     {
