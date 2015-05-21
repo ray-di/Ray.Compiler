@@ -17,7 +17,7 @@ use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\SetterMethod;
 
-final class OnDemandDependencyCompiler
+final class OnDemandCompiler
 {
     /**
      * @var InjectorInterface

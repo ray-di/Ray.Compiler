@@ -38,7 +38,7 @@ final class FactoryCompiler
     private $compiler;
 
     /**
-     * @var OnDemandDependencyCompiler
+     * @var OnDemandCompiler
      */
     private $onDemandDependencyCompiler;
 
@@ -56,7 +56,7 @@ final class FactoryCompiler
         $this->container = $container;
         $this->normalizer = $normalizer;
         $this->injector = $injector;
-        $this->onDemandDependencyCompiler = new OnDemandDependencyCompiler($normalizer, $this, $injector);
+        $this->onDemandDependencyCompiler = new OnDemandCompiler($normalizer, $this, $injector);
         $this->functionCompiler = new FunctionCompiler($container, new PrivateProperty);
     }
 
