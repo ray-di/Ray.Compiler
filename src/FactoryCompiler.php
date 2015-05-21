@@ -105,7 +105,7 @@ final class FactoryCompiler
         }
         $dependency = $this->container->getContainer()[$dependencyIndex];
         if ($dependency instanceof Instance) {
-            return $this->normalizer->normalizeValue($dependency->value);
+            return $this->normalizer->__invoke($dependency->value);
         }
 
         return $this->functionCompiler->__invoke($argument, $dependency);

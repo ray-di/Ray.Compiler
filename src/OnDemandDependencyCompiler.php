@@ -86,7 +86,7 @@ final class OnDemandDependencyCompiler
     {
         if ($argument->isDefaultAvailable()) {
             $default = $argument->getDefaultValue();
-            $node = $this->normalizer->normalizeValue($default);
+            $node = $this->normalizer->__invoke($default);
 
             return $node;
         }

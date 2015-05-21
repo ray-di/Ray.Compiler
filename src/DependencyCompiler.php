@@ -11,7 +11,6 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Stmt;
-use Ray\Di\Argument;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
@@ -95,7 +94,7 @@ final class DependencyCompiler
      */
     private function compileInstance(Instance $instance)
     {
-        $node = $this->normalizer->normalizeValue($instance->value);
+        $node = $this->normalizer->__invoke($instance->value);
 
         return new Code(new Node\Stmt\Return_($node), false);
     }
