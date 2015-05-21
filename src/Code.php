@@ -6,8 +6,8 @@
  */
 namespace Ray\Compiler;
 
+use PhpParser\PrettyPrinter\Standard;
 use PhpParser\Node;
-use \PhpParser\PrettyPrinter\Standard;
 
 final class Code
 {
