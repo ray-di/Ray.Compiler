@@ -42,6 +42,11 @@ final class FactoryCompiler
      */
     private $onDemandDependencyCompiler;
 
+    /**
+     * @var FunctionCompiler
+     */
+    private $functionCompiler;
+
     public function __construct(
         Container $container,
         Normalizer $normalizer,
@@ -50,9 +55,9 @@ final class FactoryCompiler
     ) {
         $this->container = $container;
         $this->normalizer = $normalizer;
-        $this->compiler = $compiler;
         $this->injector = $injector;
         $this->onDemandDependencyCompiler = new OnDemandDependencyCompiler($normalizer, $this, $injector);
+        $this->functionCompiler = new FunctionCompiler($container, new PrivateProperty);
     }
 
     /**
@@ -103,7 +108,7 @@ final class FactoryCompiler
             return $this->normalizer->normalizeValue($dependency->value);
         }
 
-        return $this->compiler->getPullDependency($argument, $dependency);
+        return $this->functionCompiler->__invoke($argument, $dependency);
     }
 
     /**

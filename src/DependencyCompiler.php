@@ -87,26 +87,6 @@ final class DependencyCompiler
     }
 
     /**
-     * Return arguments code for "$singleton" and "$prototype"
-     *
-     * @param Argument            $argument
-     * @param DependencyInterface $dependency
-     *
-     * @return Expr\FuncCall
-     */
-    public function getPullDependency(Argument $argument, DependencyInterface $dependency)
-    {
-        $prop = $this->privateProperty;
-        $isSingleton = $prop($dependency, 'isSingleton');
-        $func = $isSingleton ? 'singleton' : 'prototype';
-        $args = $this->getInjectionFuncParams($argument);
-
-        $node = new Expr\FuncCall(new Expr\Variable($func), $args);
-
-        return $node;
-    }
-
-    /**
      * Compile DependencyInstance
      *
      * @param Instance $instance
@@ -178,47 +158,5 @@ final class DependencyCompiler
         $postConstruct = $prop($dependency, 'postConstruct');
 
         return $this->factoryCompiler->getFactoryCode($class, $arguments, $setterMethods, $postConstruct);
-    }
-
-    /**
-     * Return dependency index argument
-     *
-     * [class, method, param] is added if dependency is provider for DI context
-     *
-     * @param Argument $argument
-     *
-     * @return array
-     */
-    private function getInjectionFuncParams(Argument $argument)
-    {
-        $dependencyIndex = (string) $argument;
-        if ($this->container->getContainer()[$dependencyIndex] instanceof DependencyProvider) {
-            return $this->getInjectionProviderParams($argument);
-        }
-
-        return [new Node\Arg(new Scalar\String_((string) $argument))];
-    }
-
-    /**
-     * Return code for provider
-     *
-     * "$provider" needs [class, method, parameter] for InjectionPoint (Contextual Dependency Injection)
-     *
-     * @param Argument $argument
-     *
-     * @return array
-     */
-    private function getInjectionProviderParams(Argument $argument)
-    {
-        $param = $argument->get();
-
-        return [
-            new Node\Arg(new Scalar\String_((string) $argument)),
-            new Expr\Array_([
-                new Node\Arg(new Scalar\String_($param->getDeclaringClass()->name)),
-                new Node\Arg(new Scalar\String_($param->getDeclaringFunction()->name)),
-                new Node\Arg(new Scalar\String_($param->name))
-            ])
-        ];
     }
 }
