@@ -19,7 +19,7 @@ use Ray\Di\InjectorInterface;
 /**
  * Value to code(Node) converter
  */
-class Normalizer
+final class Normalizer
 {
     /**
      * Normalizes a value: Converts nulls, booleans, integers,
@@ -31,7 +31,7 @@ class Normalizer
      *
      * @codeCoverageIgnore
      */
-    public function normalizeValue($value)
+    public function __invoke($value)
     {
         if ($value instanceof Node) {
             return $value;
@@ -56,13 +56,13 @@ class Normalizer
                 // for consecutive, numeric keys don't generate keys
                 if (null !== $lastKey && ++$lastKey === $itemKey) {
                     $items[] = new Expr\ArrayItem(
-                        $this->normalizeValue($itemValue)
+                        $this->__invoke($itemValue)
                     );
                 } else {
                     $lastKey = null;
                     $items[] = new Expr\ArrayItem(
-                        $this->normalizeValue($itemValue),
-                        $this->normalizeValue($itemKey)
+                        $this->__invoke($itemValue),
+                        $this->__invoke($itemKey)
                     );
                 }
             }

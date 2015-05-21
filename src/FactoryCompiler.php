@@ -15,7 +15,7 @@ use Ray\Di\InjectorInterface;
 use Ray\Di\Instance;
 use Ray\Di\Name;
 
-class FactoryCompiler
+final class FactoryCompiler
 {
     /**
      * @var Container
@@ -37,7 +37,15 @@ class FactoryCompiler
      */
     private $compiler;
 
+    /**
+     * @var OnDemandCompiler
+     */
     private $onDemandDependencyCompiler;
+
+    /**
+     * @var FunctionCompiler
+     */
+    private $functionCompiler;
 
     public function __construct(
         Container $container,
@@ -47,9 +55,9 @@ class FactoryCompiler
     ) {
         $this->container = $container;
         $this->normalizer = $normalizer;
-        $this->compiler = $compiler;
         $this->injector = $injector;
-        $this->onDemandDependencyCompiler = new OnDemandDependencyCompiler($normalizer, $this, $injector);
+        $this->onDemandDependencyCompiler = new OnDemandCompiler($normalizer, $this, $injector);
+        $this->functionCompiler = new FunctionCompiler($container, new PrivateProperty);
     }
 
     /**
@@ -97,10 +105,10 @@ class FactoryCompiler
         }
         $dependency = $this->container->getContainer()[$dependencyIndex];
         if ($dependency instanceof Instance) {
-            return $this->normalizer->normalizeValue($dependency->value);
+            return $this->normalizer->__invoke($dependency->value);
         }
 
-        return $this->compiler->getPullDependency($argument, $dependency);
+        return $this->functionCompiler->__invoke($argument, $dependency);
     }
 
     /**

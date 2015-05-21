@@ -8,7 +8,7 @@
  */
 namespace Ray\Compiler;
 
-class DependencySaver
+final class DependencySaver
 {
     private $scriptDir;
 
