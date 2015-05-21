@@ -7,6 +7,7 @@
 namespace Ray\Compiler;
 
 use PhpParser\Node;
+use \PhpParser\PrettyPrinter\Standard;
 
 final class Code
 {
@@ -32,7 +33,7 @@ final class Code
 
     public function __toString()
     {
-        $prettyPrinter = new \PhpParser\PrettyPrinter\Standard();
+        $prettyPrinter = new Standard();
         $classCode = $prettyPrinter->prettyPrintFile([$this->node]);
 
         return $classCode;

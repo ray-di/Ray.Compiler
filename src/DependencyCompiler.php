@@ -6,6 +6,7 @@
  */
 namespace Ray\Compiler;
 
+use PhpParser\BuilderFactory;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
@@ -56,7 +57,7 @@ final class DependencyCompiler
 
     public function __construct(Container $container, ScriptInjector $injector = null)
     {
-        $this->factory = new \PhpParser\BuilderFactory;
+        $this->factory = new BuilderFactory;
         $this->container = $container;
         $this->normalizer = new Normalizer;
         $this->injector = $injector;
@@ -175,9 +176,8 @@ final class DependencyCompiler
         $setterMethods = (array) $prop($prop($newInstance, 'setterMethods'), 'setterMethods');
         $arguments = (array) $prop($prop($newInstance, 'arguments'), 'arguments');
         $postConstruct = $prop($dependency, 'postConstruct');
-        $isSingleton = $prop($dependency, 'isSingleton');
 
-        return $this->factoryCompiler->getFactoryCode($class, $arguments, $setterMethods, $postConstruct, $isSingleton);
+        return $this->factoryCompiler->getFactoryCode($class, $arguments, $setterMethods, $postConstruct);
     }
 
     /**
