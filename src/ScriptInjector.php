@@ -182,7 +182,7 @@ class ScriptInjector implements InjectorInterface
 
     public function __wakeup()
     {
-        $this->registerLoader();
+        $this->__construct($this->scriptDir);
     }
 
     public function __sleep()
