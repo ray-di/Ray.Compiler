@@ -56,8 +56,12 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
 
     public function testSerializable()
     {
+        $diCompiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
+        $diCompiler->compile();
         $injector = unserialize(serialize($this->injector));
+        $car = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(ScriptInjector::class, $injector);
+        $this->assertInstanceOf(FakeCar::class, $car);
     }
 
     public function testAop()
