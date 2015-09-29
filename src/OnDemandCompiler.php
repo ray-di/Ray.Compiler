@@ -90,8 +90,8 @@ final class OnDemandCompiler
 
             return $node;
         }
-
-        throw new Unbound((string) $argument);
+        $e = new Unbound((string) $argument);
+        throw new NotCompiled((string) $argument, 0, $e);
     }
 
     /**
