@@ -17,8 +17,10 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Ray\\Compiler\\": "tests/",
-            "Ray\\Compiler\\": "tests/Fake"
+            "Ray\\Compiler\\": [
+                "tests/",
+                "tests/Fake"
+            ]
         }
     },
     "require": {
