@@ -153,7 +153,7 @@ class ScriptInjector implements InjectorInterface
     {
         list($class, ) = explode('-', $dependencyIndex);
         if (! class_exists($class)) {
-            throw new NotCompiled($class);
+            throw new NotCompiled($dependencyIndex);
         }
         /* @var $dependency Dependency */
         $container = new Container;
