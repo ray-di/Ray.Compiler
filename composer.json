@@ -7,6 +7,9 @@
         "code-gen"
     ],
     "license": "MIT",
+    "require": {
+        "koriym/printo": "~1.0"
+    },
     "require-dev": {
         "ray/di": "~2.0"
     },
@@ -22,8 +25,5 @@
                 "tests/Fake"
             ]
         }
-    },
-    "require": {
-        "koriym/printo": "~1.0"
     }
 }
