@@ -9,7 +9,6 @@ namespace Ray\Compiler;
 use PhpParser\BuilderFactory;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
-use PhpParser\Node\Scalar;
 use PhpParser\Node\Stmt;
 use Ray\Di\Container;
 use Ray\Di\Dependency;

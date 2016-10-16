@@ -8,12 +8,10 @@
  */
 namespace Ray\Compiler;
 
-use PhpParser\Comment;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
-use PhpParser\Node\Stmt;
 use Ray\Di\InjectorInterface;
 
 /**

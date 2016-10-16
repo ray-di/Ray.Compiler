@@ -54,6 +54,9 @@ final class GraphDumper
      */
     private function write(DependencyInterface $dependency, $dependencyIndex)
     {
+        if ($dependencyIndex === 'Ray\Aop\MethodInvocation-') {
+            return;
+        }
         $instance = $dependency->inject($this->container);
         $graph = (string) (new Printo($instance))
             ->setRange(Printo::RANGE_ALL)
