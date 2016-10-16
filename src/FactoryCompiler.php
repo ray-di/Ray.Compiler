@@ -8,7 +8,6 @@ namespace Ray\Compiler;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr;
-use PhpParser\Node\Scalar;
 use Ray\Di\Argument;
 use Ray\Di\Container;
 use Ray\Di\InjectorInterface;

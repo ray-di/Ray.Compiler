@@ -11,7 +11,6 @@ namespace Ray\Compiler;
 use Koriym\Printo\Printo;
 use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
-use Ray\Di\Exception\MethodInvocationNotAvailable;
 use Ray\Di\Name;
 
 final class GraphDumper
