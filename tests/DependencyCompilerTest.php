@@ -127,4 +127,22 @@ EOT;
         $this->setExpectedException(\DomainException::class);
         (new DependencyCompiler(new Container))->compile(new FakeInvalidDependency);
     }
+
+    public function testContextualProviderCompile()
+    {
+        $container = (new FakeContextualModule('context'))->getContainer();
+        $dependency = $container->getContainer()['Ray\Compiler\FakeRobotInterface-' . Name::ANY];
+        $code = (new DependencyCompiler($container))->compile($dependency);
+        $expectedTemplate = <<<'EOT'
+<?php
+
+namespace Ray\Di\Compiler;
+
+$instance = new \Ray\Compiler\FakeContextualProvider();
+$instance->setContext('context');
+return $instance->get();
+EOT;
+        $expected = str_replace('{ANY}', Name::ANY, $expectedTemplate);
+        $this->assertSame($expected, (string) $code);
+    }
 }

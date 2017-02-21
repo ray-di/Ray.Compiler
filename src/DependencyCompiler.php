@@ -15,8 +15,9 @@ use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 use Ray\Di\Instance;
+use Ray\Di\SetContextInterface;
 
-final class DependencyCompiler
+final class DependencyCompiler implements SetContextInterface
 {
     /**
      * @var \PhpParser\BuilderFactory
@@ -47,6 +48,8 @@ final class DependencyCompiler
      * @var PrivateProperty
      */
     private $privateProperty;
+
+    private $context;
 
     /**
      * @var AopCode
@@ -129,11 +132,28 @@ final class DependencyCompiler
         $prop = $this->privateProperty;
         $dependency = $prop($provider, 'dependency');
         $node = $this->getFactoryNode($dependency);
+        $provider->setContext($this);
+        if ($this->context) {
+            $node[] = $this->getSetContextCode($this->context); // $instance->setContext($this->context);
+        }
         $node[] = new Stmt\Return_(new Expr\MethodCall(new Expr\Variable('instance'), 'get'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
         $isSingleton = $prop($provider, 'isSingleton');
 
         return new Code($node, $isSingleton);
+    }
+
+    /**
+     * @param string $context
+     *
+     * @return Expr\MethodCall
+     */
+    private function getSetContextCode($context)
+    {
+        $arg = new Node\Arg(new Node\Scalar\String_($context));
+        $node = new Expr\MethodCall(new Expr\Variable('instance'), 'setContext', [$arg]);
+
+        return $node;
     }
 
     /**
@@ -156,5 +176,13 @@ final class DependencyCompiler
         $postConstruct = $prop($dependency, 'postConstruct');
 
         return $this->factoryCompiler->getFactoryCode($class, $arguments, $setterMethods, $postConstruct);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setContext($context)
+    {
+        $this->context = $context;
     }
 }
