@@ -119,10 +119,10 @@ final class FactoryCompiler
     private function constructorInjection($class, array $arguments = [])
     {
         /* @var $arguments Argument[] */
-    $args = [];
+        $args = [];
         foreach ($arguments as $argument) {
             //            $argument = $argument->isDefaultAvailable() ? $argument->getDefaultValue() : $argument;
-        $args[] = $this->getArgStmt($argument);
+            $args[] = $this->getArgStmt($argument);
         }
         $constructor = new Expr\New_(new Node\Name\FullyQualified($class), $args);
 
