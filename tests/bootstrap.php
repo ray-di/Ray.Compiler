@@ -1,4 +1,5 @@
 <?php
+
 namespace Ray\Compiler;
 
 /** @var $loader \Composer\Autoload\ClassLoader */
