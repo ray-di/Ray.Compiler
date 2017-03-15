@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * This file is part of the Ray.Compiler package.
+ *
+ * @license http://opensource.org/licenses/MIT MIT
+ */
 namespace Ray\Compiler;
 
 use Ray\Aop\WeavedInterface;
@@ -33,6 +37,8 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testGetInstance
+     *
+     * @param mixed $car
      */
     public function testDefaultValueInjected($car)
     {
@@ -71,7 +77,7 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
         $instance1 = $injector->getInstance(FakeCarInterface::class);
         $instance2 = $injector->getInstance(FakeCar::class);
-        /** @var  $instance3 FakeCar2 */
+        /** @var $instance3 FakeCar2 */
         $instance3 = $injector->getInstance(FakeCar2::class);
         $this->assertInstanceOf(WeavedInterface::class, $instance1);
         $this->assertInstanceOf(WeavedInterface::class, $instance2);

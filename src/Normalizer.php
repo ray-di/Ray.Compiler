@@ -2,9 +2,7 @@
 /**
  * This file is part of the Ray.Compiler package.
  *
- * @license http://opensource.org/licenses/bsd-license.php MIT
- *
- * taken from BuilderAbstract::PhpParser() and modified for object
+ * @license http://opensource.org/licenses/MIT MIT
  */
 namespace Ray\Compiler;
 
@@ -33,7 +31,7 @@ final class Normalizer
     {
         if ($value instanceof Node) {
             return $value;
-        } elseif (is_null($value)) {
+        } elseif ($value === null) {
             return new Expr\ConstFetch(
                 new Node\Name('null')
             );
@@ -68,9 +66,8 @@ final class Normalizer
             return new Expr\Array_($items);
         } elseif (is_object($value)) {
             return $this->normalizeObject($value);
-        } else {
-            throw new \LogicException('Invalid value');
         }
+        throw new \LogicException('Invalid value');
     }
 
     /**

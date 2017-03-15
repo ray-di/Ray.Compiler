@@ -2,9 +2,7 @@
 /**
  * This file is part of the Ray.Compiler package.
  *
- * @license http://opensource.org/licenses/bsd-license.php MIT
- *
- * taken from BuilderAbstract::PhpParser() and modified for object
+ * @license http://opensource.org/licenses/MIT MIT
  */
 namespace Ray\Compiler;
 
@@ -76,25 +74,6 @@ final class OnDemandCompiler
     }
 
     /**
-     * Return default argument value
-     *
-     * @param Argument $argument
-     *
-     * @return Expr
-     */
-    private function getDefault(Argument $argument)
-    {
-        if ($argument->isDefaultAvailable()) {
-            $default = $argument->getDefaultValue();
-            $node = $this->normalizer->__invoke($default);
-
-            return $node;
-        }
-        $e = new Unbound((string) $argument);
-        throw new NotCompiled((string) $argument, 0, $e);
-    }
-
-    /**
      * @param Expr\Variable  $instance
      * @param SetterMethod[] $setterMethods
      *
@@ -127,6 +106,25 @@ final class OnDemandCompiler
     public function postConstruct(Expr\Variable $instance, $postConstruct)
     {
         return new Expr\MethodCall($instance, $postConstruct);
+    }
+
+    /**
+     * Return default argument value
+     *
+     * @param Argument $argument
+     *
+     * @return Expr
+     */
+    private function getDefault(Argument $argument)
+    {
+        if ($argument->isDefaultAvailable()) {
+            $default = $argument->getDefaultValue();
+            $node = $this->normalizer->__invoke($default);
+
+            return $node;
+        }
+        $e = new Unbound((string) $argument);
+        throw new NotCompiled((string) $argument, 0, $e);
     }
 
     /**

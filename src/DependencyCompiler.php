@@ -2,7 +2,7 @@
 /**
  * This file is part of the Ray.Compiler package.
  *
- * @license http://opensource.org/licenses/bsd-license.php MIT
+ * @license http://opensource.org/licenses/MIT MIT
  */
 namespace Ray\Compiler;
 
@@ -85,6 +85,14 @@ final class DependencyCompiler implements SetContextInterface
         }
 
         throw new \DomainException(get_class($dependency));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setContext($context)
+    {
+        $this->context = $context;
     }
 
     /**
@@ -176,13 +184,5 @@ final class DependencyCompiler implements SetContextInterface
         $postConstruct = $prop($dependency, 'postConstruct');
 
         return $this->factoryCompiler->getFactoryCode($class, $arguments, $setterMethods, $postConstruct);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setContext($context)
-    {
-        $this->context = $context;
     }
 }

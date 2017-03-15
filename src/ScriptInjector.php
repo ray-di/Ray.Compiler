@@ -2,7 +2,7 @@
 /**
  * This file is part of the Ray.Compiler package.
  *
- * @license http://opensource.org/licenses/bsd-license.php MIT
+ * @license http://opensource.org/licenses/MIT MIT
  */
 namespace Ray\Compiler;
 
@@ -78,12 +78,22 @@ class ScriptInjector implements InjectorInterface
         $this->functions = [$prototype, $singleton, $injection_point, $injector];
     }
 
+    public function __wakeup()
+    {
+        $this->__construct($this->scriptDir);
+    }
+
+    public function __sleep()
+    {
+        return ['scriptDir'];
+    }
+
     /**
      * {@inheritdoc}
      */
     public function getInstance($interface, $name = Name::ANY)
     {
-        $dependencyIndex =  $interface . '-' . $name;
+        $dependencyIndex = $interface . '-' . $name;
         if (isset($this->singletons[$dependencyIndex])) {
             return $this->singletons[$dependencyIndex];
         }
@@ -93,6 +103,24 @@ class ScriptInjector implements InjectorInterface
         }
 
         return $instance;
+    }
+
+    /**
+     * @param string $dependencyIndex
+     *
+     * @return bool
+     */
+    public function isSingleton($dependencyIndex)
+    {
+        $pearStyleClass = str_replace('\\', '_', $dependencyIndex);
+        $file = sprintf(DependencySaver::META_FILE, $this->scriptDir, $pearStyleClass);
+        if (! file_exists($file)) {
+            throw new NotCompiled($dependencyIndex);
+        }
+        $meta = json_decode(file_get_contents($file));
+        $isSingleton = $meta->is_singleton;
+
+        return $isSingleton;
     }
 
     /**
@@ -126,24 +154,6 @@ class ScriptInjector implements InjectorInterface
     }
 
     /**
-     * @param string $dependencyIndex
-     *
-     * @return bool
-     */
-    public function isSingleton($dependencyIndex)
-    {
-        $pearStyleClass = str_replace('\\', '_', $dependencyIndex);
-        $file = sprintf(DependencySaver::META_FILE, $this->scriptDir, $pearStyleClass);
-        if (! file_exists($file)) {
-            throw new NotCompiled($dependencyIndex);
-        }
-        $meta = json_decode(file_get_contents($file));
-        $isSingleton = $meta->is_singleton;
-
-        return $isSingleton;
-    }
-
-    /**
      * Return instance with compile on demand
      *
      * @param string $dependencyIndex
@@ -152,7 +162,7 @@ class ScriptInjector implements InjectorInterface
      */
     private function onDemandCompile($dependencyIndex)
     {
-        list($class, ) = explode('-', $dependencyIndex);
+        list($class) = explode('-', $dependencyIndex);
         if (! class_exists($class)) {
             throw new NotCompiled($dependencyIndex);
         }
@@ -181,15 +191,5 @@ class ScriptInjector implements InjectorInterface
         }
 
         return  unserialize(file_get_contents($pointcuts));
-    }
-
-    public function __wakeup()
-    {
-        $this->__construct($this->scriptDir);
-    }
-
-    public function __sleep()
-    {
-        return ['scriptDir'];
     }
 }

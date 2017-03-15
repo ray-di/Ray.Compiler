@@ -2,9 +2,7 @@
 /**
  * This file is part of the Ray.Compiler package.
  *
- * @license http://opensource.org/licenses/bsd-license.php MIT
- *
- * taken from BuilderAbstract::PhpParser() and modified for object
+ * @license http://opensource.org/licenses/MIT MIT
  */
 namespace Ray\Compiler;
 
