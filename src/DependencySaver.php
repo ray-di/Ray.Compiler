@@ -12,12 +12,16 @@ final class DependencySaver
 {
     private $scriptDir;
 
+    const META_FILE = '%s/metas/__%s.json';
+
     /**
      * @param string $scriptDir
      */
     public function __construct($scriptDir)
     {
         $this->scriptDir = $scriptDir;
+        $metasDir = $this->scriptDir . '/metas';
+        ! file_exists($metasDir) && mkdir($metasDir);
     }
 
     /**
@@ -26,9 +30,11 @@ final class DependencySaver
      */
     public function __invoke($dependencyIndex, Code $code)
     {
-        $file = sprintf('%s/__%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
-        file_put_contents($file, (string) $code, LOCK_EX);
+        $pearStyleName = str_replace('\\', '_', $dependencyIndex);
+        $instanceScript = sprintf('%s/__%s.php', $this->scriptDir, $pearStyleName);
+        file_put_contents($instanceScript, (string) $code, LOCK_EX);
         $meta = json_encode(['is_singleton' => $code->isSingleton]);
-        file_put_contents($file . '.meta.php', $meta, LOCK_EX);
+        $metaFile = sprintf(self::META_FILE, $this->scriptDir, $pearStyleName);
+        file_put_contents($metaFile, $meta, LOCK_EX);
     }
 }

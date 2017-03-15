@@ -132,7 +132,8 @@ class ScriptInjector implements InjectorInterface
      */
     public function isSingleton($dependencyIndex)
     {
-        $file = sprintf('%s/__%s.php.meta.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
+        $pearStyleClass = str_replace('\\', '_', $dependencyIndex);
+        $file = sprintf(DependencySaver::META_FILE, $this->scriptDir, $pearStyleClass);
         if (! file_exists($file)) {
             throw new NotCompiled($dependencyIndex);
         }
