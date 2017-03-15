@@ -12,7 +12,8 @@ final class DependencySaver
 {
     private $scriptDir;
 
-    const META_FILE = '%s/metas/__%s.json';
+    const INSTANCE_FILE = '%s/%s';
+    const META_FILE = '%s/metas/%s.json';
 
     /**
      * @param string $scriptDir
@@ -31,10 +32,10 @@ final class DependencySaver
     public function __invoke($dependencyIndex, Code $code)
     {
         $pearStyleName = str_replace('\\', '_', $dependencyIndex);
-        $instanceScript = sprintf('%s/__%s.php', $this->scriptDir, $pearStyleName);
+        $instanceScript = sprintf(self::INSTANCE_FILE, $this->scriptDir, $pearStyleName);
         file_put_contents($instanceScript, (string) $code, LOCK_EX);
         $meta = json_encode(['is_singleton' => $code->isSingleton]);
-        $metaFile = sprintf(self::META_FILE, $this->scriptDir, $pearStyleName);
-        file_put_contents($metaFile, $meta, LOCK_EX);
+        $metaJson = sprintf(self::META_FILE, $this->scriptDir, $pearStyleName);
+        file_put_contents($metaJson, $meta, LOCK_EX);
     }
 }

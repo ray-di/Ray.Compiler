@@ -21,13 +21,13 @@ class DiCompilerTest extends \PHPUnit_Framework_TestCase
         $compiler->compile();
         $any = Name::ANY;
         $files = [
-            "__Ray_Compiler_FakeCarInterface-{$any}.php",
-            "__Ray_Compiler_FakeEngineInterface-{$any}.php",
-            "__Ray_Compiler_FakeHandleInterface-{$any}.php",
-            "__Ray_Compiler_FakeHardtopInterface-{$any}.php",
-            '__Ray_Compiler_FakeMirrorInterface-right.php',
-            '__Ray_Compiler_FakeMirrorInterface-left.php',
-            "__Ray_Compiler_FakeTyreInterface-{$any}.php",
+            "Ray_Compiler_FakeCarInterface-{$any}",
+            "Ray_Compiler_FakeEngineInterface-{$any}",
+            "Ray_Compiler_FakeHandleInterface-{$any}",
+            "Ray_Compiler_FakeHardtopInterface-{$any}",
+            'Ray_Compiler_FakeMirrorInterface-right',
+            'Ray_Compiler_FakeMirrorInterface-left',
+            "Ray_Compiler_FakeTyreInterface-{$any}",
         ];
         foreach ($files as $file) {
             $filePath = $_ENV['TMP_DIR'] . '/'. $file;
@@ -51,8 +51,8 @@ class DiCompilerTest extends \PHPUnit_Framework_TestCase
         $compiler->compile();
         $any = Name::ANY;
         $files = [
-            "__Ray_Compiler_FakeAopInterface-{$any}.php",
-            "__Ray_Compiler_FakeDoubleInterceptor-{$any}.php"
+            "Ray_Compiler_FakeAopInterface-{$any}",
+            "Ray_Compiler_FakeDoubleInterceptor-{$any}"
         ];
         foreach ($files as $file) {
             $this->assertFileExists($_ENV['TMP_DIR'] . '/' . $file);

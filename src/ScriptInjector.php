@@ -102,7 +102,7 @@ class ScriptInjector implements InjectorInterface
      */
     private function getScriptInstance($dependencyIndex)
     {
-        $file = sprintf('%s/__%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
+        $file = sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
         if (! file_exists($file)) {
             return $this->onDemandCompile($dependencyIndex);
         }
@@ -175,7 +175,7 @@ class ScriptInjector implements InjectorInterface
      */
     private function loadPointcuts()
     {
-        $pointcuts = $this->scriptDir . '/pointcut.txt';
+        $pointcuts = $this->scriptDir . DiCompiler::POINT_CUT;
         if (! file_exists($pointcuts)) {
             return false;
         }
