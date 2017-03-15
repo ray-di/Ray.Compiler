@@ -37,6 +37,7 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testGetInstance
+     *
      * @param mixed $car
      */
     public function testDefaultValueInjected($car)
