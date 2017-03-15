@@ -2,7 +2,7 @@
 /**
  * This file is part of the Ray.Compiler package.
  *
- * @license http://opensource.org/licenses/bsd-license.php MIT
+ * @license http://opensource.org/licenses/MIT MIT
  */
 namespace Ray\Compiler;
 
@@ -53,7 +53,7 @@ final class DiCompiler implements InjectorInterface
     public function __construct(AbstractModule $module = null, $scriptDir = null)
     {
         $this->scriptDir = $scriptDir ?: sys_get_temp_dir();
-        $this->container =  $module ? $module->getContainer() : new Container;
+        $this->container = $module ? $module->getContainer() : new Container;
         $this->injector = new Injector($module, $scriptDir);
         $this->dependencyCompiler = new DependencyCompiler($this->container);
         $this->module = $module;

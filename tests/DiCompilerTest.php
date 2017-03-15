@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * This file is part of the Ray.Compiler package.
+ *
+ * @license http://opensource.org/licenses/MIT MIT
+ */
 namespace Ray\Compiler;
 
 use Ray\Aop\WeavedInterface;
@@ -30,8 +34,8 @@ class DiCompilerTest extends \PHPUnit_Framework_TestCase
             "Ray_Compiler_FakeTyreInterface-{$any}",
         ];
         foreach ($files as $file) {
-            $filePath = $_ENV['TMP_DIR'] . '/'. $file;
-            $this->assertTrue(file_exists($filePath), $filePath);
+            $filePath = $_ENV['TMP_DIR'] . '/' . $file;
+            $this->assertFileExists($filePath, $filePath);
         }
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
         $car = $injector->getInstance(FakeCarInterface::class);

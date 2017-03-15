@@ -2,9 +2,7 @@
 /**
  * This file is part of the Ray.Compiler package.
  *
- * @license http://opensource.org/licenses/bsd-license.php MIT
- *
- * taken from BuilderAbstract::PhpParser() and modified for object
+ * @license http://opensource.org/licenses/MIT MIT
  */
 namespace Ray\Compiler;
 
@@ -39,7 +37,7 @@ final class GraphDumper
     {
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
-            $isNorInjector =  $dependencyIndex !== 'Ray\Di\InjectorInterface-' . Name::ANY;
+            $isNorInjector = $dependencyIndex !== 'Ray\Di\InjectorInterface-' . Name::ANY;
             if ($dependency instanceof DependencyInterface && $isNorInjector) {
                 $this->write($dependency, $dependencyIndex);
             }
@@ -63,7 +61,7 @@ final class GraphDumper
             ->setLinkDistance(130)
             ->setCharge(-500);
         $graphDir = $this->scriptDir . '/graph/';
-        if (!file_exists($graphDir)) {
+        if (! file_exists($graphDir)) {
             mkdir($graphDir);
         }
         $file = $graphDir . str_replace('\\', '_', $dependencyIndex) . '.html';

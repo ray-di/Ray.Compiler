@@ -1,8 +1,11 @@
 <?php
-
+/**
+ * This file is part of the Ray.Compiler package.
+ *
+ * @license http://opensource.org/licenses/MIT MIT
+ */
 namespace Ray\Compiler;
 
-use Ray\Aop\Matcher;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\Instance;
