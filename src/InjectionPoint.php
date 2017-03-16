@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the Ray.Di package.
+ * This file is part of the Ray.Compiler package.
  *
  * @license http://opensource.org/licenses/MIT MIT
  */
@@ -49,6 +49,7 @@ final class InjectionPoint implements InjectionPointInterface
     {
         return $this->parameter->getDeclaringClass();
     }
+
     /**
      * {@inheritdoc}
      */
