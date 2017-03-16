@@ -14,11 +14,6 @@ use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 
-/**
- * This file is part of the *** package
- *
- * @license http://opensource.org/licenses/bsd-license.php BSD
- */
 class FunctionCompiler
 {
     /**
@@ -88,12 +83,13 @@ class FunctionCompiler
     private function getInjectionProviderParams(Argument $argument)
     {
         $param = $argument->get();
-
+        $class = $param->getDeclaringClass()->name;
+        $method = $param->getDeclaringFunction()->name;
         return [
             new Node\Arg(new Scalar\String_((string) $argument)),
             new Expr\Array_([
-                new Node\Arg(new Scalar\String_($param->getDeclaringClass()->name)),
-                new Node\Arg(new Scalar\String_($param->getDeclaringFunction()->name)),
+                new Node\Arg(new Scalar\String_($class)),
+                new Node\Arg(new Scalar\String_($method)),
                 new Node\Arg(new Scalar\String_($param->name))
             ])
         ];
