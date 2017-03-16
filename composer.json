@@ -1,7 +1,6 @@
 {
     "name": "ray/compiler",
     "description": "A dependency injection compiler for Ray.Di",
-    "version": "1.1.2",
     "keywords": [
         "Ray.Di",
         "compiler",
@@ -13,7 +12,7 @@
         "koriym/printo": "~1.0"
     },
     "require-dev": {
-        "ray/di": "^2.5",
+        "ray/di": "test-dev",
         "phpunit/phpunit": "^5.7"
     },
     "autoload": {
