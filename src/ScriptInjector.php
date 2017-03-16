@@ -15,7 +15,7 @@ use Ray\Di\InjectionPoint;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
-class ScriptInjector implements InjectorInterface
+final class ScriptInjector implements InjectorInterface
 {
     /**
      * @var string

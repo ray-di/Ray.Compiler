@@ -16,7 +16,7 @@ use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 use Ray\Di\Di\Qualifier;
 
-class FunctionCompiler
+final class FunctionCompiler
 {
     /**
      * @var Container
