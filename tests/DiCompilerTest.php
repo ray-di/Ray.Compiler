@@ -86,7 +86,9 @@ class DiCompilerTest extends \PHPUnit_Framework_TestCase
         $compiler->compile();
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
         $loggerConsumer = $injector->getInstance(FakeLoggerConsumer::class);
+        /* @var $loggerConsumer \Ray\Compiler\FakeLoggerConsumer */
         $this->assertSame('Ray\Compiler\FakeLoggerConsumer', $loggerConsumer->logger->name);
+        $this->assertSame('MEMORY', $loggerConsumer->logger->type);
     }
 
     public function testDump()
