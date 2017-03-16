@@ -112,8 +112,9 @@ class DiCompilerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider instanceProvider
-     * @param mixed $name
-     * @param mixed $expected
+     *
+     * @param string $name
+     * @param mixed  $expected
      */
     public function testInstance($name, $expected)
     {
