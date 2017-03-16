@@ -6,7 +6,6 @@
  */
 namespace Ray\Compiler;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Ray\Aop\Compiler;
 use Ray\Compiler\Exception\NotCompiled;
 use Ray\Di\Bind;
@@ -66,10 +65,10 @@ class ScriptInjector implements InjectorInterface
 
             return $instance;
         };
-        $injection_point = function () {
+        $injection_point = function () use ($scriptDir) {
             return new InjectionPoint(
                 new \ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2]),
-                new AnnotationReader
+                $scriptDir
             );
         };
         $injector = function () {
