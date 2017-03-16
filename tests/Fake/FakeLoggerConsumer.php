@@ -2,20 +2,29 @@
 
 namespace Ray\Compiler;
 
+use Ray\Di\Di\Inject;
 use Ray\Di\InjectorInterface;
 
 class FakeLoggerConsumer
 {
     /**
-     * @var FakeLoggerInterface
+     * @var FakeLogger
      */
     public $logger;
 
     public $injector;
 
-    public function __construct(FakeLoggerInterface $logger, InjectorInterface $injector)
+
+    public function __construct(InjectorInterface $injector)
+    {
+        $this->injector = $injector;
+    }
+
+    /**
+     * @FakeLoggerInject(type="MEMORY")
+     */
+    public function setLogger(FakeLoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->injector = $injector;
     }
 }

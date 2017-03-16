@@ -56,7 +56,7 @@ final class FactoryCompiler
         $this->normalizer = $normalizer;
         $this->injector = $injector;
         $this->onDemandDependencyCompiler = new OnDemandCompiler($normalizer, $this, $injector);
-        $this->functionCompiler = new FunctionCompiler($container, new PrivateProperty);
+        $this->functionCompiler = new FunctionCompiler($container, new PrivateProperty, $compiler);
     }
 
     /**

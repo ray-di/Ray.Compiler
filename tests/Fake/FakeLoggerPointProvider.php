@@ -7,6 +7,8 @@ use Ray\Di\ProviderInterface;
 
 class FakeLoggerPointProvider implements ProviderInterface
 {
+    public $qualifiers;
+
     /**
      * @var InjectionPointInterface
      */
@@ -20,7 +22,10 @@ class FakeLoggerPointProvider implements ProviderInterface
     public function get()
     {
         $class = $this->ip->getClass()->getName();
-        $instance = new FakeLogger($class);
+        $this->qualifiers = $this->ip->getQualifiers();
+        $fakeLoggerInject = $this->qualifiers[0];
+        /* @var $fakeLoggerInject \Ray\Compiler\FakeLoggerInject */
+        $instance = new FakeLogger($class, $fakeLoggerInject->type);
 
         return $instance;
     }

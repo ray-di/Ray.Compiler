@@ -6,17 +6,15 @@
  */
 namespace Ray\Compiler;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Ray\Aop\Compiler;
 use Ray\Compiler\Exception\NotCompiled;
 use Ray\Di\Bind;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
-use Ray\Di\InjectionPoint;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
-class ScriptInjector implements InjectorInterface
+final class ScriptInjector implements InjectorInterface
 {
     /**
      * @var string
@@ -66,10 +64,10 @@ class ScriptInjector implements InjectorInterface
 
             return $instance;
         };
-        $injection_point = function () {
+        $injection_point = function () use ($scriptDir) {
             return new InjectionPoint(
                 new \ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2]),
-                new AnnotationReader
+                $scriptDir
             );
         };
         $injector = function () {

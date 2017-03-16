@@ -49,6 +49,11 @@ final class DependencyCompiler implements SetContextInterface
      */
     private $privateProperty;
 
+    /**
+     * @var array
+     */
+    private $qualifier;
+
     private $context;
 
     /**
@@ -95,6 +100,11 @@ final class DependencyCompiler implements SetContextInterface
         $this->context = $context;
     }
 
+    public function setQaulifier(IpQualifier $qualifer)
+    {
+        $this->qualifier = $qualifer;
+    }
+
     /**
      * Compile DependencyInstance
      *
@@ -124,8 +134,10 @@ final class DependencyCompiler implements SetContextInterface
         $node[] = new Node\Stmt\Return_(new Node\Expr\Variable('instance'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
         $isSingleton = $prop($dependency, 'isSingleton');
+        $qualifer = $this->qualifier;
+        $this->qualifier = null;
 
-        return new Code($node, $isSingleton);
+        return new Code($node, $isSingleton, $qualifer);
     }
 
     /**
@@ -147,8 +159,10 @@ final class DependencyCompiler implements SetContextInterface
         $node[] = new Stmt\Return_(new Expr\MethodCall(new Expr\Variable('instance'), 'get'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
         $isSingleton = $prop($provider, 'isSingleton');
+        $qualifer = $this->qualifier;
+        $this->qualifier = null;
 
-        return new Code($node, $isSingleton);
+        return new Code($node, $isSingleton, $qualifer);
     }
 
     /**

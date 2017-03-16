@@ -15,19 +15,22 @@ final class Code
      * @var bool
      */
     public $isSingleton;
+
+    /**
+     * @var array
+     */
+    public $qualifiers;
+
     /**
      * @var Node
      */
     private $node;
 
-    /**
-     * @param Node $node
-     * @param bool $isSingleton
-     */
-    public function __construct(Node $node, $isSingleton = false)
+    public function __construct(Node $node, $isSingleton = false, IpQualifier $qualifier = null)
     {
         $this->node = $node;
         $this->isSingleton = $isSingleton;
+        $this->qualifiers = $qualifier;
     }
 
     public function __toString()

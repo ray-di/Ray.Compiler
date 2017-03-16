@@ -8,7 +8,7 @@ class FakeLoggerModule extends AbstractModule
 {
     protected function configure()
     {
-        $this->bind(FakeLoggerInterface::class)->toProvider(FakeLoggerPointProvider::class);
+        $this->bind(FakeLoggerInterface::class)->annotatedWith(FakeLoggerInject::class)->toProvider(FakeLoggerPointProvider::class);
         $this->bind(FakeLoggerConsumer::class);
     }
 }
