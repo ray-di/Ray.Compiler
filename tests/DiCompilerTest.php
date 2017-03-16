@@ -96,4 +96,34 @@ class DiCompilerTest extends \PHPUnit_Framework_TestCase
         $any = Name::ANY;
         $this->assertFileExists($_ENV['TMP_DIR'] . '/graph/Ray_Compiler_FakeCarInterface-' . $any . '.html');
     }
+
+    public function instanceProvider()
+    {
+        return [
+            ['bool', true],
+            ['null', null],
+            ['int', 1],
+            ['float', 1.0],
+            ['string', 'ray'],
+            ['no_index_array', [1, 2]],
+            ['assoc', ['a' => 1]]
+        ];
+    }
+
+    /**
+     * @dataProvider instanceProvider
+     *
+     * @param string $name
+     * @param mixed  $expected
+     */
+    public function testInstance($name, $expected)
+    {
+        $compiler = new DiCompiler(new FakeInstanceModule, $_ENV['TMP_DIR']);
+        $compiler->compile();
+        $injector = new ScriptInjector($_ENV['TMP_DIR']);
+        $result = $injector->getInstance('', $name);
+        $this->assertSame($expected, $result);
+        $object = $injector->getInstance('', 'object');
+        $this->assertInstanceOf(\DateTime::class, $object);
+    }
 }
