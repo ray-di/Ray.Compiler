@@ -6,7 +6,7 @@
  */
 namespace Ray\Compiler;
 
-/** @var $loader \Composer\Autoload\ClassLoader */
+/* @var $loader \Composer\Autoload\ClassLoader */
 use Doctrine\Common\Annotations\AnnotationRegistry;
 
 $loader = require dirname(__DIR__) . '/vendor/autoload.php';
