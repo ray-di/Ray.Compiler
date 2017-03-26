@@ -6,8 +6,9 @@
  */
 namespace Ray\Compiler;
 
+use Ray\Compiler\Exception\ClassNotFound;
 use Ray\Aop\Compiler;
-use Ray\Compiler\Exception\NotCompiled;
+use Ray\Compiler\Exception\MetaNotFound;
 use Ray\Di\Bind;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
@@ -113,7 +114,7 @@ final class ScriptInjector implements InjectorInterface
         $pearStyleClass = str_replace('\\', '_', $dependencyIndex);
         $file = sprintf(DependencySaver::META_FILE, $this->scriptDir, $pearStyleClass);
         if (! file_exists($file)) {
-            throw new NotCompiled($dependencyIndex);
+            throw new MetaNotFound($dependencyIndex);
         }
         $meta = json_decode(file_get_contents($file));
         $isSingleton = $meta->is_singleton;
@@ -161,8 +162,10 @@ final class ScriptInjector implements InjectorInterface
     private function onDemandCompile($dependencyIndex)
     {
         list($class) = explode('-', $dependencyIndex);
+        $a = class_exists(FakeCarInterface::class);
+        $b = class_exists($class);
         if (! class_exists($class)) {
-            throw new NotCompiled($dependencyIndex);
+            throw new ClassNotFound($class);
         }
         /* @var $dependency Dependency */
         $container = new Container;

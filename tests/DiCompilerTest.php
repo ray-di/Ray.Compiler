@@ -7,14 +7,15 @@
 namespace Ray\Compiler;
 
 use Ray\Aop\WeavedInterface;
-use Ray\Compiler\Exception\NotCompiled;
+use Ray\Compiler\Exception\ClassNotFound;
+use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Name;
 
 class DiCompilerTest extends \PHPUnit_Framework_TestCase
 {
-    public function testNotCompiled()
+    public function testClassNotFound()
     {
-        $this->setExpectedException(NotCompiled::class);
+        $this->setExpectedException(ClassNotFound::class);
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
         $injector->getInstance(FakeCarInterface::class);
     }
