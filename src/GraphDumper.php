@@ -61,10 +61,10 @@ final class GraphDumper
             ->setLinkDistance(130)
             ->setCharge(-500);
         $graphDir = $this->scriptDir . '/graph/';
-        if (! file_exists($graphDir)) {
-            mkdir($graphDir);
+        if (! \file_exists($graphDir)) {
+            \mkdir($graphDir);
         }
-        $file = $graphDir . str_replace('\\', '_', $dependencyIndex) . '.html';
-        file_put_contents($file, $graph);
+        $file = $graphDir . \str_replace('\\', '_', $dependencyIndex) . '.html';
+        \file_put_contents($file, $graph);
     }
 }

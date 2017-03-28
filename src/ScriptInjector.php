@@ -7,7 +7,8 @@
 namespace Ray\Compiler;
 
 use Ray\Aop\Compiler;
-use Ray\Compiler\Exception\NotCompiled;
+use Ray\Compiler\Exception\ClassNotFound;
+use Ray\Compiler\Exception\MetaNotFound;
 use Ray\Di\Bind;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
@@ -110,12 +111,12 @@ final class ScriptInjector implements InjectorInterface
      */
     public function isSingleton($dependencyIndex)
     {
-        $pearStyleClass = str_replace('\\', '_', $dependencyIndex);
-        $file = sprintf(DependencySaver::META_FILE, $this->scriptDir, $pearStyleClass);
-        if (! file_exists($file)) {
-            throw new NotCompiled($dependencyIndex);
+        $pearStyleClass = \str_replace('\\', '_', $dependencyIndex);
+        $file = \sprintf(DependencySaver::META_FILE, $this->scriptDir, $pearStyleClass);
+        if (! \file_exists($file)) {
+            throw new MetaNotFound($dependencyIndex);
         }
-        $meta = json_decode(file_get_contents($file));
+        $meta = \json_decode(\file_get_contents($file));
         $isSingleton = $meta->is_singleton;
 
         return $isSingleton;
@@ -128,8 +129,8 @@ final class ScriptInjector implements InjectorInterface
      */
     private function getScriptInstance($dependencyIndex)
     {
-        $file = sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
-        if (! file_exists($file)) {
+        $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
+        if (! \file_exists($file)) {
             return $this->onDemandCompile($dependencyIndex);
         }
         list($prototype, $singleton, $injection_point, $injector) = $this->functions;
@@ -141,9 +142,9 @@ final class ScriptInjector implements InjectorInterface
 
     private function registerLoader()
     {
-        spl_autoload_register(function ($class) {
-            $file = sprintf('%s/%s.php', $this->scriptDir, $class);
-            if (file_exists($file)) {
+        \spl_autoload_register(function ($class) {
+            $file = \sprintf('%s/%s.php', $this->scriptDir, $class);
+            if (\file_exists($file)) {
                 // @codeCoverageIgnoreStart
                 require $file;
                 // codeCoverageIgnoreEnd
@@ -160,9 +161,11 @@ final class ScriptInjector implements InjectorInterface
      */
     private function onDemandCompile($dependencyIndex)
     {
-        list($class) = explode('-', $dependencyIndex);
-        if (! class_exists($class)) {
-            throw new NotCompiled($dependencyIndex);
+        list($class) = \explode('-', $dependencyIndex);
+        $a = \class_exists(FakeCarInterface::class);
+        $b = \class_exists($class);
+        if (! \class_exists($class)) {
+            throw new ClassNotFound($class);
         }
         /* @var $dependency Dependency */
         $container = new Container;
@@ -184,10 +187,10 @@ final class ScriptInjector implements InjectorInterface
     private function loadPointcuts()
     {
         $pointcuts = $this->scriptDir . DiCompiler::POINT_CUT;
-        if (! file_exists($pointcuts)) {
+        if (! \file_exists($pointcuts)) {
             return false;
         }
 
-        return  unserialize(file_get_contents($pointcuts));
+        return  \unserialize(\file_get_contents($pointcuts));
     }
 }

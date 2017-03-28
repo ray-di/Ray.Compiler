@@ -25,7 +25,7 @@ class NormalizerTest extends \PHPUnit_Framework_TestCase
     public function testInvalidValue()
     {
         $normalizer = new Normalizer;
-        $resource = fopen(__FILE__, 'r');
+        $resource = \fopen(__FILE__, 'r');
         $normalizer($resource);
     }
 }

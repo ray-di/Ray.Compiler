@@ -52,7 +52,7 @@ final class DiCompiler implements InjectorInterface
      */
     public function __construct(AbstractModule $module = null, $scriptDir = null)
     {
-        $this->scriptDir = $scriptDir ?: sys_get_temp_dir();
+        $this->scriptDir = $scriptDir ?: \sys_get_temp_dir();
         $this->container = $module ? $module->getContainer() : new Container;
         $this->injector = new Injector($module, $scriptDir);
         $this->dependencyCompiler = new DependencyCompiler($this->container);
@@ -100,6 +100,6 @@ final class DiCompiler implements InjectorInterface
         $ref = (new \ReflectionProperty($container, 'pointcuts'));
         $ref->setAccessible(true);
         $pointcuts = $ref->getValue($container);
-        file_put_contents($this->scriptDir . self::POINT_CUT, serialize($pointcuts));
+        \file_put_contents($this->scriptDir . self::POINT_CUT, \serialize($pointcuts));
     }
 }

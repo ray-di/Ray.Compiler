@@ -57,14 +57,14 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
         (new DiCompiler(new FakeToBindSingletonModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
         $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
-        $this->assertSame(spl_object_hash($instance1), spl_object_hash($instance2));
+        $this->assertSame(\spl_object_hash($instance1), \spl_object_hash($instance2));
     }
 
     public function testSerializable()
     {
         $diCompiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
         $diCompiler->compile();
-        $injector = unserialize(serialize($this->injector));
+        $injector = \unserialize(\serialize($this->injector));
         $car = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(ScriptInjector::class, $injector);
         $this->assertInstanceOf(FakeCar::class, $car);
@@ -92,8 +92,8 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
         $dependSingleton1 = $this->injector->getInstance(FakeDependSingleton::class);
         /* @var  $dependSingleton2 FakeDependSingleton */
         $dependSingleton2 = $this->injector->getInstance(FakeDependSingleton::class);
-        $hash1 = spl_object_hash($dependSingleton1->robot);
-        $hash2 = spl_object_hash($dependSingleton2->robot);
+        $hash1 = \spl_object_hash($dependSingleton1->robot);
+        $hash2 = \spl_object_hash($dependSingleton2->robot);
         $this->assertSame($hash1, $hash2);
         $this->testOnDemandPrototype();
     }
@@ -105,8 +105,8 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
         $fakeDependPrototype1 = $this->injector->getInstance(FakeDependPrototype::class);
         /* @var  $fakeDependPrototype2 FakeDependPrototype */
         $fakeDependPrototype2 = $this->injector->getInstance(FakeDependPrototype::class);
-        $hash1 = spl_object_hash($fakeDependPrototype1->car);
-        $hash2 = spl_object_hash($fakeDependPrototype2->car);
+        $hash1 = \spl_object_hash($fakeDependPrototype1->car);
+        $hash2 = \spl_object_hash($fakeDependPrototype2->car);
         $this->assertNotSame($hash1, $hash2);
     }
 

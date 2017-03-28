@@ -89,7 +89,7 @@ final class DependencyCompiler implements SetContextInterface
             return $this->compileDependencyProvider($dependency);
         }
 
-        throw new \DomainException(get_class($dependency));
+        throw new \DomainException(\get_class($dependency));
     }
 
     /**
