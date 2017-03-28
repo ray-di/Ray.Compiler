@@ -79,7 +79,7 @@ $instance->setHandle($prototype('Ray\\Compiler\\FakeHandleInterface-{ANY}', arra
 $instance->postConstruct();
 return $instance;
 EOT;
-        $expected = str_replace('{ANY}', Name::ANY, $expectedTemplate);
+        $expected = \str_replace('{ANY}', Name::ANY, $expectedTemplate);
         $this->assertSame($expected, (string) $code);
     }
 

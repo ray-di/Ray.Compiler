@@ -63,14 +63,14 @@ final class InjectionPoint implements InjectionPointInterface
      */
     public function getQualifier()
     {
-        $file = sprintf(DependencySaver::QUALIFIER_FILE,
+        $file = \sprintf(DependencySaver::QUALIFIER_FILE,
             $this->scriptDir,
-            str_replace('\\', '_', $this->parameter->getDeclaringClass()->name),
+            \str_replace('\\', '_', $this->parameter->getDeclaringClass()->name),
             $this->parameter->getDeclaringFunction()->name,
             $this->parameter->name
         );
-        if (file_exists($file)) {
-            return unserialize(file_get_contents($file));
+        if (\file_exists($file)) {
+            return \unserialize(\file_get_contents($file));
         }
     }
 }

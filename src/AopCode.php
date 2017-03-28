@@ -39,7 +39,7 @@ final class AopCode
         $bind = $prop($bind, 'bind');
         /** @var array $bindings */
         $bindings = $prop($bind, 'bindings', null);
-        if (! $bindings || ! is_array($bindings)) {
+        if (! $bindings || ! \is_array($bindings)) {
             return;
         }
         $methodBinding = $this->getMethodBinding($bindings);

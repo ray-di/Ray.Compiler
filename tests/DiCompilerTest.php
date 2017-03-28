@@ -8,7 +8,6 @@ namespace Ray\Compiler;
 
 use Ray\Aop\WeavedInterface;
 use Ray\Compiler\Exception\ClassNotFound;
-use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Name;
 
 class DiCompilerTest extends \PHPUnit_Framework_TestCase

@@ -32,15 +32,15 @@ final class Normalizer
             return new Expr\ConstFetch(
                 new Node\Name('null')
             );
-        } elseif (is_bool($value)) {
+        } elseif (\is_bool($value)) {
             return new Expr\ConstFetch(
                 new Node\Name($value ? 'true' : 'false')
             );
-        } elseif (is_int($value)) {
+        } elseif (\is_int($value)) {
             return new Scalar\LNumber($value);
-        } elseif (is_float($value)) {
+        } elseif (\is_float($value)) {
             return new Scalar\DNumber($value);
-        } elseif (is_string($value)) {
+        } elseif (\is_string($value)) {
             return new Scalar\String_($value);
         }
 
@@ -56,9 +56,9 @@ final class Normalizer
      */
     private function noScalar($value)
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             return $this->arrayValue($value);
-        } elseif (is_object($value)) {
+        } elseif (\is_object($value)) {
             return $this->normalizeObject($value);
         }
         throw new InvalidInstance; //@codeCoverageIgnore
@@ -76,7 +76,7 @@ final class Normalizer
         if ($object instanceof InjectorInterface) {
             return new Expr\FuncCall(new Expr\Variable('injector'));
         }
-        $serialize = new Scalar\String_(serialize($object));
+        $serialize = new Scalar\String_(\serialize($object));
 
         return new Expr\FuncCall(new Node\Name('unserialize'), [new Arg($serialize)]);
     }

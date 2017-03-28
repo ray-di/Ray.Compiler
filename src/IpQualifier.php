@@ -33,6 +33,6 @@ final class IpQualifier
 
     public function __toString()
     {
-        return serialize($this->qualifier);
+        return \serialize($this->qualifier);
     }
 }
