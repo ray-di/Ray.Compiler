@@ -1,6 +1,7 @@
 {
     "name": "ray/compiler",
     "description": "A dependency injection compiler for Ray.Di",
+    "version": "1.2.0",
     "keywords": [
         "Ray.Di",
         "compiler",
