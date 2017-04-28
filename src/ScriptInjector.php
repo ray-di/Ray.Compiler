@@ -54,7 +54,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     public function __construct($scriptDir)
     {
         $this->scriptDir = $scriptDir;
-        $this->injectorId = crc32($this->scriptDir);
+        $this->injectorId = \crc32($this->scriptDir);
         $this->registerLoader();
         $prototype = function ($dependencyIndex, array $injectionPoint = []) {
             $this->ip = $injectionPoint;
@@ -86,13 +86,13 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     /**
      * Set precompiled singleton object
      *
-     * @param mixed  $object
-     * @param string $interaface
-     * @param string string $name
+     * @param mixed  $instance   dependency instance
+     * @param string $interaface depedency interface
+     * @param string $name       dependency name
      */
-    public function setSingleton($object, $interaface, $name = '')
+    public function setSingleton($instance, $interaface, $name = '')
     {
-        self::$singletons[$this->injectorId][$interaface. '-' . $name] = $object;
+        self::$singletons[$this->injectorId][$interaface . '-' . $name] = $instance;
     }
 
     /**
@@ -128,6 +128,17 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         $isSingleton = $meta->is_singleton;
 
         return $isSingleton;
+    }
+
+    public function serialize()
+    {
+        return \serialize([$this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]]);
+    }
+
+    public function unserialize($serialized)
+    {
+        list($this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]) = \unserialize($serialized);
+        $this->__construct($this->scriptDir);
     }
 
     /**
@@ -200,15 +211,5 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         }
 
         return  \unserialize(\file_get_contents($pointcuts));
-    }
-
-    public function serialize() {
-        return serialize([$this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]]);
-    }
-
-    public function unserialize($serialized)
-    {
-        list($this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]) = unserialize($serialized);
-        $this->__construct($this->scriptDir);
     }
 }
