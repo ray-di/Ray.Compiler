@@ -118,6 +118,17 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         return $isSingleton;
     }
 
+    public function serialize()
+    {
+        return \serialize([$this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]]);
+    }
+
+    public function unserialize($serialized)
+    {
+        list($this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]) = \unserialize($serialized);
+        $this->__construct($this->scriptDir);
+    }
+
     /**
      * @param string $dependencyIndex
      *
@@ -189,16 +200,5 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         }
 
         return  \unserialize(\file_get_contents($pointcuts));
-    }
-
-    public function serialize()
-    {
-        return \serialize([$this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]]);
-    }
-
-    public function unserialize($serialized)
-    {
-        list($this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]) = \unserialize($serialized);
-        $this->__construct($this->scriptDir);
     }
 }
