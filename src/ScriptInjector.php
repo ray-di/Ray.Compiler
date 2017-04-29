@@ -15,7 +15,7 @@ use Ray\Di\Dependency;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
-final class ScriptInjector implements InjectorInterface
+final class ScriptInjector implements InjectorInterface, \Serializable
 {
     /**
      * @var string
@@ -36,12 +36,17 @@ final class ScriptInjector implements InjectorInterface
      *
      * @var array
      */
-    private $singletons = [];
+    private static $singletons = [];
 
     /**
-     * @var
+     * @var array
      */
     private $functions;
+
+    /**
+     * @var int
+     */
+    private $injectorId;
 
     /**
      * @param string $scriptDir generated instance script folder path
@@ -49,6 +54,7 @@ final class ScriptInjector implements InjectorInterface
     public function __construct($scriptDir)
     {
         $this->scriptDir = $scriptDir;
+        $this->injectorId = \crc32($this->scriptDir);
         $this->registerLoader();
         $prototype = function ($dependencyIndex, array $injectionPoint = []) {
             $this->ip = $injectionPoint;
@@ -56,12 +62,12 @@ final class ScriptInjector implements InjectorInterface
             return $this->getScriptInstance($dependencyIndex);
         };
         $singleton = function ($dependencyIndex, array $injectionPoint = []) {
-            if (isset($this->singletons[$dependencyIndex])) {
-                return $this->singletons[$dependencyIndex];
+            if (isset(self::$singletons[$this->injectorId][$dependencyIndex])) {
+                return self::$singletons[$this->injectorId][$dependencyIndex];
             }
             $this->ip = $injectionPoint;
             $instance = $this->getScriptInstance($dependencyIndex);
-            $this->singletons[$dependencyIndex] = $instance;
+            self::$singletons[$this->injectorId][$dependencyIndex] = $instance;
 
             return $instance;
         };
@@ -77,28 +83,18 @@ final class ScriptInjector implements InjectorInterface
         $this->functions = [$prototype, $singleton, $injection_point, $injector];
     }
 
-    public function __wakeup()
-    {
-        $this->__construct($this->scriptDir);
-    }
-
-    public function __sleep()
-    {
-        return ['scriptDir'];
-    }
-
     /**
      * {@inheritdoc}
      */
     public function getInstance($interface, $name = Name::ANY)
     {
         $dependencyIndex = $interface . '-' . $name;
-        if (isset($this->singletons[$dependencyIndex])) {
-            return $this->singletons[$dependencyIndex];
+        if (isset(self::$singletons[$this->injectorId][$dependencyIndex])) {
+            return self::$singletons[$this->injectorId][$dependencyIndex];
         }
         $instance = $this->getScriptInstance($dependencyIndex);
         if ($this->isSingleton($dependencyIndex) === true) {
-            $this->singletons[$dependencyIndex] = $instance;
+            self::$singletons[$this->injectorId][$dependencyIndex] = $instance;
         }
 
         return $instance;
@@ -122,6 +118,17 @@ final class ScriptInjector implements InjectorInterface
         return $isSingleton;
     }
 
+    public function serialize()
+    {
+        return \serialize([$this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]]);
+    }
+
+    public function unserialize($serialized)
+    {
+        list($this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]) = \unserialize($serialized);
+        $this->__construct($this->scriptDir);
+    }
+
     /**
      * @param string $dependencyIndex
      *
@@ -140,6 +147,9 @@ final class ScriptInjector implements InjectorInterface
         return $instance;
     }
 
+    /**
+     * Register autoload for AOP file
+     */
     private function registerLoader()
     {
         \spl_autoload_register(function ($class) {
@@ -162,8 +172,6 @@ final class ScriptInjector implements InjectorInterface
     private function onDemandCompile($dependencyIndex)
     {
         list($class) = \explode('-', $dependencyIndex);
-        $a = \class_exists(FakeCarInterface::class);
-        $b = \class_exists($class);
         if (! \class_exists($class)) {
             throw new ClassNotFound($class);
         }
