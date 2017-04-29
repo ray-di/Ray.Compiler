@@ -84,15 +84,15 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     }
 
     /**
-     * Set precompiled singleton object
+     * Set precompiled singleton instance
      *
      * @param mixed  $instance   dependency instance
-     * @param string $interaface depedency interface
+     * @param string $interface depedency interface
      * @param string $name       dependency name
      */
-    public function setSingleton($instance, $interaface, $name = '')
+    public function setSingletonInstance($instance, $interface, $name = '')
     {
-        self::$singletons[$this->injectorId][$interaface . '-' . $name] = $instance;
+        self::$singletons[$this->injectorId][$interface . '-' . $name] = $instance;
     }
 
     /**
