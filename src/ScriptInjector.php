@@ -159,6 +159,9 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         return $instance;
     }
 
+    /**
+     * Register autoload for AOP file
+     */
     private function registerLoader()
     {
         \spl_autoload_register(function ($class) {
