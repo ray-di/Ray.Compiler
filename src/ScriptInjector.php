@@ -173,8 +173,6 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     private function onDemandCompile($dependencyIndex)
     {
         list($class) = \explode('-', $dependencyIndex);
-        $a = \class_exists(FakeCarInterface::class);
-        $b = \class_exists($class);
         if (! \class_exists($class)) {
             throw new ClassNotFound($class);
         }
