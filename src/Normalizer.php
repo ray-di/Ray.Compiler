@@ -84,7 +84,7 @@ final class Normalizer
     /**
      * Return array value node
      *
-     * @param $value
+     * @param mixed $value
      *
      * @return Expr\Array_
      */
