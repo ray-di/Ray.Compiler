@@ -174,8 +174,8 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     {
         list($class) = \explode('-', $dependencyIndex);
         if (! \class_exists($class)) {
-            $e =  new ClassNotFound($dependencyIndex);
-            throw new Unbound($dependencyIndex, 0 ,$e);
+            $e = new ClassNotFound($dependencyIndex);
+            throw new Unbound($dependencyIndex, 0, $e);
         }
         /* @var $dependency Dependency */
         $container = new Container;
