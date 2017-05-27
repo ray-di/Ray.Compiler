@@ -1,7 +1,7 @@
 {
     "name": "ray/compiler",
     "description": "A dependency injection compiler for Ray.Di",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "keywords": [
         "Ray.Di",
         "compiler",
@@ -14,7 +14,9 @@
     },
     "require-dev": {
         "ray/di": "test-dev",
-        "phpunit/phpunit": "^5.7"
+        "phpunit/phpunit": "^5.7",
+        "squizlabs/php_codesniffer": "^2.8",
+        "phpmd/phpmd": "^2.6"
     },
     "autoload": {
         "psr-4": {
@@ -25,5 +27,11 @@
         "psr-4": {
             "Ray\\Compiler\\": ["tests/", "tests/Fake"]
         }
+    },
+    "scripts" :{
+        "test": ["@cs", "phpunit"],
+        "coverage": ["php -dzend_extension=xdebug.so ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage"],
+        "cs": ["php-cs-fixer fix -v --dry-run", "phpcs --standard=./phpcs.xml src"],
+        "cs-fix": ["php-cs-fixer fix -v", "phpcbf src"]
     }
 }

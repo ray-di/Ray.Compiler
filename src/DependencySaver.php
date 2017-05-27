@@ -44,7 +44,8 @@ final class DependencySaver
 
     private function saveQualifier(IpQualifier $qualifer)
     {
-        $fileName = \sprintf(self::QUALIFIER_FILE,
+        $fileName = \sprintf(
+            self::QUALIFIER_FILE,
             $this->scriptDir,
             \str_replace('\\', '_', $qualifer->param->getDeclaringClass()->name),
             $qualifer->param->getDeclaringFunction()->name,

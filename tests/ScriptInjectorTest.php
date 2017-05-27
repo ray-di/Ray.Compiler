@@ -130,10 +130,13 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
     }
 
+    /**
+     * @expectedException \Ray\Compiler\Exception\Unbound
+     * @expectedExceptionMessage NOCLASS-NONAME
+     */
     public function testUnbound()
     {
-        $this->setExpectedException(Unbound::class);
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
-        $injector->getInstance(FakeFactory::class);
+        $injector->getInstance('NOCLASS', 'NONAME');
     }
 }

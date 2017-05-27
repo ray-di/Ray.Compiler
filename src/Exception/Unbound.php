@@ -6,8 +6,6 @@
  */
 namespace Ray\Compiler\Exception;
 
-use Ray\Di\Exception\Unbound as RayDiUnbound;
-
-class NotCompiled extends RayDiUnbound implements ExceptionInterface
+class Unbound extends ClassNotFound implements ExceptionInterface
 {
 }
