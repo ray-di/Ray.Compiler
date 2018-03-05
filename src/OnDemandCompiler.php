@@ -51,11 +51,9 @@ final class OnDemandCompiler
     /**
      * Return on-demand dependency pull code for not compiled
      *
-     * @param Argument $argument
-     *
      * @return Expr|Expr\FuncCall
      */
-    public function getOnDemandDependency(Argument $argument)
+    public function getOnDemandDependency(Argument $argument) : Expr
     {
         $dependencyIndex = (string) $argument;
         if (! $this->injector instanceof ScriptInjector) {
@@ -79,7 +77,7 @@ final class OnDemandCompiler
      *
      * @return Expr\MethodCall[]
      */
-    public function setterInjection(Expr\Variable $instance, array $setterMethods)
+    public function setterInjection(Expr\Variable $instance, array $setterMethods) : array
     {
         $setters = [];
         foreach ($setterMethods as $setterMethod) {
@@ -103,25 +101,20 @@ final class OnDemandCompiler
      *
      * @return Expr\MethodCall
      */
-    public function postConstruct(Expr\Variable $instance, $postConstruct)
+    public function postConstruct(Expr\Variable $instance, $postConstruct) : Expr\MethodCall
     {
         return new Expr\MethodCall($instance, $postConstruct);
     }
 
     /**
      * Return default argument value
-     *
-     * @param Argument $argument
-     *
-     * @return Expr
      */
-    private function getDefault(Argument $argument)
+    private function getDefault(Argument $argument) : Expr
     {
         if ($argument->isDefaultAvailable()) {
             $default = $argument->getDefaultValue();
-            $node = $this->normalizer->__invoke($default);
 
-            return $node;
+            return $this->normalizer->__invoke($default);
         }
         throw new Unbound($argument->getMeta());
     }
@@ -159,7 +152,7 @@ final class OnDemandCompiler
      *
      * @return Node\Arg[]
      */
-    private function getSetterParams($arguments, $isOptional)
+    private function getSetterParams(array $arguments, bool $isOptional)
     {
         $args = [];
         foreach ($arguments as $argument) {

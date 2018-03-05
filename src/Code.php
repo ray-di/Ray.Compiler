@@ -36,8 +36,7 @@ final class Code
     public function __toString()
     {
         $prettyPrinter = new Standard();
-        $classCode = $prettyPrinter->prettyPrintFile([$this->node]);
 
-        return $classCode;
+        return $prettyPrinter->prettyPrintFile([$this->node]);
     }
 }

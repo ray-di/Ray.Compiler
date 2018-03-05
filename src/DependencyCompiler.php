@@ -9,6 +9,7 @@ namespace Ray\Compiler;
 use PhpParser\BuilderFactory;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
@@ -74,12 +75,8 @@ final class DependencyCompiler implements SetContextInterface
 
     /**
      * Return compiled dependency code
-     *
-     * @param DependencyInterface $dependency
-     *
-     * @return Code
      */
-    public function compile(DependencyInterface $dependency)
+    public function compile(DependencyInterface $dependency) : Code
     {
         if ($dependency instanceof Dependency) {
             return $this->compileDependency($dependency);
@@ -95,24 +92,20 @@ final class DependencyCompiler implements SetContextInterface
     /**
      * {@inheritdoc}
      */
-    public function setContext($context)
+    public function setContext($context) : void
     {
         $this->context = $context;
     }
 
-    public function setQaulifier(IpQualifier $qualifer)
+    public function setQaulifier(IpQualifier $qualifer) : void
     {
         $this->qualifier = $qualifer;
     }
 
     /**
      * Compile DependencyInstance
-     *
-     * @param Instance $instance
-     *
-     * @return Code
      */
-    private function compileInstance(Instance $instance)
+    private function compileInstance(Instance $instance) : Code
     {
         $node = $this->normalizer->__invoke($instance->value);
 
@@ -121,12 +114,8 @@ final class DependencyCompiler implements SetContextInterface
 
     /**
      * Compile generic object dependency
-     *
-     * @param Dependency $dependency
-     *
-     * @return Code
      */
-    private function compileDependency(Dependency $dependency)
+    private function compileDependency(Dependency $dependency) : Code
     {
         $prop = $this->privateProperty;
         $node = $this->getFactoryNode($dependency);
@@ -142,12 +131,8 @@ final class DependencyCompiler implements SetContextInterface
 
     /**
      * Compile dependency provider
-     *
-     * @param DependencyProvider $provider
-     *
-     * @return Code
      */
-    private function compileDependencyProvider(DependencyProvider $provider)
+    private function compileDependencyProvider(DependencyProvider $provider) : Code
     {
         $prop = $this->privateProperty;
         $dependency = $prop($provider, 'dependency');
@@ -156,7 +141,7 @@ final class DependencyCompiler implements SetContextInterface
         if ($this->context) {
             $node[] = $this->getSetContextCode($this->context); // $instance->setContext($this->context);
         }
-        $node[] = new Stmt\Return_(new Expr\MethodCall(new Expr\Variable('instance'), 'get'));
+        $node[] = new Stmt\Return_(new MethodCall(new Expr\Variable('instance'), 'get'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
         $isSingleton = $prop($provider, 'isSingleton');
         $qualifer = $this->qualifier;
@@ -165,17 +150,11 @@ final class DependencyCompiler implements SetContextInterface
         return new Code($node, $isSingleton, $qualifer);
     }
 
-    /**
-     * @param string $context
-     *
-     * @return Expr\MethodCall
-     */
-    private function getSetContextCode($context)
+    private function getSetContextCode(string $context) : MethodCall
     {
         $arg = new Node\Arg(new Node\Scalar\String_($context));
-        $node = new Expr\MethodCall(new Expr\Variable('instance'), 'setContext', [$arg]);
 
-        return $node;
+        return new MethodCall(new Expr\Variable('instance'), 'setContext', [$arg]);
     }
 
     /**
@@ -183,11 +162,9 @@ final class DependencyCompiler implements SetContextInterface
      *
      * This code is used by Dependency and DependencyProvider
      *
-     * @param DependencyInterface $dependency
-     *
      * @return \PhpParser\Node[]
      */
-    private function getFactoryNode(DependencyInterface $dependency)
+    private function getFactoryNode(DependencyInterface $dependency) : array
     {
         $prop = $this->privateProperty;
         $newInstance = $prop($dependency, 'newInstance');
@@ -195,7 +172,7 @@ final class DependencyCompiler implements SetContextInterface
         $class = $prop($newInstance, 'class');
         $setterMethods = (array) $prop($prop($newInstance, 'setterMethods'), 'setterMethods');
         $arguments = (array) $prop($prop($newInstance, 'arguments'), 'arguments');
-        $postConstruct = $prop($dependency, 'postConstruct');
+        $postConstruct = (string) $prop($dependency, 'postConstruct');
 
         return $this->factoryCompiler->getFactoryCode($class, $arguments, $setterMethods, $postConstruct);
     }

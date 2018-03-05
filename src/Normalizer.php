@@ -26,7 +26,7 @@ final class Normalizer
      *
      * @return Expr The normalized value
      */
-    public function __invoke($value)
+    public function __invoke($value) : Expr
     {
         if ($value === null) {
             return new Expr\ConstFetch(
@@ -54,7 +54,7 @@ final class Normalizer
      *
      * @return Expr\Array_|Expr\FuncCall
      */
-    private function noScalar($value)
+    private function noScalar($value) : Expr
     {
         if (\is_array($value)) {
             return $this->arrayValue($value);

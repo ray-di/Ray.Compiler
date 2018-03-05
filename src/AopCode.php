@@ -9,7 +9,6 @@ namespace Ray\Compiler;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
-use Ray\Aop\Interceptor;
 use Ray\Di\Dependency;
 use Ray\Di\Name;
 
@@ -27,11 +26,8 @@ final class AopCode
 
     /**
      * Add aop factory code if bindings are given
-     *
-     * @param Dependency $dependency
-     * @param array      $node
      */
-    public function __invoke(Dependency $dependency, array &$node)
+    public function __invoke(Dependency $dependency, array &$node) : void
     {
         $prop = $this->privateProperty;
         $newInstance = $prop($dependency, 'newInstance');
@@ -48,11 +44,11 @@ final class AopCode
     }
 
     /**
-     * @param Interceptor[] $bindings
+     * @param string[][] $bindings
      *
      * @return Expr\ArrayItem[]
      */
-    private function getMethodBinding($bindings)
+    private function getMethodBinding(array $bindings) : array
     {
         $methodBinding = [];
         foreach ($bindings as $method => $interceptors) {

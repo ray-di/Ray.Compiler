@@ -15,7 +15,7 @@ final class PrivateProperty
      *
      * @return mixed|null
      */
-    public function __invoke($object, $prop, $default = null)
+    public function __invoke($object, string $prop, $default = null)
     {
         try {
             $refProp = (new \ReflectionProperty($object, $prop));

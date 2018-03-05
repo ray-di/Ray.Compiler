@@ -101,12 +101,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         return $instance;
     }
 
-    /**
-     * @param string $dependencyIndex
-     *
-     * @return bool
-     */
-    public function isSingleton($dependencyIndex)
+    public function isSingleton($dependencyIndex) : bool
     {
         $pearStyleClass = \str_replace('\\', '_', $dependencyIndex);
         $file = \sprintf(DependencySaver::META_FILE, $this->scriptDir, $pearStyleClass);
@@ -119,7 +114,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         return $isSingleton;
     }
 
-    public function serialize()
+    public function serialize() : string
     {
         return \serialize([$this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]]);
     }
@@ -131,11 +126,9 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     }
 
     /**
-     * @param string $dependencyIndex
-     *
      * @return mixed
      */
-    private function getScriptInstance($dependencyIndex)
+    private function getScriptInstance(string $dependencyIndex)
     {
         $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
         if (! \file_exists($file)) {
@@ -151,7 +144,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     /**
      * Register autoload for AOP file
      */
-    private function registerLoader()
+    private function registerLoader() : void
     {
         \spl_autoload_register(function ($class) {
             $file = \sprintf('%s/%s.php', $this->scriptDir, $class);
@@ -166,11 +159,9 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     /**
      * Return instance with compile on demand
      *
-     * @param string $dependencyIndex
-     *
      * @return mixed
      */
-    private function onDemandCompile($dependencyIndex)
+    private function onDemandCompile(string $dependencyIndex)
     {
         list($class) = \explode('-', $dependencyIndex);
         if (! \class_exists($class)) {
