@@ -95,7 +95,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
             return self::$singletons[$this->injectorId][$dependencyIndex];
         }
         list($instance, $isSingleton) = $this->getScriptInstance($dependencyIndex);
-        if ($isSingleton === 1) {
+        if ($isSingleton) {
             self::$singletons[$this->injectorId][$dependencyIndex] = $instance;
         }
 
@@ -127,9 +127,9 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     }
 
     /**
-     * @return mixed
+     * @return array [$instance, $isSingleton]
      */
-    private function getScriptInstance(string $dependencyIndex)
+    private function getScriptInstance(string $dependencyIndex) : array
     {
         $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
         if (! \file_exists($file)) {

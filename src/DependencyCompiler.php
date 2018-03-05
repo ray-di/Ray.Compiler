@@ -106,7 +106,8 @@ final class DependencyCompiler implements SetContextInterface
      */
     public function getReturnCode(Expr $instance, bool $isSingleton) : Node\Stmt\Return_
     {
-        $singletonInt = new Node\Scalar\LNumber((int) $isSingleton);
+        $bool = $isSingleton ? 'true' : 'false';
+        $singletonInt = new Expr\ConstFetch(new Node\Name([$bool]));
         $return = new Node\Stmt\Return_(
             new Node\Expr\Array_(
                 [
