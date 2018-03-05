@@ -24,10 +24,11 @@
     "autoload-dev": {
         "psr-4": {
             "Ray\\Compiler\\": ["tests/", "tests/Fake"]
-        }
+        },
+        "files": ["tests/delete_dir.php"]
     },
     "scripts" :{
-        "test": ["@cs", "phpunit", "phpstan analyse -l max src tests -c phpstan.neon --no-progress"],
+        "test": ["phpunit", "@cs", "phpstan analyse -l max src tests -c phpstan.neon --no-progress"],
         "coverage": ["php -dzend_extension=xdebug.so ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage"],
         "cs": ["php-cs-fixer fix -v --dry-run", "phpcs --standard=./phpcs.xml src"],
         "cs-fix": ["php-cs-fixer fix -v", "phpcbf src"]
