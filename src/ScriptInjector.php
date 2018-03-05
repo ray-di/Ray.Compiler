@@ -59,15 +59,16 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         $this->registerLoader();
         $prototype = function ($dependencyIndex, array $injectionPoint = []) {
             $this->ip = $injectionPoint;
+            list($instance) = $this->getScriptInstance($dependencyIndex);
 
-            return $this->getScriptInstance($dependencyIndex);
+            return $instance;
         };
         $singleton = function ($dependencyIndex, array $injectionPoint = []) {
             if (isset(self::$singletons[$this->injectorId][$dependencyIndex])) {
                 return self::$singletons[$this->injectorId][$dependencyIndex];
             }
             $this->ip = $injectionPoint;
-            $instance = $this->getScriptInstance($dependencyIndex);
+            list($instance) = $this->getScriptInstance($dependencyIndex);
             self::$singletons[$this->injectorId][$dependencyIndex] = $instance;
 
             return $instance;
@@ -93,8 +94,8 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         if (isset(self::$singletons[$this->injectorId][$dependencyIndex])) {
             return self::$singletons[$this->injectorId][$dependencyIndex];
         }
-        $instance = $this->getScriptInstance($dependencyIndex);
-        if ($this->isSingleton($dependencyIndex) === true) {
+        list($instance, $isSingleton) = $this->getScriptInstance($dependencyIndex);
+        if ($isSingleton === 1) {
             self::$singletons[$this->injectorId][$dependencyIndex] = $instance;
         }
 
@@ -136,9 +137,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         }
         list($prototype, $singleton, $injection_point, $injector) = $this->functions;
 
-        $instance = require $file;
-
-        return $instance;
+        return require $file;
     }
 
     /**
