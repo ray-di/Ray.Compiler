@@ -8,6 +8,7 @@ namespace Ray\Compiler;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr;
+use PhpParser\NodeAbstract;
 use Ray\Di\Argument;
 use Ray\Di\Container;
 use Ray\Di\InjectorInterface;
@@ -27,7 +28,7 @@ final class FactoryCompiler
     private $normalizer;
 
     /**
-     * @var InjectorInterface
+     * @var InjectorInterface|null
      */
     private $injector;
 
@@ -60,14 +61,9 @@ final class FactoryCompiler
     }
 
     /**
-     * @param string $class
-     * @param array  $arguments
-     * @param array  $setterMethods
-     * @param string $postConstruct
-     *
      * @return Node[]
      */
-    public function getFactoryCode($class, array $arguments, array $setterMethods, $postConstruct)
+    public function getFactoryCode(string $class, array $arguments, array $setterMethods, string $postConstruct) : array
     {
         $node = [];
         $instance = new Expr\Variable('instance');
@@ -88,11 +84,9 @@ final class FactoryCompiler
     /**
      * Return method argument code
      *
-     * @param Argument $argument
-     *
      * @return Expr|Expr\FuncCall
      */
-    public function getArgStmt(Argument $argument)
+    public function getArgStmt(Argument $argument) : NodeAbstract
     {
         $dependencyIndex = (string) $argument;
         if ($dependencyIndex === 'Ray\Di\InjectionPointInterface-' . Name::ANY) {
@@ -110,13 +104,7 @@ final class FactoryCompiler
         return $this->functionCompiler->__invoke($argument, $dependency);
     }
 
-    /**
-     * @param string $class
-     * @param array  $arguments
-     *
-     * @return Expr\New_
-     */
-    private function constructorInjection($class, array $arguments = [])
+    private function constructorInjection(string $class, array $arguments = []) : Expr\New_
     {
         /* @var $arguments Argument[] */
         $args = [];
@@ -124,17 +112,14 @@ final class FactoryCompiler
             //            $argument = $argument->isDefaultAvailable() ? $argument->getDefaultValue() : $argument;
             $args[] = $this->getArgStmt($argument);
         }
-        $constructor = new Expr\New_(new Node\Name\FullyQualified($class), $args);
 
-        return $constructor;
+        return new Expr\New_(new Node\Name\FullyQualified($class), $args);
     }
 
     /**
      * Return "$injection_point()"
-     *
-     * @return Expr\FuncCall
      */
-    private function getInjectionPoint()
+    private function getInjectionPoint() : Expr
     {
         return new Expr\FuncCall(new Expr\Variable('injection_point'));
     }

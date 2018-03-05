@@ -26,7 +26,7 @@ final class Normalizer
      *
      * @return Expr The normalized value
      */
-    public function __invoke($value)
+    public function __invoke($value) : Expr
     {
         if ($value === null) {
             return new Expr\ConstFetch(
@@ -54,7 +54,7 @@ final class Normalizer
      *
      * @return Expr\Array_|Expr\FuncCall
      */
-    private function noScalar($value)
+    private function noScalar($value) : Expr
     {
         if (\is_array($value)) {
             return $this->arrayValue($value);
@@ -68,10 +68,8 @@ final class Normalizer
      * Return "unserialize($object)" node
      *
      * @param object $object
-     *
-     * @return Expr\FuncCall
      */
-    private function normalizeObject($object)
+    private function normalizeObject($object) : Expr\FuncCall
     {
         if ($object instanceof InjectorInterface) {
             return new Expr\FuncCall(new Expr\Variable('injector'));
@@ -85,10 +83,8 @@ final class Normalizer
      * Return array value node
      *
      * @param mixed $value
-     *
-     * @return Expr\Array_
      */
-    private function arrayValue($value)
+    private function arrayValue($value) : Expr\Array_
     {
         $items = [];
         $lastKey = -1;

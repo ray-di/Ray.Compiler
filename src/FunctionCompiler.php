@@ -48,22 +48,15 @@ final class FunctionCompiler
 
     /**
      * Return arguments code for "$singleton" and "$prototype"
-     *
-     * @param Argument            $argument
-     * @param DependencyInterface $dependency
-     *
-     * @return Expr\FuncCall
      */
-    public function __invoke(Argument $argument, DependencyInterface $dependency)
+    public function __invoke(Argument $argument, DependencyInterface $dependency) : Expr\FuncCall
     {
         $prop = $this->privateProperty;
         $isSingleton = $prop($dependency, 'isSingleton');
         $func = $isSingleton ? 'singleton' : 'prototype';
         $args = $this->getInjectionFuncParams($argument);
 
-        $node = new Expr\FuncCall(new Expr\Variable($func), $args);
-
-        return $node;
+        return new Expr\FuncCall(new Expr\Variable($func), $args);
     }
 
     /**
@@ -73,9 +66,9 @@ final class FunctionCompiler
      *
      * @param Argument $argument
      *
-     * @return array
+     * @return Node\Arg[]
      */
-    private function getInjectionFuncParams(Argument $argument)
+    private function getInjectionFuncParams(Argument $argument) : array
     {
         $dependencyIndex = (string) $argument;
         if ($this->container->getContainer()[$dependencyIndex] instanceof DependencyProvider) {
@@ -94,7 +87,7 @@ final class FunctionCompiler
      *
      * @return array
      */
-    private function getInjectionProviderParams(Argument $argument)
+    private function getInjectionProviderParams(Argument $argument) : array
     {
         $param = $argument->get();
         $class = $param->getDeclaringClass();
@@ -104,14 +97,14 @@ final class FunctionCompiler
         return [
             new Node\Arg(new Scalar\String_((string) $argument)),
             new Expr\Array_([
-                new Node\Arg(new Scalar\String_($class->name)),
-                new Node\Arg(new Scalar\String_($method->name)),
-                new Node\Arg(new Scalar\String_($param->name))
+                new Expr\ArrayItem(new Scalar\String_($class->name)),
+                new Expr\ArrayItem(new Scalar\String_($method->name)),
+                new Expr\ArrayItem(new Scalar\String_($param->name))
             ])
         ];
     }
 
-    private function setQualifiers(\ReflectionMethod $method, \ReflectionParameter $param)
+    private function setQualifiers(\ReflectionMethod $method, \ReflectionParameter $param) : void
     {
         $annotations = $this->reader->getMethodAnnotations($method);
         foreach ($annotations as $annotation) {

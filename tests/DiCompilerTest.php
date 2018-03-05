@@ -72,7 +72,7 @@ class DiCompilerTest extends TestCase
     public function testAopCompileFile()
     {
         $script = new ScriptInjector($_ENV['TMP_DIR']);
-        /** @var $instance FakeAop */
+        /** @var FakeAop $instance */
         $instance = $script->getInstance(FakeAopInterface::class);
         $this->assertInstanceOf(FakeAop::class, $instance);
         $this->assertInstanceOf(WeavedInterface::class, $instance);

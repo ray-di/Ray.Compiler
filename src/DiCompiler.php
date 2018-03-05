@@ -37,7 +37,7 @@ final class DiCompiler implements InjectorInterface
     private $injector;
 
     /**
-     * @var AbstractModule
+     * @var AbstractModule|null
      */
     private $module;
 
@@ -50,7 +50,7 @@ final class DiCompiler implements InjectorInterface
      * @param AbstractModule $module
      * @param string         $scriptDir
      */
-    public function __construct(AbstractModule $module = null, $scriptDir = null)
+    public function __construct(AbstractModule $module = null, $scriptDir = '')
     {
         $this->scriptDir = $scriptDir ?: \sys_get_temp_dir();
         $this->container = $module ? $module->getContainer() : new Container;
@@ -61,12 +61,7 @@ final class DiCompiler implements InjectorInterface
     }
 
     /**
-     * Compile and return instance
-     *
-     * @param string $interface
-     * @param string $name
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
     public function getInstance($interface, $name = Name::ANY)
     {
@@ -79,7 +74,7 @@ final class DiCompiler implements InjectorInterface
     /**
      * Compile all dependencies in container
      */
-    public function compile()
+    public function compile() : void
     {
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
@@ -89,13 +84,13 @@ final class DiCompiler implements InjectorInterface
         $this->savePointcuts($this->container);
     }
 
-    public function dumpGraph()
+    public function dumpGraph() : void
     {
         $dumper = new GraphDumper($this->container, $this->scriptDir);
         $dumper();
     }
 
-    private function savePointcuts(Container $container)
+    private function savePointcuts(Container $container) : void
     {
         $ref = (new \ReflectionProperty($container, 'pointcuts'));
         $ref->setAccessible(true);

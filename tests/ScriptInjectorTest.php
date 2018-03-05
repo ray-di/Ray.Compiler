@@ -21,9 +21,9 @@ class ScriptInjectorTest extends TestCase
 
     public function setUp()
     {
-        $this->injector = new ScriptInjector($_ENV['TMP_DIR']);
-        clear($_ENV['TMP_DIR']);
         parent::setUp();
+        delete_dir($_ENV['TMP_DIR']);
+        $this->injector = new ScriptInjector($_ENV['TMP_DIR']);
     }
 
     public function testGetInstance()
@@ -78,7 +78,7 @@ class ScriptInjectorTest extends TestCase
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
         $instance1 = $injector->getInstance(FakeCarInterface::class);
         $instance2 = $injector->getInstance(FakeCar::class);
-        /** @var $instance3 FakeCar2 */
+        /** @var FakeCar2 $instance3 */
         $instance3 = $injector->getInstance(FakeCar2::class);
         $this->assertInstanceOf(WeavedInterface::class, $instance1);
         $this->assertInstanceOf(WeavedInterface::class, $instance2);
@@ -113,9 +113,8 @@ class ScriptInjectorTest extends TestCase
 
     public function testOptional()
     {
-        $injector = new ScriptInjector($_ENV['TMP_DIR']);
         /* @var $optional FakeOptional */
-        $optional = $injector->getInstance(FakeOptional::class);
+        $optional = $this->injector->getInstance(FakeOptional::class);
         $this->assertNull($optional->robot);
     }
 
