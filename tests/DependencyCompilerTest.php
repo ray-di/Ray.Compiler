@@ -6,12 +6,13 @@
  */
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\TestCase;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\Instance;
 use Ray\Di\Name;
 
-class DependencyCompilerTest extends \PHPUnit_Framework_TestCase
+class DependencyCompilerTest extends TestCase
 {
     /**
      * @var Dependency
@@ -127,7 +128,7 @@ EOT;
 
     public function testDomainException()
     {
-        $this->setExpectedException(\DomainException::class);
+        $this->expectException(\DomainException::class);
         (new DependencyCompiler(new Container))->compile(new FakeInvalidDependency);
     }
 

@@ -7,8 +7,9 @@
 namespace Ray\Compiler;
 
 use PhpParser\Node\Scalar\String_;
+use PHPUnit\Framework\TestCase;
 
-class NormalizerTest extends \PHPUnit_Framework_TestCase
+class NormalizerTest extends TestCase
 {
     public function testString()
     {

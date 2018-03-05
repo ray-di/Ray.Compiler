@@ -6,15 +6,16 @@
  */
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\TestCase;
 use Ray\Aop\WeavedInterface;
-use Ray\Compiler\Exception\ClassNotFound;
+use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Name;
 
-class DiCompilerTest extends \PHPUnit_Framework_TestCase
+class DiCompilerTest extends TestCase
 {
     public function testClassNotFound()
     {
-        $this->setExpectedException(ClassNotFound::class);
+        $this->expectException(Unbound::class);
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
         $injector->getInstance(FakeCarInterface::class);
     }
