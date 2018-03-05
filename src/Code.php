@@ -17,7 +17,7 @@ final class Code
     public $isSingleton;
 
     /**
-     * @var array
+     * @var IpQualifier|null
      */
     public $qualifiers;
 

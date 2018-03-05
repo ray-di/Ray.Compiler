@@ -31,7 +31,7 @@ final class DependencyCompiler implements SetContextInterface
     private $container;
 
     /**
-     * @var ScriptInjector
+     * @var ScriptInjector|null
      */
     private $injector;
 
@@ -51,7 +51,7 @@ final class DependencyCompiler implements SetContextInterface
     private $privateProperty;
 
     /**
-     * @var array
+     * @var IpQualifier|null
      */
     private $qualifier;
 

@@ -37,7 +37,7 @@ final class DiCompiler implements InjectorInterface
     private $injector;
 
     /**
-     * @var AbstractModule
+     * @var AbstractModule|null
      */
     private $module;
 
@@ -50,7 +50,7 @@ final class DiCompiler implements InjectorInterface
      * @param AbstractModule $module
      * @param string         $scriptDir
      */
-    public function __construct(AbstractModule $module = null, $scriptDir = null)
+    public function __construct(AbstractModule $module = null, $scriptDir = '')
     {
         $this->scriptDir = $scriptDir ?: \sys_get_temp_dir();
         $this->container = $module ? $module->getContainer() : new Container;

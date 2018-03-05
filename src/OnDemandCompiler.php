@@ -18,7 +18,7 @@ use Ray\Di\SetterMethod;
 final class OnDemandCompiler
 {
     /**
-     * @var InjectorInterface
+     * @var InjectorInterface|null
      */
     private $injector;
 
@@ -135,9 +135,9 @@ final class OnDemandCompiler
         return [
             new Node\Arg(new Scalar\String_((string) $argument)),
             new Expr\Array_([
-                new Node\Arg(new Scalar\String_($param->getDeclaringClass()->name)),
-                new Node\Arg(new Scalar\String_($param->getDeclaringFunction()->name)),
-                new Node\Arg(new Scalar\String_($param->name))
+                new Node\Expr\ArrayItem(new Scalar\String_($param->getDeclaringClass()->name)),
+                new Node\Expr\ArrayItem(new Scalar\String_($param->getDeclaringFunction()->name)),
+                new Node\Expr\ArrayItem(new Scalar\String_($param->name))
             ])
         ];
     }
@@ -150,7 +150,7 @@ final class OnDemandCompiler
      * @param Argument[] $arguments
      * @param bool       $isOptional
      *
-     * @return Node\Arg[]
+     * @return Node\Arg[]|false
      */
     private function getSetterParams(array $arguments, bool $isOptional)
     {

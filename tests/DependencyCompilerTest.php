@@ -21,8 +21,8 @@ class DependencyCompilerTest extends TestCase
 
     protected function setUp()
     {
-        clear($_ENV['TMP_DIR']);
         parent::setUp();
+        delete_dir($_ENV['TMP_DIR']);
     }
 
     public function testInstanceCompileString()
@@ -39,7 +39,7 @@ EOT;
 
     public function testInstanceCompileInt()
     {
-        $dependencyInstance = new Instance((int) 1);
+        $dependencyInstance = new Instance(1);
         $code = (new DependencyCompiler(new Container))->compile($dependencyInstance);
         $expected = <<<'EOT'
 <?php

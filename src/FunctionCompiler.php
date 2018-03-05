@@ -66,7 +66,7 @@ final class FunctionCompiler
      *
      * @param Argument $argument
      *
-     * @return Scalar\String_[]
+     * @return Node\Arg[]
      */
     private function getInjectionFuncParams(Argument $argument) : array
     {
@@ -85,7 +85,7 @@ final class FunctionCompiler
      *
      * @param Argument $argument
      *
-     * @return Node\Arg[]
+     * @return array
      */
     private function getInjectionProviderParams(Argument $argument) : array
     {
@@ -97,9 +97,9 @@ final class FunctionCompiler
         return [
             new Node\Arg(new Scalar\String_((string) $argument)),
             new Expr\Array_([
-                new Node\Arg(new Scalar\String_($class->name)),
-                new Node\Arg(new Scalar\String_($method->name)),
-                new Node\Arg(new Scalar\String_($param->name))
+                new Expr\ArrayItem(new Scalar\String_($class->name)),
+                new Expr\ArrayItem(new Scalar\String_($method->name)),
+                new Expr\ArrayItem(new Scalar\String_($param->name))
             ])
         ];
     }

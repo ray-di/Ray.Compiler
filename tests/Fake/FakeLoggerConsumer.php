@@ -8,7 +8,7 @@ use Ray\Di\InjectorInterface;
 class FakeLoggerConsumer
 {
     /**
-     * @var FakeLogger
+     * @var FakeLoggerInterface
      */
     public $logger;
 

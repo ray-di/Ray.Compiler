@@ -28,7 +28,7 @@ final class FactoryCompiler
     private $normalizer;
 
     /**
-     * @var InjectorInterface
+     * @var InjectorInterface|null
      */
     private $injector;
 

@@ -168,9 +168,9 @@ final class ScriptInjector implements InjectorInterface, \Serializable
             $e = new ClassNotFound($dependencyIndex);
             throw new Unbound($dependencyIndex, 0, $e);
         }
-        /* @var $dependency Dependency */
         $container = new Container;
         new Bind($container, $class);
+        /** @var Dependency $dependency */
         $dependency = $container->getContainer()[$dependencyIndex];
         $pointCuts = $this->loadPointcuts();
         if ($pointCuts) {
