@@ -6,12 +6,13 @@
  */
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\TestCase;
 use Ray\Aop\WeavedInterface;
 use Ray\Di\EmptyModule;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 
-class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
+class ScriptInjectorTest extends TestCase
 {
     /**
      * @var ScriptInjector
@@ -47,7 +48,7 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
 
     public function testCompileException()
     {
-        $this->setExpectedException(Unbound::class);
+        $this->expectException(Unbound::class);
         $script = new ScriptInjector($_ENV['TMP_DIR']);
         $script->getInstance('invalid-class');
     }
@@ -136,6 +137,7 @@ class ScriptInjectorTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnbound()
     {
+        $this->expectException(Unbound::class);
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
         $injector->getInstance('NOCLASS', 'NONAME');
     }
