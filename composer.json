@@ -13,7 +13,7 @@
         "koriym/printo": "^1.0"
     },
     "require-dev": {
-        "ray/di": "^2.6.2",
+        "ray/di": "^2.6.5",
         "phpunit/phpunit": "^7.0"
     },
     "autoload": {
