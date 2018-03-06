@@ -28,7 +28,7 @@ class DependencyCompilerTest extends TestCase
     public function testInstanceCompileString()
     {
         $dependencyInstance = new Instance('bear');
-        $code = (new DependencyCompiler(new Container))->compile($dependencyInstance);
+        $code = (new DependencyCode(new Container))->getCode($dependencyInstance);
         $expected = <<<'EOT'
 <?php
 
@@ -40,7 +40,7 @@ EOT;
     public function testInstanceCompileInt()
     {
         $dependencyInstance = new Instance(1);
-        $code = (new DependencyCompiler(new Container))->compile($dependencyInstance);
+        $code = (new DependencyCode(new Container))->getCode($dependencyInstance);
         $expected = <<<'EOT'
 <?php
 
@@ -52,7 +52,7 @@ EOT;
     public function testInstanceCompileArray()
     {
         $dependencyInstance = new Instance([1, 2, 3]);
-        $code = (new DependencyCompiler(new Container))->compile($dependencyInstance);
+        $code = (new DependencyCode(new Container))->getCode($dependencyInstance);
         $expected = <<<'EOT'
 <?php
 
@@ -65,7 +65,7 @@ EOT;
     {
         $container = (new FakeCarModule)->getContainer();
         $dependency = $container->getContainer()['Ray\Compiler\FakeCarInterface-' . Name::ANY];
-        $code = (new DependencyCompiler($container))->compile($dependency);
+        $code = (new DependencyCode($container))->getCode($dependency);
         $expectedTemplate = <<<'EOT'
 <?php
 
@@ -89,7 +89,7 @@ EOT;
     {
         $container = (new FakeCarModule())->getContainer();
         $dependency = $container->getContainer()['Ray\Compiler\FakeHandleInterface-' . Name::ANY];
-        $code = (new DependencyCompiler($container))->compile($dependency);
+        $code = (new DependencyCode($container))->getCode($dependency);
         $expected = <<<'EOT'
 <?php
 
@@ -106,7 +106,7 @@ EOT;
     {
         $container = (new FakeCarModule)->getContainer();
         $dependency = $container->getContainer()['-logo'];
-        $code = (new DependencyCompiler($container))->compile($dependency);
+        $code = (new DependencyCode($container))->getCode($dependency);
         $expected = <<<'EOT'
 <?php
 
@@ -119,7 +119,7 @@ EOT;
     {
         $container = (new FakeCarModule)->getContainer();
         $dependency = new Instance(new FakeEngine());
-        $code = (new DependencyCompiler($container))->compile($dependency);
+        $code = (new DependencyCode($container))->getCode($dependency);
         $expected = <<<'EOT'
 <?php
 
@@ -131,14 +131,14 @@ EOT;
     public function testDomainException()
     {
         $this->expectException(\DomainException::class);
-        (new DependencyCompiler(new Container))->compile(new FakeInvalidDependency);
+        (new DependencyCode(new Container))->getCode(new FakeInvalidDependency);
     }
 
     public function testContextualProviderCompile()
     {
         $container = (new FakeContextualModule('context'))->getContainer();
         $dependency = $container->getContainer()['Ray\Compiler\FakeRobotInterface-' . Name::ANY];
-        $code = (new DependencyCompiler($container))->compile($dependency);
+        $code = (new DependencyCode($container))->getCode($dependency);
         $expected = <<<'EOT'
 <?php
 

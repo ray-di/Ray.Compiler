@@ -6,165 +6,62 @@
  */
 namespace Ray\Compiler;
 
-use PhpParser\Node;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Scalar;
-use Ray\Compiler\Exception\NotCompiled;
-use Ray\Di\Argument;
-use Ray\Di\Exception\Unbound;
-use Ray\Di\InjectorInterface;
-use Ray\Di\SetterMethod;
+use Ray\Aop\Compiler;
+use Ray\Compiler\Exception\ClassNotFound;
+use Ray\Compiler\Exception\Unbound;
+use Ray\Di\Bind;
+use Ray\Di\Container;
 
 final class OnDemandCompiler
 {
     /**
-     * @var InjectorInterface|null
+     * @var string
+     */
+    private $scriptDir;
+
+    /**
+     * @var ScriptInjector
      */
     private $injector;
 
-    /**
-     * @var Normalizer
-     */
-    private $normalizer;
-
-    /**
-     * @var FactoryCompiler
-     */
-    private $factoryCompiler;
-
-    /**
-     * @var PrivateProperty
-     */
-    private $privateProperty;
-
-    public function __construct(
-        Normalizer $normalizer,
-        FactoryCompiler $factoryCompiler,
-        InjectorInterface $injector = null
-    ) {
+    public function __construct(ScriptInjector $injector, string $sctiptDir)
+    {
+        $this->scriptDir = $sctiptDir;
         $this->injector = $injector;
-        $this->normalizer = $normalizer;
-        $this->factoryCompiler = $factoryCompiler;
-        $this->privateProperty = new PrivateProperty;
     }
 
     /**
-     * Return on-demand dependency pull code for not compiled
-     *
-     * @return Expr|Expr\FuncCall
+     * Compile depdency on demand
      */
-    public function getOnDemandDependency(Argument $argument) : Expr
+    public function __invoke(string $dependencyIndex) : void
     {
-        $dependencyIndex = (string) $argument;
-        if (! $this->injector instanceof ScriptInjector) {
-            return $this->getDefault($argument);
+        list($class) = \explode('-', $dependencyIndex);
+        if (! \class_exists($class)) {
+            $e = new ClassNotFound($dependencyIndex);
+            throw new Unbound($dependencyIndex, 0, $e);
         }
-        try {
-            $isSingleton = $this->injector->isSingleton($dependencyIndex);
-        } catch (NotCompiled $e) {
-            return $this->getDefault($argument);
+        $container = new Container();
+        new Bind($container, $class);
+        /** @var \Ray\Di\Dependency $dependency */
+        $dependency = $container->getContainer()[$dependencyIndex];
+        $pointCuts = $this->loadPointcuts();
+        if ($pointCuts) {
+            $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
-        $func = $isSingleton ? 'singleton' : 'prototype';
-        $args = $this->getInjectionProviderParams($argument);
-        $node = new Expr\FuncCall(new Expr\Variable($func), $args);
-
-        return $node;
+        $code = (new DependencyCode(new Container, $this->injector))->getCode($dependency);
+        (new DependencySaver($this->scriptDir))->__invoke($dependencyIndex, $code);
     }
 
     /**
-     * @param Expr\Variable  $instance
-     * @param SetterMethod[] $setterMethods
-     *
-     * @return Expr\MethodCall[]
+     * @return array|false
      */
-    public function setterInjection(Expr\Variable $instance, array $setterMethods) : array
+    private function loadPointcuts()
     {
-        $setters = [];
-        foreach ($setterMethods as $setterMethod) {
-            $isOptional = $this->privateProperty->__invoke($setterMethod, 'isOptional');
-            $method = $this->privateProperty->__invoke($setterMethod, 'method');
-            $argumentsObject = $this->privateProperty->__invoke($setterMethod, 'arguments');
-            $arguments = $this->privateProperty->__invoke($argumentsObject, 'arguments');
-            $args = $this->getSetterParams($arguments, $isOptional);
-            if (! $args) {
-                continue;
-            }
-            $setters[] = new Expr\MethodCall($instance, $method, $args);
+        $pointcuts = $this->scriptDir . DiCompiler::POINT_CUT;
+        if (! \file_exists($pointcuts)) {
+            return false;
         }
 
-        return $setters;
-    }
-
-    /**
-     * @param Expr\Variable $instance
-     * @param string        $postConstruct
-     *
-     * @return Expr\MethodCall
-     */
-    public function postConstruct(Expr\Variable $instance, $postConstruct) : Expr\MethodCall
-    {
-        return new Expr\MethodCall($instance, $postConstruct);
-    }
-
-    /**
-     * Return default argument value
-     */
-    private function getDefault(Argument $argument) : Expr
-    {
-        if ($argument->isDefaultAvailable()) {
-            $default = $argument->getDefaultValue();
-
-            return $this->normalizer->__invoke($default);
-        }
-        throw new Unbound($argument->getMeta());
-    }
-
-    /**
-     * Return code for provider
-     *
-     * "$provider" needs [class, method, parameter] for InjectionPoint (Contextual Dependency Injection)
-     *
-     * @param Argument $argument
-     *
-     * @return array
-     */
-    private function getInjectionProviderParams(Argument $argument)
-    {
-        $param = $argument->get();
-
-        return [
-            new Node\Arg(new Scalar\String_((string) $argument)),
-            new Expr\Array_([
-                new Node\Expr\ArrayItem(new Scalar\String_($param->getDeclaringClass()->name)),
-                new Node\Expr\ArrayItem(new Scalar\String_($param->getDeclaringFunction()->name)),
-                new Node\Expr\ArrayItem(new Scalar\String_($param->name))
-            ])
-        ];
-    }
-
-    /**
-     * Return setter method parameters
-     *
-     * Return false when no dependency given and @ Inject(optional=true) annotated to setter method.
-     *
-     * @param Argument[] $arguments
-     * @param bool       $isOptional
-     *
-     * @return Node\Arg[]|false
-     */
-    private function getSetterParams(array $arguments, bool $isOptional)
-    {
-        $args = [];
-        foreach ($arguments as $argument) {
-            try {
-                $args[] = $this->factoryCompiler->getArgStmt($argument);
-            } catch (Unbound $e) {
-                if ($isOptional) {
-                    return false;
-                }
-            }
-        }
-
-        return $args;
+        return  \unserialize(\file_get_contents($pointcuts));
     }
 }

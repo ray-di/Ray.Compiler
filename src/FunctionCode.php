@@ -16,7 +16,7 @@ use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 use Ray\Di\Di\Qualifier;
 
-final class FunctionCompiler
+final class FunctionCode
 {
     /**
      * @var Container
@@ -34,11 +34,11 @@ final class FunctionCompiler
     private $reader;
 
     /**
-     * @var DependencyCompiler
+     * @var DependencyCode
      */
     private $compiler;
 
-    public function __construct(Container $container, PrivateProperty $privateProperty, DependencyCompiler $compiler)
+    public function __construct(Container $container, PrivateProperty $privateProperty, DependencyCode $compiler)
     {
         $this->container = $container;
         $this->privateProperty = $privateProperty;

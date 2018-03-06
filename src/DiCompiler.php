@@ -27,7 +27,7 @@ final class DiCompiler implements InjectorInterface
     private $container;
 
     /**
-     * @var DependencyCompiler
+     * @var DependencyCode
      */
     private $dependencyCompiler;
 
@@ -55,7 +55,7 @@ final class DiCompiler implements InjectorInterface
         $this->scriptDir = $scriptDir ?: \sys_get_temp_dir();
         $this->container = $module ? $module->getContainer() : new Container;
         $this->injector = new Injector($module, $scriptDir);
-        $this->dependencyCompiler = new DependencyCompiler($this->container);
+        $this->dependencyCompiler = new DependencyCode($this->container);
         $this->module = $module;
         $this->dependencySaver = new DependencySaver($scriptDir);
     }
@@ -78,7 +78,7 @@ final class DiCompiler implements InjectorInterface
     {
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
-            $code = $this->dependencyCompiler->compile($dependency);
+            $code = $this->dependencyCompiler->getCode($dependency);
             $this->dependencySaver->__invoke($dependencyIndex, $code);
         }
         $this->savePointcuts($this->container);

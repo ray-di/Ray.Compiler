@@ -153,7 +153,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     {
         $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
         if (! \file_exists($file)) {
-            (new RootObjectCompiler($this, $this->scriptDir))->__invoke($dependencyIndex);
+            (new OnDemandCompiler($this, $this->scriptDir))->__invoke($dependencyIndex);
         }
 
         return $file;

@@ -15,7 +15,7 @@ use Ray\Di\InjectorInterface;
 use Ray\Di\Instance;
 use Ray\Di\Name;
 
-final class FactoryCompiler
+final class FactoryCode
 {
     /**
      * @var Container
@@ -33,31 +33,31 @@ final class FactoryCompiler
     private $injector;
 
     /**
-     * @var DependencyCompiler
+     * @var DependencyCode
      */
     private $compiler;
 
     /**
-     * @var OnDemandCompiler
+     * @var NodeFactory
      */
-    private $onDemandDependencyCompiler;
+    private $nodeFactory;
 
     /**
-     * @var FunctionCompiler
+     * @var FunctionCode
      */
     private $functionCompiler;
 
     public function __construct(
         Container $container,
         Normalizer $normalizer,
-        DependencyCompiler $compiler,
+        DependencyCode $compiler,
         InjectorInterface $injector = null
     ) {
         $this->container = $container;
         $this->normalizer = $normalizer;
         $this->injector = $injector;
-        $this->onDemandDependencyCompiler = new OnDemandCompiler($normalizer, $this, $injector);
-        $this->functionCompiler = new FunctionCompiler($container, new PrivateProperty, $compiler);
+        $this->nodeFactory = new NodeFactory($normalizer, $this, $injector);
+        $this->functionCompiler = new FunctionCode($container, new PrivateProperty, $compiler);
     }
 
     /**
@@ -68,14 +68,14 @@ final class FactoryCompiler
         $node = [];
         $instance = new Expr\Variable('instance');
         // constructor injection
-        $constructorInjection = $this->constructorInjection($class, $arguments);
+        $constructorInjection = $this->getConstructorInjection($class, $arguments);
         $node[] = new Expr\Assign($instance, $constructorInjection);
-        $setters = $this->onDemandDependencyCompiler->setterInjection($instance, $setterMethods);
+        $setters = $this->nodeFactory->getSetterInjection($instance, $setterMethods);
         foreach ($setters as $setter) {
             $node[] = $setter;
         }
         if ($postConstruct) {
-            $node[] = $this->onDemandDependencyCompiler->postConstruct($instance, $postConstruct);
+            $node[] = $this->nodeFactory->getPostConstruct($instance, $postConstruct);
         }
 
         return $node;
@@ -94,7 +94,7 @@ final class FactoryCompiler
         }
         $hasDependency = isset($this->container->getContainer()[$dependencyIndex]);
         if (! $hasDependency) {
-            return $this->onDemandDependencyCompiler->getOnDemandDependency($argument);
+            return $this->nodeFactory->getNode($argument);
         }
         $dependency = $this->container->getContainer()[$dependencyIndex];
         if ($dependency instanceof Instance) {
@@ -104,7 +104,7 @@ final class FactoryCompiler
         return $this->functionCompiler->__invoke($argument, $dependency);
     }
 
-    private function constructorInjection(string $class, array $arguments = []) : Expr\New_
+    private function getConstructorInjection(string $class, array $arguments = []) : Expr\New_
     {
         /* @var $arguments Argument[] */
         $args = [];
