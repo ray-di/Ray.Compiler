@@ -7,12 +7,8 @@
 namespace Ray\Compiler;
 
 use Ray\Aop\Compiler;
-use Ray\Compiler\Exception\ClassNotFound;
 use Ray\Compiler\Exception\MetaNotFound;
-use Ray\Compiler\Exception\Unbound;
-use Ray\Di\Bind;
 use Ray\Di\Container;
-use Ray\Di\Dependency;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
@@ -40,7 +36,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     private $singletons = [];
 
     /**
-     * @var array [[$class, $method], $parameter]
+     * @var array [[$class,],]
      */
     private $functions;
 
@@ -157,7 +153,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     {
         $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
         if (! \file_exists($file)) {
-            $this->onDemandCompile($dependencyIndex);
+            (new RootObjectCompiler($this, $this->scriptDir))->__invoke($dependencyIndex);
         }
 
         return $file;
@@ -176,40 +172,5 @@ final class ScriptInjector implements InjectorInterface, \Serializable
                 // codeCoverageIgnoreEnd
             }
         });
-    }
-
-    /**
-     * Return instance with compile on demand
-     */
-    private function onDemandCompile(string $dependencyIndex) : void
-    {
-        list($class) = \explode('-', $dependencyIndex);
-        if (! \class_exists($class)) {
-            $e = new ClassNotFound($dependencyIndex);
-            throw new Unbound($dependencyIndex, 0, $e);
-        }
-        $container = new Container;
-        new Bind($container, $class);
-        /** @var Dependency $dependency */
-        $dependency = $container->getContainer()[$dependencyIndex];
-        $pointCuts = $this->loadPointcuts();
-        if ($pointCuts) {
-            $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
-        }
-        $code = (new DependencyCompiler(new Container, $this))->compile($dependency);
-        (new DependencySaver($this->scriptDir))->__invoke($dependencyIndex, $code);
-    }
-
-    /**
-     * @return array|false
-     */
-    private function loadPointcuts()
-    {
-        $pointcuts = $this->scriptDir . DiCompiler::POINT_CUT;
-        if (! \file_exists($pointcuts)) {
-            return false;
-        }
-
-        return  \unserialize(\file_get_contents($pointcuts));
     }
 }
