@@ -66,7 +66,7 @@ class ScriptInjectorTest extends TestCase
         (new DiCompiler(new FakeToBindSingletonModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
         $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
-        $this->assertSame(\spl_object_hash($instance1), \spl_object_hash($instance2));
+        $this->assertSame($instance1, $instance2);
     }
 
     public function testToProviderPrototype()
@@ -74,7 +74,7 @@ class ScriptInjectorTest extends TestCase
         (new DiCompiler(new FakeToProviderPrototypeModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
         $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
-        $this->assertNotSame(\spl_object_hash($instance1), \spl_object_hash($instance2));
+        $this->assertNotSame($instance1, $instance2);
     }
 
     public function testToProviderSingleton()
@@ -82,7 +82,7 @@ class ScriptInjectorTest extends TestCase
         (new DiCompiler(new FakeToProviderSingletonModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
         $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
-        $this->assertSame(\spl_object_hash($instance1), \spl_object_hash($instance2));
+        $this->assertSame($instance1, $instance2);
     }
 
     public function testToInstancePrototype()
@@ -90,7 +90,7 @@ class ScriptInjectorTest extends TestCase
         (new DiCompiler(new FakeToInstancePrototypeModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
         $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
-        $this->assertNotSame(\spl_object_hash($instance1), \spl_object_hash($instance2));
+        $this->assertNotSame($instance1, $instance2);
     }
 
     public function testToInstanceSingleton()
@@ -98,7 +98,7 @@ class ScriptInjectorTest extends TestCase
         (new DiCompiler(new FakeToInstanceSingletonModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
         $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
-        $this->assertSame(\spl_object_hash($instance1), \spl_object_hash($instance2));
+        $this->assertSame($instance1, $instance2);
     }
 
     public function testSerializable()

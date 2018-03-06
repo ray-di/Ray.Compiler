@@ -8,6 +8,9 @@ class FakeRobotProvider implements ProviderInterface
 {
     public function get()
     {
-        return new FakeRobot;
+        $robot = new FakeRobot;
+//        $robot->a = new \DateTimeImmutable();
+
+        return $robot;
     }
 }
