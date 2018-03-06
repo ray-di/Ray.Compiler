@@ -40,7 +40,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     private $singletons = [];
 
     /**
-     * @var array
+     * @var array [[$class, $method], $parameter]
      */
     private $functions;
 
@@ -131,7 +131,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     {
         list($prototype, $singleton, $injection_point, $injector) = $this->functions;
 
-        $instance = require $this->getFileName($dependencyIndex);
+        $instance = require $this->getInstanceFile($dependencyIndex);
         /** @var bool $is_singleton */
         $isSingleton = (isset($is_singleton) && $is_singleton) ? true : false;
 
@@ -147,10 +147,13 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     {
         list($prototype, $singleton, $injection_point, $injector) = $this->functions;
 
-        return require $this->getFileName($dependencyIndex);
+        return require $this->getInstanceFile($dependencyIndex);
     }
 
-    private function getFileName(string $dependencyIndex) : string
+    /**
+     * Return compiled script file name
+     */
+    private function getInstanceFile(string $dependencyIndex) : string
     {
         $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
         if (! \file_exists($file)) {
