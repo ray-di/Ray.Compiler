@@ -10,6 +10,7 @@ use PhpParser\BuilderFactory;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Stmt;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
@@ -102,36 +103,13 @@ final class DependencyCompiler implements SetContextInterface
     }
 
     /**
-     * Return "return [$node, $isSingleton]" node
-     */
-    public function getReturnCode(Expr $instance, bool $isSingleton) : Node\Stmt\Return_
-    {
-        $bool = $isSingleton ? 'true' : 'false';
-        $singletonInt = new Expr\ConstFetch(new Node\Name([$bool]));
-        $return = new Node\Stmt\Return_(
-            new Node\Expr\Array_(
-                [
-                new Expr\ArrayItem(
-                    $instance
-                ),
-                new Expr\ArrayItem(
-                    $singletonInt
-                )
-                ]
-            )
-        );
-
-        return $return;
-    }
-
-    /**
      * Compile DependencyInstance
      */
     private function compileInstance(Instance $instance) : Code
     {
         $node = $this->normalizer->__invoke($instance->value);
 
-        return new Code($this->getReturnCode($node, false));
+        return new Code(new Node\Stmt\Return_($node), false);
     }
 
     /**
@@ -142,9 +120,9 @@ final class DependencyCompiler implements SetContextInterface
         $prop = $this->privateProperty;
         $node = $this->getFactoryNode($dependency);
         $this->aopCode->__invoke($dependency, $node);
-        $isSingleton = $prop($dependency, 'isSingleton');
-        $node[] = $this->getReturnCode(new Node\Expr\Variable('instance'), $isSingleton);
+        $node[] = new Node\Stmt\Return_(new Node\Expr\Variable('instance'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
+        $isSingleton = $prop($dependency, 'isSingleton');
         $qualifer = $this->qualifier;
         $this->qualifier = null;
 
@@ -163,10 +141,9 @@ final class DependencyCompiler implements SetContextInterface
         if ($this->context) {
             $node[] = $this->getSetContextCode($this->context); // $instance->setContext($this->context);
         }
-        $isSingleton = $prop($provider, 'isSingleton');
-        $methodCall = new MethodCall(new Expr\Variable('instance'), 'get');
-        $node[] = $this->getReturnCode($methodCall, $isSingleton);
+        $node[] = new Stmt\Return_(new MethodCall(new Expr\Variable('instance'), 'get'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
+        $isSingleton = $prop($provider, 'isSingleton');
         $qualifer = $this->qualifier;
         $this->qualifier = null;
 
