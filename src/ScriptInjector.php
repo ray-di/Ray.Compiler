@@ -37,7 +37,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
      *
      * @var array
      */
-    private static $singletons = [];
+    private $singletons = [];
 
     /**
      * @var array
@@ -45,17 +45,11 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     private $functions;
 
     /**
-     * @var int
-     */
-    private $injectorId;
-
-    /**
      * @param string $scriptDir generated instance script folder path
      */
     public function __construct($scriptDir)
     {
         $this->scriptDir = $scriptDir;
-        $this->injectorId = \crc32($this->scriptDir);
         $this->registerLoader();
         $prototype = function ($dependencyIndex, array $injectionPoint = []) {
             $this->ip = $injectionPoint;
@@ -63,12 +57,12 @@ final class ScriptInjector implements InjectorInterface, \Serializable
             return $this->getNodeInstance($dependencyIndex);
         };
         $singleton = function ($dependencyIndex, array $injectionPoint = []) {
-            if (isset(self::$singletons[$this->injectorId][$dependencyIndex])) {
-                return self::$singletons[$this->injectorId][$dependencyIndex];
+            if (isset($this->singletons[$dependencyIndex])) {
+                return $this->singletons[$dependencyIndex];
             }
             $this->ip = $injectionPoint;
             $instance = $this->getNodeInstance($dependencyIndex);
-            self::$singletons[$this->injectorId][$dependencyIndex] = $instance;
+            $this->singletons[$dependencyIndex] = $instance;
 
             return $instance;
         };
@@ -90,12 +84,12 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     public function getInstance($interface, $name = Name::ANY)
     {
         $dependencyIndex = $interface . '-' . $name;
-        if (isset(self::$singletons[$this->injectorId][$dependencyIndex])) {
-            return self::$singletons[$this->injectorId][$dependencyIndex];
+        if (isset($this->singletons[$dependencyIndex])) {
+            return $this->singletons[$dependencyIndex];
         }
         list($instance, $isSingleton) = $this->getRootInstance($dependencyIndex);
         if ($isSingleton) {
-            self::$singletons[$this->injectorId][$dependencyIndex] = $instance;
+            $this->singletons[$dependencyIndex] = $instance;
         }
 
         return $instance;
@@ -116,12 +110,12 @@ final class ScriptInjector implements InjectorInterface, \Serializable
 
     public function serialize() : string
     {
-        return \serialize([$this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]]);
+        return \serialize([$this->scriptDir, $this->singletons]);
     }
 
     public function unserialize($serialized)
     {
-        list($this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]) = \unserialize($serialized);
+        list($this->scriptDir, $this->singletons) = \unserialize($serialized);
         $this->__construct($this->scriptDir);
     }
 
@@ -183,8 +177,6 @@ final class ScriptInjector implements InjectorInterface, \Serializable
 
     /**
      * Return instance with compile on demand
-     *
-     * @return mixed
      */
     private function onDemandCompile(string $dependencyIndex) : void
     {
