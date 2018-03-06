@@ -53,12 +53,52 @@ class ScriptInjectorTest extends TestCase
         $script->getInstance('invalid-class');
     }
 
-    public function testSingleton()
+    public function testToPrototype()
+    {
+        (new DiCompiler(new FakeToBindPrototypeModule, $_ENV['TMP_DIR']))->compile();
+        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $this->assertNotSame(\spl_object_hash($instance1), \spl_object_hash($instance2));
+    }
+
+    public function testToSingleton()
     {
         (new DiCompiler(new FakeToBindSingletonModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
         $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
-        $this->assertSame(\spl_object_hash($instance1), \spl_object_hash($instance2));
+        $this->assertSame($instance1, $instance2);
+    }
+
+    public function testToProviderPrototype()
+    {
+        (new DiCompiler(new FakeToProviderPrototypeModule, $_ENV['TMP_DIR']))->compile();
+        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $this->assertNotSame($instance1, $instance2);
+    }
+
+    public function testToProviderSingleton()
+    {
+        (new DiCompiler(new FakeToProviderSingletonModule, $_ENV['TMP_DIR']))->compile();
+        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $this->assertSame($instance1, $instance2);
+    }
+
+    public function testToInstancePrototype()
+    {
+        (new DiCompiler(new FakeToInstancePrototypeModule, $_ENV['TMP_DIR']))->compile();
+        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $this->assertNotSame($instance1, $instance2);
+    }
+
+    public function testToInstanceSingleton()
+    {
+        (new DiCompiler(new FakeToInstanceSingletonModule, $_ENV['TMP_DIR']))->compile();
+        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $this->assertSame($instance1, $instance2);
     }
 
     public function testSerializable()

@@ -78,6 +78,7 @@ $instance->setMirrors($singleton('Ray\\Compiler\\FakeMirrorInterface-right'), $s
 $instance->setSpareMirror($singleton('Ray\\Compiler\\FakeMirrorInterface-right'));
 $instance->setHandle($prototype('Ray\\Compiler\\FakeHandleInterface-{ANY}', array('Ray\\Compiler\\FakeCar', 'setHandle', 'handle')));
 $instance->postConstruct();
+$is_singleton = false;
 return $instance;
 EOT;
         $expected = \str_replace('{ANY}', Name::ANY, $expectedTemplate);
@@ -95,6 +96,7 @@ EOT;
 namespace Ray\Di\Compiler;
 
 $instance = new \Ray\Compiler\FakeHandleProvider('momo');
+$is_singleton = false;
 return $instance->get();
 EOT;
         $this->assertSame($expected, (string) $code);
@@ -144,6 +146,7 @@ namespace Ray\Di\Compiler;
 
 $instance = new \Ray\Compiler\FakeContextualProvider();
 $instance->setContext('context');
+$is_singleton = false;
 return $instance->get();
 EOT;
         $this->assertSame($expected, (string) $code);

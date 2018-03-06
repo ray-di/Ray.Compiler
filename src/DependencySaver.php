@@ -8,7 +8,7 @@ namespace Ray\Compiler;
 
 final class DependencySaver
 {
-    const INSTANCE_FILE = '%s/%s';
+    const INSTANCE_FILE = '%s/%s.php';
     const META_FILE = '%s/metas/%s.json';
     const QUALIFIER_FILE = '%s/qualifer/%s-%s-%s';
     private $scriptDir;

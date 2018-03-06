@@ -7,12 +7,8 @@
 namespace Ray\Compiler;
 
 use Ray\Aop\Compiler;
-use Ray\Compiler\Exception\ClassNotFound;
 use Ray\Compiler\Exception\MetaNotFound;
-use Ray\Compiler\Exception\Unbound;
-use Ray\Di\Bind;
 use Ray\Di\Container;
-use Ray\Di\Dependency;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
@@ -37,17 +33,12 @@ final class ScriptInjector implements InjectorInterface, \Serializable
      *
      * @var array
      */
-    private static $singletons = [];
+    private $singletons = [];
 
     /**
-     * @var array
+     * @var array [[$class,],]
      */
     private $functions;
-
-    /**
-     * @var int
-     */
-    private $injectorId;
 
     /**
      * @param string $scriptDir generated instance script folder path
@@ -55,20 +46,19 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     public function __construct($scriptDir)
     {
         $this->scriptDir = $scriptDir;
-        $this->injectorId = \crc32($this->scriptDir);
         $this->registerLoader();
         $prototype = function ($dependencyIndex, array $injectionPoint = []) {
             $this->ip = $injectionPoint;
 
-            return $this->getScriptInstance($dependencyIndex);
+            return $this->getNodeInstance($dependencyIndex);
         };
         $singleton = function ($dependencyIndex, array $injectionPoint = []) {
-            if (isset(self::$singletons[$this->injectorId][$dependencyIndex])) {
-                return self::$singletons[$this->injectorId][$dependencyIndex];
+            if (isset($this->singletons[$dependencyIndex])) {
+                return $this->singletons[$dependencyIndex];
             }
             $this->ip = $injectionPoint;
-            $instance = $this->getScriptInstance($dependencyIndex);
-            self::$singletons[$this->injectorId][$dependencyIndex] = $instance;
+            $instance = $this->getNodeInstance($dependencyIndex);
+            $this->singletons[$dependencyIndex] = $instance;
 
             return $instance;
         };
@@ -90,12 +80,12 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     public function getInstance($interface, $name = Name::ANY)
     {
         $dependencyIndex = $interface . '-' . $name;
-        if (isset(self::$singletons[$this->injectorId][$dependencyIndex])) {
-            return self::$singletons[$this->injectorId][$dependencyIndex];
+        if (isset($this->singletons[$dependencyIndex])) {
+            return $this->singletons[$dependencyIndex];
         }
-        $instance = $this->getScriptInstance($dependencyIndex);
-        if ($this->isSingleton($dependencyIndex) === true) {
-            self::$singletons[$this->injectorId][$dependencyIndex] = $instance;
+        list($instance, $isSingleton) = $this->getRootInstance($dependencyIndex);
+        if ($isSingleton) {
+            $this->singletons[$dependencyIndex] = $instance;
         }
 
         return $instance;
@@ -116,29 +106,57 @@ final class ScriptInjector implements InjectorInterface, \Serializable
 
     public function serialize() : string
     {
-        return \serialize([$this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]]);
+        return \serialize([$this->scriptDir, $this->singletons]);
     }
 
     public function unserialize($serialized)
     {
-        list($this->scriptDir, $this->injectorId, self::$singletons[$this->injectorId]) = \unserialize($serialized);
+        list($this->scriptDir, $this->singletons) = \unserialize($serialized);
         $this->__construct($this->scriptDir);
     }
 
     /**
+     * Return root object of object graph and isSingleton information
+     *
+     * Only root object needs the information of $isSingleton. That meta information for node object was determined
+     * in compile timecalled and instatiate with singleton() method call.
+     *
+     * @return array [(mixed) $instance, (bool) $isSigleton]
+     */
+    private function getRootInstance(string $dependencyIndex) : array
+    {
+        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
+
+        $instance = require $this->getInstanceFile($dependencyIndex);
+        /** @var bool $is_singleton */
+        $isSingleton = (isset($is_singleton) && $is_singleton) ? true : false;
+
+        return [$instance, $isSingleton];
+    }
+
+    /**
+     * Return node object of object graph
+     *
      * @return mixed
      */
-    private function getScriptInstance(string $dependencyIndex)
+    private function getNodeInstance(string $dependencyIndex)
+    {
+        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
+
+        return require $this->getInstanceFile($dependencyIndex);
+    }
+
+    /**
+     * Return compiled script file name
+     */
+    private function getInstanceFile(string $dependencyIndex) : string
     {
         $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
         if (! \file_exists($file)) {
-            return $this->onDemandCompile($dependencyIndex);
+            (new RootObjectCompiler($this, $this->scriptDir))->__invoke($dependencyIndex);
         }
-        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
 
-        $instance = require $file;
-
-        return $instance;
+        return $file;
     }
 
     /**
@@ -154,44 +172,5 @@ final class ScriptInjector implements InjectorInterface, \Serializable
                 // codeCoverageIgnoreEnd
             }
         });
-    }
-
-    /**
-     * Return instance with compile on demand
-     *
-     * @return mixed
-     */
-    private function onDemandCompile(string $dependencyIndex)
-    {
-        list($class) = \explode('-', $dependencyIndex);
-        if (! \class_exists($class)) {
-            $e = new ClassNotFound($dependencyIndex);
-            throw new Unbound($dependencyIndex, 0, $e);
-        }
-        $container = new Container;
-        new Bind($container, $class);
-        /** @var Dependency $dependency */
-        $dependency = $container->getContainer()[$dependencyIndex];
-        $pointCuts = $this->loadPointcuts();
-        if ($pointCuts) {
-            $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
-        }
-        $code = (new DependencyCompiler(new Container, $this))->compile($dependency);
-        (new DependencySaver($this->scriptDir))->__invoke($dependencyIndex, $code);
-
-        return $this->getScriptInstance($dependencyIndex);
-    }
-
-    /**
-     * @return array|false
-     */
-    private function loadPointcuts()
-    {
-        $pointcuts = $this->scriptDir . DiCompiler::POINT_CUT;
-        if (! \file_exists($pointcuts)) {
-            return false;
-        }
-
-        return  \unserialize(\file_get_contents($pointcuts));
     }
 }
