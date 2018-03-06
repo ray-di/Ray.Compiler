@@ -102,6 +102,13 @@ final class DependencyCompiler implements SetContextInterface
         $this->qualifier = $qualifer;
     }
 
+    public function getIsSingletonCode(bool $isSingleton) : Expr\Assign
+    {
+        $bool = new Expr\ConstFetch(new Node\Name([$isSingleton ? 'true' : 'false']));
+
+        return new Expr\Assign(new Expr\Variable('is_singleton'), $bool);
+    }
+
     /**
      * Compile DependencyInstance
      */
@@ -120,9 +127,10 @@ final class DependencyCompiler implements SetContextInterface
         $prop = $this->privateProperty;
         $node = $this->getFactoryNode($dependency);
         $this->aopCode->__invoke($dependency, $node);
+        $isSingleton = $prop($dependency, 'isSingleton');
+        $node[] = $this->getIsSingletonCode($isSingleton);
         $node[] = new Node\Stmt\Return_(new Node\Expr\Variable('instance'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
-        $isSingleton = $prop($dependency, 'isSingleton');
         $qualifer = $this->qualifier;
         $this->qualifier = null;
 
@@ -141,9 +149,10 @@ final class DependencyCompiler implements SetContextInterface
         if ($this->context) {
             $node[] = $this->getSetContextCode($this->context); // $instance->setContext($this->context);
         }
+        $isSingleton = $prop($provider, 'isSingleton');
+        $node[] = $this->getIsSingletonCode($isSingleton);
         $node[] = new Stmt\Return_(new MethodCall(new Expr\Variable('instance'), 'get'));
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
-        $isSingleton = $prop($provider, 'isSingleton');
         $qualifer = $this->qualifier;
         $this->qualifier = null;
 

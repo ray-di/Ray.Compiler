@@ -60,14 +60,14 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         $prototype = function ($dependencyIndex, array $injectionPoint = []) {
             $this->ip = $injectionPoint;
 
-            return $this->getScriptInstance($dependencyIndex);
+            return $this->getNodeInstance($dependencyIndex);
         };
         $singleton = function ($dependencyIndex, array $injectionPoint = []) {
             if (isset(self::$singletons[$this->injectorId][$dependencyIndex])) {
                 return self::$singletons[$this->injectorId][$dependencyIndex];
             }
             $this->ip = $injectionPoint;
-            $instance = $this->getScriptInstance($dependencyIndex);
+            $instance = $this->getNodeInstance($dependencyIndex);
             self::$singletons[$this->injectorId][$dependencyIndex] = $instance;
 
             return $instance;
@@ -93,8 +93,8 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         if (isset(self::$singletons[$this->injectorId][$dependencyIndex])) {
             return self::$singletons[$this->injectorId][$dependencyIndex];
         }
-        $instance = $this->getScriptInstance($dependencyIndex);
-        if ($this->isSingleton($dependencyIndex) === true) {
+        list($instance, $isSingleton) = $this->getRootInstance($dependencyIndex);
+        if ($isSingleton) {
             self::$singletons[$this->injectorId][$dependencyIndex] = $instance;
         }
 
@@ -126,19 +126,44 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     }
 
     /**
+     * Return root object of object graph and isSingleton information
+     *
+     * Only root object needs the information of $isSingleton. That meta information for node object was determined
+     * in compile timecalled and instatiate with singleton() method call.
+     *
+     * @return array [(mixed) $instance, (bool) $isSigleton]
+     */
+    private function getRootInstance(string $dependencyIndex) : array
+    {
+        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
+
+        $instance = require $this->getFileName($dependencyIndex);
+        /** @var bool $is_singleton */
+        $isSingleton = (isset($is_singleton) && $is_singleton) ? true : false;
+
+        return [$instance, $isSingleton];
+    }
+
+    /**
+     * Return node object of object graph
+     *
      * @return mixed
      */
-    private function getScriptInstance(string $dependencyIndex)
+    private function getNodeInstance(string $dependencyIndex)
+    {
+        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
+
+        return require $this->getFileName($dependencyIndex);
+    }
+
+    private function getFileName(string $dependencyIndex) : string
     {
         $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
         if (! \file_exists($file)) {
-            return $this->onDemandCompile($dependencyIndex);
+            $this->onDemandCompile($dependencyIndex);
         }
-        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
 
-        $instance = require $file;
-
-        return $instance;
+        return $file;
     }
 
     /**
@@ -161,7 +186,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
      *
      * @return mixed
      */
-    private function onDemandCompile(string $dependencyIndex)
+    private function onDemandCompile(string $dependencyIndex) : void
     {
         list($class) = \explode('-', $dependencyIndex);
         if (! \class_exists($class)) {
@@ -178,8 +203,6 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         }
         $code = (new DependencyCompiler(new Container, $this))->compile($dependency);
         (new DependencySaver($this->scriptDir))->__invoke($dependencyIndex, $code);
-
-        return $this->getScriptInstance($dependencyIndex);
     }
 
     /**
