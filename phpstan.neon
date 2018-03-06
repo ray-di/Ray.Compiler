@@ -3,3 +3,5 @@ parameters:
         - %currentWorkingDirectory%/tests/tmp/*
         - %currentWorkingDirectory%/tests/Fake/*
         - %currentWorkingDirectory%/tests/bootstrap.php
+    ignoreErrors:
+        - '#Variable \$is_singleton in isset\(\) is never defined.#'
