@@ -32,7 +32,7 @@ class DependencyCompilerTest extends TestCase
         $expected = <<<'EOT'
 <?php
 
-return array('bear', false);
+return 'bear';
 EOT;
         $this->assertSame($expected, (string) $code);
     }
@@ -44,7 +44,7 @@ EOT;
         $expected = <<<'EOT'
 <?php
 
-return array(1, false);
+return 1;
 EOT;
         $this->assertSame($expected, (string) $code);
     }
@@ -56,7 +56,7 @@ EOT;
         $expected = <<<'EOT'
 <?php
 
-return array(array(1, 2, 3), false);
+return array(1, 2, 3);
 EOT;
         $this->assertSame($expected, (string) $code);
     }
@@ -78,7 +78,7 @@ $instance->setMirrors($singleton('Ray\\Compiler\\FakeMirrorInterface-right'), $s
 $instance->setSpareMirror($singleton('Ray\\Compiler\\FakeMirrorInterface-right'));
 $instance->setHandle($prototype('Ray\\Compiler\\FakeHandleInterface-{ANY}', array('Ray\\Compiler\\FakeCar', 'setHandle', 'handle')));
 $instance->postConstruct();
-return array($instance, false);
+return $instance;
 EOT;
         $expected = \str_replace('{ANY}', Name::ANY, $expectedTemplate);
         $this->assertSame($expected, (string) $code);
@@ -95,7 +95,7 @@ EOT;
 namespace Ray\Di\Compiler;
 
 $instance = new \Ray\Compiler\FakeHandleProvider('momo');
-return array($instance->get(), false);
+return $instance->get();
 EOT;
         $this->assertSame($expected, (string) $code);
     }
@@ -108,7 +108,7 @@ EOT;
         $expected = <<<'EOT'
 <?php
 
-return array('momo', false);
+return 'momo';
 EOT;
         $this->assertSame($expected, (string) $code);
     }
@@ -121,7 +121,7 @@ EOT;
         $expected = <<<'EOT'
 <?php
 
-return array(unserialize('O:23:"Ray\\Compiler\\FakeEngine":0:{}'), false);
+return unserialize('O:23:"Ray\\Compiler\\FakeEngine":0:{}');
 EOT;
         $this->assertSame($expected, (string) $code);
     }
@@ -144,7 +144,7 @@ namespace Ray\Di\Compiler;
 
 $instance = new \Ray\Compiler\FakeContextualProvider();
 $instance->setContext('context');
-return array($instance->get(), false);
+return $instance->get();
 EOT;
         $this->assertSame($expected, (string) $code);
     }
