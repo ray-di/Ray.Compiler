@@ -11,12 +11,13 @@ final class DependencySaver
     const INSTANCE_FILE = '%s/%s.php';
     const META_FILE = '%s/metas/%s.json';
     const QUALIFIER_FILE = '%s/qualifer/%s-%s-%s';
-    private $scriptDir;
 
     /**
-     * @param string $scriptDir
+     * @var string
      */
-    public function __construct($scriptDir)
+    private $scriptDir;
+
+    public function __construct(string $scriptDir)
     {
         $this->scriptDir = $scriptDir;
         $metasDir = $this->scriptDir . '/metas';
@@ -25,10 +26,6 @@ final class DependencySaver
         ! \file_exists($qualifier) && \mkdir($qualifier);
     }
 
-    /**
-     * @param string $dependencyIndex
-     * @param Code   $code
-     */
     public function __invoke($dependencyIndex, Code $code)
     {
         $pearStyleName = \str_replace('\\', '_', $dependencyIndex);

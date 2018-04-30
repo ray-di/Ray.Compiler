@@ -95,13 +95,7 @@ final class NodeFactory
         return $setters;
     }
 
-    /**
-     * @param Expr\Variable $instance
-     * @param string        $postConstruct
-     *
-     * @return Expr\MethodCall
-     */
-    public function getPostConstruct(Expr\Variable $instance, $postConstruct) : Expr\MethodCall
+    public function getPostConstruct(Expr\Variable $instance, string $postConstruct) : Expr\MethodCall
     {
         return new Expr\MethodCall($instance, $postConstruct);
     }
