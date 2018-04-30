@@ -181,9 +181,12 @@ class ScriptInjectorTest extends TestCase
     public function testCompileOnDemand()
     {
         delete_dir($_ENV['TMP_DIR']);
-        $injector = new ScriptInjector($_ENV['TMP_DIR'], function () {
-            return new FakeCarModule;
-        });
+        $injector = new ScriptInjector(
+            $_ENV['TMP_DIR'],
+            function () {
+                return new FakeCarModule;
+            }
+        );
         $car = $injector->getInstance(FakeCar::class);
         $this->assertTrue($car instanceof FakeCar);
     }
