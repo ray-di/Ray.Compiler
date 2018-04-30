@@ -170,14 +170,21 @@ class ScriptInjectorTest extends TestCase
         $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
     }
 
-    /**
-     * @expectedException \Ray\Compiler\Exception\Unbound
-     * @expectedExceptionMessage NOCLASS-NONAME
-     */
     public function testUnbound()
     {
         $this->expectException(Unbound::class);
+        $this->expectExceptionMessage('NOCLASS-NONAME');
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
         $injector->getInstance('NOCLASS', 'NONAME');
+    }
+
+    public function testCompileOnDemand()
+    {
+        delete_dir($_ENV['TMP_DIR']);
+        $injector = new ScriptInjector($_ENV['TMP_DIR'], function () {
+            return new FakeCarModule;
+        });
+        $car = $injector->getInstance(FakeCar::class);
+        $this->assertTrue($car instanceof FakeCar);
     }
 }

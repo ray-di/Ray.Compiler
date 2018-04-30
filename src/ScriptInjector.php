@@ -9,6 +9,7 @@ namespace Ray\Compiler;
 use Ray\Aop\Compiler;
 use Ray\Compiler\Exception\MetaNotFound;
 use Ray\Di\Container;
+use Ray\Di\EmptyModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
@@ -41,11 +42,20 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     private $functions;
 
     /**
-     * @param string $scriptDir generated instance script folder path
+     * @var callable
      */
-    public function __construct($scriptDir)
+    private $module;
+
+    /**
+     * @param string   $scriptDir  generated instance script folder path
+     * @param callable $lazyModule callable variable which return AbstractModule instance
+     */
+    public function __construct($scriptDir, callable $lazyModule = null)
     {
         $this->scriptDir = $scriptDir;
+        $this->module = $lazyModule ?: function () {
+            return new EmptyModule;
+        };
         $this->registerLoader();
         $prototype = function ($dependencyIndex, array $injectionPoint = []) {
             $this->ip = $injectionPoint;
@@ -153,7 +163,8 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     {
         $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
         if (! \file_exists($file)) {
-            (new OnDemandCompiler($this, $this->scriptDir))->__invoke($dependencyIndex);
+            $module = ($this->module)();
+            (new OnDemandCompiler($this, $this->scriptDir, $module))($dependencyIndex);
         }
 
         return $file;
