@@ -10,6 +10,7 @@ use Ray\Aop\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Bind;
+use Ray\Di\Dependency;
 use Ray\Di\Exception\NotFound;
 
 final class OnDemandCompiler
@@ -53,6 +54,7 @@ final class OnDemandCompiler
         if (! isset($containerArray[$dependencyIndex])) {
             throw new Unbound($dependencyIndex, 0);
         }
+        /** @var Dependency $dependency */
         $dependency = $containerArray[$dependencyIndex];
         $pointCuts = $this->loadPointcuts();
         if ($pointCuts) {
