@@ -61,10 +61,9 @@ final class DiCompiler implements InjectorInterface
      */
     public function getInstance($interface, $name = Name::ANY)
     {
-        $instance = $this->injector->getInstance($interface, $name);
         $this->compile();
 
-        return $instance;
+        return (new ScriptInjector($this->scriptDir))->getInstance($interface, $name);
     }
 
     /**
