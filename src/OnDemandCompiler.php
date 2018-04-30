@@ -7,10 +7,11 @@
 namespace Ray\Compiler;
 
 use Ray\Aop\Compiler;
-use Ray\Compiler\Exception\ClassNotFound;
 use Ray\Compiler\Exception\Unbound;
+use Ray\Di\AbstractModule;
 use Ray\Di\Bind;
-use Ray\Di\Container;
+use Ray\Di\Dependency;
+use Ray\Di\Exception\NotFound;
 
 final class OnDemandCompiler
 {
@@ -24,10 +25,16 @@ final class OnDemandCompiler
      */
     private $injector;
 
-    public function __construct(ScriptInjector $injector, string $sctiptDir)
+    /**
+     * @var AbstractModule
+     */
+    private $module;
+
+    public function __construct(ScriptInjector $injector, string $sctiptDir, AbstractModule $module)
     {
         $this->scriptDir = $sctiptDir;
         $this->injector = $injector;
+        $this->module = $module;
     }
 
     /**
@@ -36,19 +43,24 @@ final class OnDemandCompiler
     public function __invoke(string $dependencyIndex) : void
     {
         list($class) = \explode('-', $dependencyIndex);
-        if (! \class_exists($class)) {
-            $e = new ClassNotFound($dependencyIndex);
+        $containerObject = $this->module->getContainer();
+        try {
+            new Bind($containerObject, $class);
+        } catch (NotFound $e) {
             throw new Unbound($dependencyIndex, 0, $e);
         }
-        $container = new Container();
-        new Bind($container, $class);
-        /** @var \Ray\Di\Dependency $dependency */
-        $dependency = $container->getContainer()[$dependencyIndex];
+        $containerArray = $containerObject->getContainer();
+        /* @var \Ray\Di\Dependency $dependency */
+        if (! isset($containerArray[$dependencyIndex])) {
+            throw new Unbound($dependencyIndex, 0);
+        }
+        /** @var Dependency $dependency */
+        $dependency = $containerArray[$dependencyIndex];
         $pointCuts = $this->loadPointcuts();
         if ($pointCuts) {
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
-        $code = (new DependencyCode(new Container, $this->injector))->getCode($dependency);
+        $code = (new DependencyCode($containerObject, $this->injector))->getCode($dependency);
         (new DependencySaver($this->scriptDir))->__invoke($dependencyIndex, $code);
     }
 

@@ -23,11 +23,7 @@ final class GraphDumper
      */
     private $scriptDir;
 
-    /**
-     * @param Container $container
-     * @param string    $scriptDir
-     */
-    public function __construct(Container $container, $scriptDir)
+    public function __construct(Container $container, string $scriptDir)
     {
         $this->container = $container;
         $this->scriptDir = $scriptDir;
@@ -39,7 +35,7 @@ final class GraphDumper
         foreach ($container as $dependencyIndex => $dependency) {
             $isNorInjector = $dependencyIndex !== 'Ray\Di\InjectorInterface-' . Name::ANY;
             if ($dependency instanceof DependencyInterface && $isNorInjector) {
-                $this->write($dependency, $dependencyIndex);
+                $this->write($dependencyIndex);
             }
         }
     }
@@ -47,12 +43,13 @@ final class GraphDumper
     /**
      * Write html
      */
-    private function write(DependencyInterface $dependency, string $dependencyIndex) : void
+    private function write(string $dependencyIndex) : void
     {
         if ($dependencyIndex === 'Ray\Aop\MethodInvocation-') {
             return;
         }
-        $instance = $dependency->inject($this->container);
+        list($interface, $name) = \explode('-', $dependencyIndex);
+        $instance = (new ScriptInjector($this->scriptDir))->getInstance($interface, $name);
         $graph = (string) (new Printo($instance))
             ->setRange(Printo::RANGE_ALL)
             ->setLinkDistance(130)

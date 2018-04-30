@@ -11,12 +11,13 @@ final class DependencySaver
     const INSTANCE_FILE = '%s/%s.php';
     const META_FILE = '%s/metas/%s.json';
     const QUALIFIER_FILE = '%s/qualifer/%s-%s-%s';
-    private $scriptDir;
 
     /**
-     * @param string $scriptDir
+     * @var string
      */
-    public function __construct($scriptDir)
+    private $scriptDir;
+
+    public function __construct(string $scriptDir)
     {
         $this->scriptDir = $scriptDir;
         $metasDir = $this->scriptDir . '/metas';
@@ -25,16 +26,12 @@ final class DependencySaver
         ! \file_exists($qualifier) && \mkdir($qualifier);
     }
 
-    /**
-     * @param string $dependencyIndex
-     * @param Code   $code
-     */
     public function __invoke($dependencyIndex, Code $code)
     {
         $pearStyleName = \str_replace('\\', '_', $dependencyIndex);
         $instanceScript = \sprintf(self::INSTANCE_FILE, $this->scriptDir, $pearStyleName);
-        \file_put_contents($instanceScript, (string) $code, LOCK_EX);
-        $meta = \json_encode(['is_singleton' => $code->isSingleton]);
+        \file_put_contents($instanceScript, (string) $code . PHP_EOL, LOCK_EX);
+        $meta = \json_encode(['is_singleton' => $code->isSingleton]) . PHP_EOL;
         $metaJson = \sprintf(self::META_FILE, $this->scriptDir, $pearStyleName);
         \file_put_contents($metaJson, $meta, LOCK_EX);
         if ($code->qualifiers) {
@@ -51,6 +48,6 @@ final class DependencySaver
             $qualifer->param->getDeclaringFunction()->name,
             $qualifer->param->name
         );
-        \file_put_contents($fileName, \serialize($qualifer->qualifier));
+        \file_put_contents($fileName, \serialize($qualifer->qualifier) . PHP_EOL);
     }
 }

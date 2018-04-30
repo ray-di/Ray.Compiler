@@ -46,11 +46,7 @@ final class DiCompiler implements InjectorInterface
      */
     private $dependencySaver;
 
-    /**
-     * @param AbstractModule $module
-     * @param string         $scriptDir
-     */
-    public function __construct(AbstractModule $module = null, $scriptDir = '')
+    public function __construct(AbstractModule $module = null, string $scriptDir = '')
     {
         $this->scriptDir = $scriptDir ?: \sys_get_temp_dir();
         $this->container = $module ? $module->getContainer() : new Container;
@@ -65,10 +61,9 @@ final class DiCompiler implements InjectorInterface
      */
     public function getInstance($interface, $name = Name::ANY)
     {
-        $instance = $this->injector->getInstance($interface, $name);
         $this->compile();
 
-        return $instance;
+        return (new ScriptInjector($this->scriptDir))->getInstance($interface, $name);
     }
 
     /**

@@ -40,7 +40,13 @@ final class AopCode
         }
         $methodBinding = $this->getMethodBinding($bindings);
         $bindingsProp = new Expr\PropertyFetch(new Expr\Variable('instance'), 'bindings');
-        $node[] = new Expr\Assign($bindingsProp, new Expr\Array_($methodBinding));
+        $bindingsAssign = new Expr\Assign($bindingsProp, new Expr\Array_($methodBinding));
+        $this->setBindingAssignAfterInitialization($node, [$bindingsAssign], 1);
+    }
+
+    private function setBindingAssignAfterInitialization(array &$array, array $insertValue, int $position) : void
+    {
+        $array = \array_merge(\array_splice($array, 0, $position), $insertValue, $array);
     }
 
     /**

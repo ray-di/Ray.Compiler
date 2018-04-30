@@ -13,7 +13,7 @@ use Ray\Di\Name;
 
 class DiCompilerTest extends TestCase
 {
-    public function testClassNotFound()
+    public function testUnbound()
     {
         $this->expectException(Unbound::class);
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
