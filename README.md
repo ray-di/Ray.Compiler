@@ -96,6 +96,20 @@ var_dump($instance);
 //}
 
 ```
+## Compile on demand
+
+Lazy modules bindings allows compilation on demand.
+
+```php
+$injector = new ScriptInjector(
+    $tmpDir,
+    function () {
+        return new CarModule;
+    }
+);
+$car = $injector->getInstance(FakeCar::class);
+
+```
 
 ## Object graph visualization
 
