@@ -40,7 +40,7 @@ final class OnDemandCompiler
     /**
      * Compile depdency on demand
      */
-    public function __invoke(string $dependencyIndex) : void
+    public function __invoke(string $dependencyIndex)
     {
         list($class) = \explode('-', $dependencyIndex);
         $containerObject = $this->module->getContainer();

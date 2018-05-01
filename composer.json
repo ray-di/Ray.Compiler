@@ -8,12 +8,12 @@
     ],
     "license": "MIT",
     "require": {
-        "php": ">=7.1.0",
+        "php": ">=7.0.0",
         "koriym/printo": "^1.0"
     },
     "require-dev": {
         "ray/di": "^2.6.5",
-        "phpunit/phpunit": "^7.0"
+        "phpunit/phpunit": "^6.5"
     },
     "autoload": {
         "psr-4": {

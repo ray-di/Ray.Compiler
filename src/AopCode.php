@@ -27,7 +27,7 @@ final class AopCode
     /**
      * Add aop factory code if bindings are given
      */
-    public function __invoke(Dependency $dependency, array &$node) : void
+    public function __invoke(Dependency $dependency, array &$node)
     {
         $prop = $this->privateProperty;
         $newInstance = $prop($dependency, 'newInstance');
@@ -44,7 +44,7 @@ final class AopCode
         $this->setBindingAssignAfterInitialization($node, [$bindingsAssign], 1);
     }
 
-    private function setBindingAssignAfterInitialization(array &$array, array $insertValue, int $position) : void
+    private function setBindingAssignAfterInitialization(array &$array, array $insertValue, int $position)
     {
         $array = \array_merge(\array_splice($array, 0, $position), $insertValue, $array);
     }

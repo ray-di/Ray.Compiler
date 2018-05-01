@@ -69,7 +69,7 @@ final class DiCompiler implements InjectorInterface
     /**
      * Compile all dependencies in container
      */
-    public function compile() : void
+    public function compile()
     {
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
@@ -79,13 +79,13 @@ final class DiCompiler implements InjectorInterface
         $this->savePointcuts($this->container);
     }
 
-    public function dumpGraph() : void
+    public function dumpGraph()
     {
         $dumper = new GraphDumper($this->container, $this->scriptDir);
         $dumper();
     }
 
-    private function savePointcuts(Container $container) : void
+    private function savePointcuts(Container $container)
     {
         $ref = (new \ReflectionProperty($container, 'pointcuts'));
         $ref->setAccessible(true);
