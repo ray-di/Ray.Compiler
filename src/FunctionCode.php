@@ -104,7 +104,7 @@ final class FunctionCode
         ];
     }
 
-    private function setQualifiers(\ReflectionMethod $method, \ReflectionParameter $param) : void
+    private function setQualifiers(\ReflectionMethod $method, \ReflectionParameter $param)
     {
         $annotations = $this->reader->getMethodAnnotations($method);
         foreach ($annotations as $annotation) {

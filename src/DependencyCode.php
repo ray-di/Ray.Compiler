@@ -92,12 +92,12 @@ final class DependencyCode implements SetContextInterface
     /**
      * {@inheritdoc}
      */
-    public function setContext($context) : void
+    public function setContext($context)
     {
         $this->context = $context;
     }
 
-    public function setQaulifier(IpQualifier $qualifer) : void
+    public function setQaulifier(IpQualifier $qualifer)
     {
         $this->qualifier = $qualifer;
     }

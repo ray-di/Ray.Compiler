@@ -173,7 +173,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     /**
      * Register autoload for AOP file
      */
-    private function registerLoader() : void
+    private function registerLoader()
     {
         \spl_autoload_register(function ($class) {
             $file = \sprintf('%s/%s.php', $this->scriptDir, $class);
