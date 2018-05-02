@@ -6,10 +6,8 @@
  */
 namespace Ray\Compiler;
 
-use Ray\Aop\Compiler;
 use Ray\Compiler\Exception\MetaNotFound;
 use Ray\Di\AbstractModule;
-use Ray\Di\Container;
 use Ray\Di\EmptyModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
@@ -20,8 +18,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     const INSTANCE_FILE = '%s/%s.php';
     const META_FILE = '%s/metas/%s.json';
     const QUALIFIER_FILE = '%s/qualifer/%s-%s-%s';
-    
-    
+
     /**
      * @var string
      */
@@ -123,13 +120,21 @@ final class ScriptInjector implements InjectorInterface, \Serializable
 
     public function serialize() : string
     {
+        $module = ($this->module)();
+        \file_put_contents($this->scriptDir . '/module', \serialize($module));
+
         return \serialize([$this->scriptDir, $this->singletons]);
     }
 
     public function unserialize($serialized)
     {
         list($this->scriptDir, $this->singletons) = \unserialize($serialized);
-        $this->__construct($this->scriptDir);
+        $this->__construct(
+            $this->scriptDir,
+            function () {
+                return \unserialize(\file_get_contents($this->scriptDir . '/module'));
+            }
+        );
     }
 
     /**
