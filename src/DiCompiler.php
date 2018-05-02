@@ -85,7 +85,7 @@ final class DiCompiler implements InjectorInterface
         $dumper();
     }
 
-    private function savePointcuts(Container $container)
+    public function savePointcuts(Container $container)
     {
         $ref = (new \ReflectionProperty($container, 'pointcuts'));
         $ref->setAccessible(true);

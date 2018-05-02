@@ -57,7 +57,7 @@ final class OnDemandCompiler
         /** @var Dependency $dependency */
         $dependency = $containerArray[$dependencyIndex];
         $pointCuts = $this->loadPointcuts();
-        if ($pointCuts) {
+        if ($dependency instanceof Dependency) {
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
         $code = (new DependencyCode($containerObject, $this->injector))->getCode($dependency);

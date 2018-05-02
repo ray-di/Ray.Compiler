@@ -8,6 +8,7 @@ namespace Ray\Compiler;
 
 use Ray\Aop\Compiler;
 use Ray\Compiler\Exception\MetaNotFound;
+use Ray\Di\AbstractModule;
 use Ray\Di\Container;
 use Ray\Di\EmptyModule;
 use Ray\Di\InjectorInterface;
@@ -162,12 +163,24 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     private function getInstanceFile(string $dependencyIndex) : string
     {
         $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
-        if (! \file_exists($file)) {
+        if (\file_exists($file)) {
+            return $file;
+        }
+        if ($this->isFirstCompile()) {
+            /** @var AbstractModule $module */
             $module = ($this->module)();
-            (new OnDemandCompiler($this, $this->scriptDir, $module))($dependencyIndex);
+            (new DiCompiler(($this->module)(), $this->scriptDir))->savePointcuts($module->getContainer());
+        }
+        if (! \file_exists($file)) {
+            (new OnDemandCompiler($this, $this->scriptDir, ($this->module)()))($dependencyIndex);
         }
 
         return $file;
+    }
+
+    private function isFirstCompile() : bool
+    {
+        return ! \file_exists($this->scriptDir . DiCompiler::POINT_CUT);
     }
 
     /**
