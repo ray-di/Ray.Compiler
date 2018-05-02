@@ -16,6 +16,12 @@ use Ray\Di\Name;
 
 final class ScriptInjector implements InjectorInterface, \Serializable
 {
+    const POINT_CUT = '/metas/pointcut';
+    const INSTANCE_FILE = '%s/%s.php';
+    const META_FILE = '%s/metas/%s.json';
+    const QUALIFIER_FILE = '%s/qualifer/%s-%s-%s';
+    
+    
     /**
      * @var string
      */
@@ -105,7 +111,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     public function isSingleton($dependencyIndex) : bool
     {
         $pearStyleClass = \str_replace('\\', '_', $dependencyIndex);
-        $file = \sprintf(DependencySaver::META_FILE, $this->scriptDir, $pearStyleClass);
+        $file = \sprintf(self::META_FILE, $this->scriptDir, $pearStyleClass);
         if (! \file_exists($file)) {
             throw new MetaNotFound($dependencyIndex);
         }
@@ -162,7 +168,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
      */
     private function getInstanceFile(string $dependencyIndex) : string
     {
-        $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
+        $file = \sprintf(self::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
         if (\file_exists($file)) {
             return $file;
         }
@@ -180,7 +186,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
 
     private function isFirstCompile() : bool
     {
-        return ! \file_exists($this->scriptDir . DiCompiler::POINT_CUT);
+        return ! \file_exists($this->scriptDir . self::POINT_CUT);
     }
 
     /**

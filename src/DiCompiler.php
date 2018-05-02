@@ -14,8 +14,6 @@ use Ray\Di\Name;
 
 final class DiCompiler implements InjectorInterface
 {
-    const POINT_CUT = '/metas/pointcut';
-
     /**
      * @var string
      */
@@ -90,6 +88,6 @@ final class DiCompiler implements InjectorInterface
         $ref = (new \ReflectionProperty($container, 'pointcuts'));
         $ref->setAccessible(true);
         $pointcuts = $ref->getValue($container);
-        \file_put_contents($this->scriptDir . self::POINT_CUT, \serialize($pointcuts));
+        \file_put_contents($this->scriptDir . ScriptInjector::POINT_CUT, \serialize($pointcuts));
     }
 }

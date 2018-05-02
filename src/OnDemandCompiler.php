@@ -69,7 +69,7 @@ final class OnDemandCompiler
      */
     private function loadPointcuts()
     {
-        $pointcuts = $this->scriptDir . DiCompiler::POINT_CUT;
+        $pointcuts = $this->scriptDir . ScriptInjector::POINT_CUT;
         if (! \file_exists($pointcuts)) {
             return false;
         }
