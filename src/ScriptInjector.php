@@ -48,6 +48,11 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     /**
      * @var callable
      */
+    private $lazyModule;
+
+    /**
+     * @var AbstractModule
+     */
     private $module;
 
     /**
@@ -57,7 +62,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     public function __construct($scriptDir, callable $lazyModule = null)
     {
         $this->scriptDir = $scriptDir;
-        $this->module = $lazyModule ?: function () {
+        $this->lazyModule = $lazyModule ?: function () {
             return new EmptyModule;
         };
         $this->registerLoader();
@@ -120,7 +125,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
 
     public function serialize() : string
     {
-        $module = ($this->module)();
+        $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
         \file_put_contents($this->scriptDir . '/module', \serialize($module));
 
         return \serialize([$this->scriptDir, $this->singletons]);
@@ -177,13 +182,14 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         if (\file_exists($file)) {
             return $file;
         }
+        if (! $this->module instanceof AbstractModule) {
+            $this->module = ($this->lazyModule)();
+        }
         $isFirstCompile = ! \file_exists($this->scriptDir . self::POINT_CUT);
         if ($isFirstCompile) {
-            /** @var AbstractModule $module */
-            $module = ($this->module)();
-            (new DiCompiler(($this->module)(), $this->scriptDir))->savePointcuts($module->getContainer());
+            (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
         }
-        (new OnDemandCompiler($this, $this->scriptDir, ($this->module)()))($dependencyIndex);
+        (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);
 
         return $file;
     }
