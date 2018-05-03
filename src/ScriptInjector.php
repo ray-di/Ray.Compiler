@@ -125,7 +125,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
 
     public function serialize() : string
     {
-        $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
+        $module = ($this->lazyModule)();
         \file_put_contents($this->scriptDir . '/module', \serialize($module));
 
         return \serialize([$this->scriptDir, $this->singletons]);
