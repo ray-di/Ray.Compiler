@@ -152,7 +152,6 @@ class ScriptInjectorTest extends TestCase
 
     public function testOptional()
     {
-        delete_dir($_ENV['TMP_DIR']);
         /* @var $optional FakeOptional */
         $optional = $this->injector->getInstance(FakeOptional::class);
         $this->assertNull($optional->robot);
