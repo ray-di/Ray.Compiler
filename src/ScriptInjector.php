@@ -177,21 +177,15 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         if (\file_exists($file)) {
             return $file;
         }
-        if ($this->isFirstCompile()) {
+        $isFirstCompile = ! \file_exists($this->scriptDir . self::POINT_CUT);
+        if ($isFirstCompile) {
             /** @var AbstractModule $module */
             $module = ($this->module)();
             (new DiCompiler(($this->module)(), $this->scriptDir))->savePointcuts($module->getContainer());
         }
-        if (! \file_exists($file)) {
-            (new OnDemandCompiler($this, $this->scriptDir, ($this->module)()))($dependencyIndex);
-        }
+        (new OnDemandCompiler($this, $this->scriptDir, ($this->module)()))($dependencyIndex);
 
         return $file;
-    }
-
-    private function isFirstCompile() : bool
-    {
-        return ! \file_exists($this->scriptDir . self::POINT_CUT);
     }
 
     /**
