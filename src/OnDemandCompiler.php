@@ -57,7 +57,7 @@ final class OnDemandCompiler
         /** @var Dependency $dependency */
         $dependency = $containerArray[$dependencyIndex];
         $pointCuts = $this->loadPointcuts();
-        if ($pointCuts) {
+        if ($dependency instanceof Dependency && \is_array($pointCuts)) {
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
         $code = (new DependencyCode($containerObject, $this->injector))->getCode($dependency);
@@ -69,7 +69,7 @@ final class OnDemandCompiler
      */
     private function loadPointcuts()
     {
-        $pointcuts = $this->scriptDir . DiCompiler::POINT_CUT;
+        $pointcuts = $this->scriptDir . ScriptInjector::POINT_CUT;
         if (! \file_exists($pointcuts)) {
             return false;
         }

@@ -6,15 +6,19 @@
  */
 namespace Ray\Compiler;
 
-use Ray\Aop\Compiler;
 use Ray\Compiler\Exception\MetaNotFound;
-use Ray\Di\Container;
+use Ray\Di\AbstractModule;
 use Ray\Di\EmptyModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
 final class ScriptInjector implements InjectorInterface, \Serializable
 {
+    const POINT_CUT = '/metas/pointcut';
+    const INSTANCE_FILE = '%s/%s.php';
+    const META_FILE = '%s/metas/%s.json';
+    const QUALIFIER_FILE = '%s/qualifer/%s-%s-%s';
+
     /**
      * @var string
      */
@@ -44,6 +48,11 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     /**
      * @var callable
      */
+    private $lazyModule;
+
+    /**
+     * @var AbstractModule
+     */
     private $module;
 
     /**
@@ -53,7 +62,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     public function __construct($scriptDir, callable $lazyModule = null)
     {
         $this->scriptDir = $scriptDir;
-        $this->module = $lazyModule ?: function () {
+        $this->lazyModule = $lazyModule ?: function () {
             return new EmptyModule;
         };
         $this->registerLoader();
@@ -104,7 +113,7 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     public function isSingleton($dependencyIndex) : bool
     {
         $pearStyleClass = \str_replace('\\', '_', $dependencyIndex);
-        $file = \sprintf(DependencySaver::META_FILE, $this->scriptDir, $pearStyleClass);
+        $file = \sprintf(self::META_FILE, $this->scriptDir, $pearStyleClass);
         if (! \file_exists($file)) {
             throw new MetaNotFound($dependencyIndex);
         }
@@ -116,13 +125,21 @@ final class ScriptInjector implements InjectorInterface, \Serializable
 
     public function serialize() : string
     {
+        $module = ($this->lazyModule)();
+        \file_put_contents($this->scriptDir . '/module', \serialize($module));
+
         return \serialize([$this->scriptDir, $this->singletons]);
     }
 
     public function unserialize($serialized)
     {
         list($this->scriptDir, $this->singletons) = \unserialize($serialized);
-        $this->__construct($this->scriptDir);
+        $this->__construct(
+            $this->scriptDir,
+            function () {
+                return \unserialize(\file_get_contents($this->scriptDir . '/module'));
+            }
+        );
     }
 
     /**
@@ -161,11 +178,18 @@ final class ScriptInjector implements InjectorInterface, \Serializable
      */
     private function getInstanceFile(string $dependencyIndex) : string
     {
-        $file = \sprintf(DependencySaver::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
-        if (! \file_exists($file)) {
-            $module = ($this->module)();
-            (new OnDemandCompiler($this, $this->scriptDir, $module))($dependencyIndex);
+        $file = \sprintf(self::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
+        if (\file_exists($file)) {
+            return $file;
         }
+        if (! $this->module instanceof AbstractModule) {
+            $this->module = ($this->lazyModule)();
+        }
+        $isFirstCompile = ! \file_exists($this->scriptDir . self::POINT_CUT);
+        if ($isFirstCompile) {
+            (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
+        }
+        (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);
 
         return $file;
     }

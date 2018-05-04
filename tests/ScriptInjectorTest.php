@@ -21,7 +21,6 @@ class ScriptInjectorTest extends TestCase
 
     public function setUp()
     {
-        parent::setUp();
         delete_dir($_ENV['TMP_DIR']);
         $this->injector = new ScriptInjector($_ENV['TMP_DIR']);
     }
@@ -180,7 +179,6 @@ class ScriptInjectorTest extends TestCase
 
     public function testCompileOnDemand()
     {
-        delete_dir($_ENV['TMP_DIR']);
         $injector = new ScriptInjector(
             $_ENV['TMP_DIR'],
             function () {
@@ -189,5 +187,46 @@ class ScriptInjectorTest extends TestCase
         );
         $car = $injector->getInstance(FakeCar::class);
         $this->assertTrue($car instanceof FakeCar);
+    }
+
+    public function testCompileOnDemandAop()
+    {
+        $injector = new ScriptInjector(
+            $_ENV['TMP_DIR'],
+            function () {
+                return new FakeAopModule;
+            }
+        );
+        /** @var FakeAopInterface $aop */
+        $aop = $injector->getInstance(FakeAopInterface::class);
+        $result = $aop->returnSame(1);
+        $this->assertSame(2, $result);
+    }
+
+    public function testCompileOnDemandSerialize()
+    {
+        $serialize = \serialize(new ScriptInjector(
+            $_ENV['TMP_DIR'],
+            function () {
+                return new FakeCarModule;
+            }
+        ));
+        $injector = \unserialize($serialize);
+        $car = $injector->getInstance(FakeCar::class);
+        $this->assertTrue($car instanceof FakeCar);
+    }
+
+    public function testCompileOnDemandAopSerialize()
+    {
+        $injector = \unserialize(\serialize(new ScriptInjector(
+            $_ENV['TMP_DIR'],
+            function () {
+                return new FakeAopModule;
+            }
+        )));
+        /** @var FakeAopInterface $aop */
+        $aop = $injector->getInstance(FakeAopInterface::class);
+        $result = $aop->returnSame(1);
+        $this->assertSame(2, $result);
     }
 }
