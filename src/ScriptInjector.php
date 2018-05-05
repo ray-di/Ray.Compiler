@@ -6,19 +6,18 @@
  */
 namespace Ray\Compiler;
 
-use Ray\Compiler\Exception\Unbound;
+use Ray\Compiler\Exception\MetaNotFound;
 use Ray\Di\AbstractModule;
-use Ray\Di\Dependency;
 use Ray\Di\EmptyModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
 final class ScriptInjector implements InjectorInterface
 {
-    const MODULE = '/module.txt';
-    const AOP = '/aop.txt';
-    const INSTANCE = '%s/%s.php';
-    const QUALIFIER = '%s/qualifer/%s-%s-%s';
+    const POINT_CUT = '/metas/pointcut';
+    const INSTANCE_FILE = '%s/%s.php';
+    const META_FILE = '%s/metas/%s.json';
+    const QUALIFIER_FILE = '%s/qualifer/%s-%s-%s';
 
     /**
      * @var string
@@ -106,7 +105,7 @@ final class ScriptInjector implements InjectorInterface
         if (! \in_array($this->scriptDir, $this->saved, true)) {
             $this->saved[] = $this->scriptDir;
             $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
-            \file_put_contents($this->scriptDir . self::MODULE, \serialize($module));
+            \file_put_contents($this->scriptDir . '/module.txt', \serialize($module));
         }
 
         return ['scriptDir', 'singletons'];
@@ -117,7 +116,7 @@ final class ScriptInjector implements InjectorInterface
         $this->__construct(
             $this->scriptDir,
             function () {
-                return \unserialize(\file_get_contents($this->scriptDir . self::MODULE));
+                return \unserialize(\file_get_contents($this->scriptDir . '/module.txt'));
             }
         );
     }
@@ -141,14 +140,13 @@ final class ScriptInjector implements InjectorInterface
 
     public function isSingleton($dependencyIndex) : bool
     {
-        $module = \unserialize(\file_get_contents($this->scriptDir . self::MODULE));
-        /** @var AbstractModule $module */
-        $container = $module->getContainer()->getContainer();
-        if (! isset($container[$dependencyIndex])) {
-            throw new Unbound($dependencyIndex);
+        $pearStyleClass = \str_replace('\\', '_', $dependencyIndex);
+        $file = \sprintf(self::META_FILE, $this->scriptDir, $pearStyleClass);
+        if (! \file_exists($file)) {
+            throw new MetaNotFound($dependencyIndex);
         }
-        $dependency = $container[$dependencyIndex];
-        $isSingleton = $dependency instanceof Dependency ? (new PrivateProperty)($dependency, 'isSingleton') : false;
+        $meta = \json_decode(\file_get_contents($file));
+        $isSingleton = $meta->is_singleton;
 
         return $isSingleton;
     }
@@ -189,17 +187,16 @@ final class ScriptInjector implements InjectorInterface
      */
     private function getInstanceFile(string $dependencyIndex) : string
     {
-        $file = \sprintf(self::INSTANCE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
+        $file = \sprintf(self::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
         if (\file_exists($file)) {
             return $file;
         }
         if (! $this->module instanceof AbstractModule) {
             $this->module = ($this->lazyModule)();
         }
-        $isFirstCompile = ! \file_exists($this->scriptDir . self::AOP);
+        $isFirstCompile = ! \file_exists($this->scriptDir . self::POINT_CUT);
         if ($isFirstCompile) {
             (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
-            $this->__sleep();
         }
         (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);
 
