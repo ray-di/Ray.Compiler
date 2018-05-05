@@ -12,7 +12,7 @@ use Ray\Di\EmptyModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
-final class ScriptInjector implements InjectorInterface, \Serializable
+final class ScriptInjector implements InjectorInterface
 {
     const POINT_CUT = '/metas/pointcut';
     const INSTANCE_FILE = '%s/%s.php';
@@ -56,6 +56,13 @@ final class ScriptInjector implements InjectorInterface, \Serializable
     private $module;
 
     /**
+     * Saved modules
+     *
+     * @var array
+     */
+    private $saved = [];
+
+    /**
      * @param string   $scriptDir  generated instance script folder path
      * @param callable $lazyModule callable variable which return AbstractModule instance
      */
@@ -93,6 +100,27 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         $this->functions = [$prototype, $singleton, $injection_point, $injector];
     }
 
+    public function __sleep()
+    {
+        if (! \in_array($this->scriptDir, $this->saved, true)) {
+            $this->saved[] = $this->scriptDir;
+            $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
+            \file_put_contents($this->scriptDir . '/module.txt', \serialize($module));
+        }
+
+        return ['scriptDir', 'singletons'];
+    }
+
+    public function __wakeup()
+    {
+        $this->__construct(
+            $this->scriptDir,
+            function () {
+                return \unserialize(\file_get_contents($this->scriptDir . '/module.txt'));
+            }
+        );
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -121,25 +149,6 @@ final class ScriptInjector implements InjectorInterface, \Serializable
         $isSingleton = $meta->is_singleton;
 
         return $isSingleton;
-    }
-
-    public function serialize() : string
-    {
-        $module = ($this->lazyModule)();
-        \file_put_contents($this->scriptDir . '/module', \serialize($module));
-
-        return \serialize([$this->scriptDir, $this->singletons]);
-    }
-
-    public function unserialize($serialized)
-    {
-        list($this->scriptDir, $this->singletons) = \unserialize($serialized);
-        $this->__construct(
-            $this->scriptDir,
-            function () {
-                return \unserialize(\file_get_contents($this->scriptDir . '/module'));
-            }
-        );
     }
 
     /**
