@@ -75,7 +75,6 @@ final class DiCompiler implements InjectorInterface
             $this->dependencySaver->__invoke($dependencyIndex, $code);
         }
         $this->savePointcuts($this->container);
-        \file_put_contents($this->scriptDir . ScriptInjector::MODULE, \serialize($this->module));
     }
 
     public function dumpGraph()
@@ -89,6 +88,6 @@ final class DiCompiler implements InjectorInterface
         $ref = (new \ReflectionProperty($container, 'pointcuts'));
         $ref->setAccessible(true);
         $pointcuts = $ref->getValue($container);
-        \file_put_contents($this->scriptDir . ScriptInjector::AOP, \serialize($pointcuts));
+        \file_put_contents($this->scriptDir . ScriptInjector::POINT_CUT, \serialize($pointcuts));
     }
 }
