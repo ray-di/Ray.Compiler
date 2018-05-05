@@ -15,11 +15,10 @@ use Ray\Di\Name;
 
 final class ScriptInjector implements InjectorInterface
 {
-    const MODULE_FILE = '/module.txt';
-    const POINT_CUT = '/metas/pointcut';
-    const INSTANCE_FILE = '%s/%s.php';
-    const META_FILE = '%s/metas/%s.json';
-    const QUALIFIER_FILE = '%s/qualifer/%s-%s-%s';
+    const MODULE = '/module.txt';
+    const AOP = '/aop.txt';
+    const INSTANCE = '%s/%s.php';
+    const QUALIFIER = '%s/qualifer/%s-%s-%s';
 
     /**
      * @var string
@@ -107,7 +106,7 @@ final class ScriptInjector implements InjectorInterface
         if (! \in_array($this->scriptDir, $this->saved, true)) {
             $this->saved[] = $this->scriptDir;
             $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
-            \file_put_contents($this->scriptDir . self::MODULE_FILE, \serialize($module));
+            \file_put_contents($this->scriptDir . self::MODULE, \serialize($module));
         }
 
         return ['scriptDir', 'singletons'];
@@ -118,7 +117,7 @@ final class ScriptInjector implements InjectorInterface
         $this->__construct(
             $this->scriptDir,
             function () {
-                return \unserialize(\file_get_contents($this->scriptDir . self::MODULE_FILE));
+                return \unserialize(\file_get_contents($this->scriptDir . self::MODULE));
             }
         );
     }
@@ -142,7 +141,7 @@ final class ScriptInjector implements InjectorInterface
 
     public function isSingleton($dependencyIndex) : bool
     {
-        $module = \unserialize(\file_get_contents($this->scriptDir . self::MODULE_FILE));
+        $module = \unserialize(\file_get_contents($this->scriptDir . self::MODULE));
         /** @var AbstractModule $module */
         $container = $module->getContainer()->getContainer();
         if (! isset($container[$dependencyIndex])) {
@@ -190,14 +189,14 @@ final class ScriptInjector implements InjectorInterface
      */
     private function getInstanceFile(string $dependencyIndex) : string
     {
-        $file = \sprintf(self::INSTANCE_FILE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
+        $file = \sprintf(self::INSTANCE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
         if (\file_exists($file)) {
             return $file;
         }
         if (! $this->module instanceof AbstractModule) {
             $this->module = ($this->lazyModule)();
         }
-        $isFirstCompile = ! \file_exists($this->scriptDir . self::POINT_CUT);
+        $isFirstCompile = ! \file_exists($this->scriptDir . self::AOP);
         if ($isFirstCompile) {
             (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
             $this->__sleep();
