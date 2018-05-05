@@ -14,6 +14,7 @@ use Ray\Di\Name;
 
 final class ScriptInjector implements InjectorInterface
 {
+    const MODULE_FILE = 'module.txt';
     const POINT_CUT = '/metas/pointcut';
     const INSTANCE_FILE = '%s/%s.php';
     const META_FILE = '%s/metas/%s.json';
@@ -105,7 +106,7 @@ final class ScriptInjector implements InjectorInterface
         if (! \in_array($this->scriptDir, $this->saved, true)) {
             $this->saved[] = $this->scriptDir;
             $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
-            \file_put_contents($this->scriptDir . '/module.txt', \serialize($module));
+            \file_put_contents($this->scriptDir . self::MODULE_FILE, \serialize($module));
         }
 
         return ['scriptDir', 'singletons'];
@@ -116,7 +117,7 @@ final class ScriptInjector implements InjectorInterface
         $this->__construct(
             $this->scriptDir,
             function () {
-                return \unserialize(\file_get_contents($this->scriptDir . '/module.txt'));
+                return \unserialize(\file_get_contents($this->scriptDir . self::MODULE_FILE));
             }
         );
     }
