@@ -118,7 +118,7 @@ final class ScriptInjector implements InjectorInterface
             $this->scriptDir,
             function () {
                 $module = $this->scriptDir . self::MODULE;
-                return file_exists($module) ? \unserialize(\file_get_contents($module) : new EmptyModule();
+                return file_exists($module) ? \unserialize(\file_get_contents($module)) : new EmptyModule();
             }
         );
     }
