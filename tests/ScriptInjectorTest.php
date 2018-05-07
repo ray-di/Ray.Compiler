@@ -229,4 +229,20 @@ class ScriptInjectorTest extends TestCase
         $result = $aop->returnSame(1);
         $this->assertSame(2, $result);
     }
+
+    public function testClear()
+    {
+        $injector = new ScriptInjector(
+            $_ENV['TMP_DIR'],
+            function () {
+                return new FakeCarModule;
+            }
+        );
+        $injector->getInstance(FakeCar::class);
+        $count = \count(\glob($_ENV['TMP_DIR'] . '/*'));
+        $this->assertGreaterThan(0, $count);
+        $injector->clear();
+        $countAfterClear = \count(\glob($_ENV['TMP_DIR'] . '/*'));
+        $this->assertSame(0, $countAfterClear);
+    }
 }

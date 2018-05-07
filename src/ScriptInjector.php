@@ -118,7 +118,8 @@ final class ScriptInjector implements InjectorInterface
             $this->scriptDir,
             function () {
                 $module = $this->scriptDir . self::MODULE;
-                return file_exists($module) ? \unserialize(\file_get_contents($module)) : new EmptyModule();
+
+                return \file_exists($module) ? \unserialize(\file_get_contents($module)) : new EmptyModule();
             }
         );
     }
@@ -138,6 +139,17 @@ final class ScriptInjector implements InjectorInterface
         }
 
         return $instance;
+    }
+
+    public function clear()
+    {
+        $unlink = function ($path) use (&$unlink) {
+            foreach (\glob(\rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '*') as $file) {
+                \is_dir($file) ? $unlink($file) : \unlink($file);
+                @\rmdir($file);
+            }
+        };
+        $unlink($this->scriptDir);
     }
 
     public function isSingleton($dependencyIndex) : bool
