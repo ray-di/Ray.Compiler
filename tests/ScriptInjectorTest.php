@@ -8,9 +8,9 @@ namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
 use Ray\Aop\WeavedInterface;
-use Ray\Di\NullModule;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
+use Ray\Di\NullModule;
 
 class ScriptInjectorTest extends TestCase
 {
