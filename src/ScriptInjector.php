@@ -99,6 +99,7 @@ final class ScriptInjector implements InjectorInterface
             return $this;
         };
         $this->functions = [$prototype, $singleton, $injection_point, $injector];
+        self::$saved = [];
     }
 
     public function __sleep()
