@@ -12,6 +12,7 @@ use Ray\Di\Dependency;
 use Ray\Di\EmptyModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
+use Ray\Di\NullModule;
 
 final class ScriptInjector implements InjectorInterface
 {
@@ -61,7 +62,7 @@ final class ScriptInjector implements InjectorInterface
      *
      * @var array
      */
-    private $saved = [];
+    private static $saved = [];
 
     /**
      * @param string   $scriptDir  generated instance script folder path
@@ -103,8 +104,8 @@ final class ScriptInjector implements InjectorInterface
 
     public function __sleep()
     {
-        if (! \in_array($this->scriptDir, $this->saved, true)) {
-            $this->saved[] = $this->scriptDir;
+        if (! \in_array($this->scriptDir, self::$saved, true)) {
+            self::$saved[] = $this->scriptDir;
             $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
             \file_put_contents($this->scriptDir . self::MODULE, \serialize($module));
         }
@@ -117,9 +118,9 @@ final class ScriptInjector implements InjectorInterface
         $this->__construct(
             $this->scriptDir,
             function () {
-                $module = $this->scriptDir . self::MODULE;
+                $file = $this->scriptDir . self::MODULE;
 
-                return \file_exists($module) ? \unserialize(\file_get_contents($module)) : new EmptyModule();
+                return \file_exists($file) ? \unserialize(\file_get_contents($file)) : new NullModule;
             }
         );
     }
@@ -154,7 +155,7 @@ final class ScriptInjector implements InjectorInterface
 
     public function isSingleton($dependencyIndex) : bool
     {
-        $module = \unserialize(\file_get_contents($this->scriptDir . self::MODULE));
+        $module = \file_exists($this->scriptDir . self::MODULE) ? \unserialize(\file_get_contents($this->scriptDir . self::MODULE)) : new NullModule;
         /** @var AbstractModule $module */
         $container = $module->getContainer()->getContainer();
         if (! isset($container[$dependencyIndex])) {
