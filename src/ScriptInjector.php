@@ -9,7 +9,6 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Dependency;
-use Ray\Di\EmptyModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use Ray\Di\NullModule;
@@ -72,7 +71,7 @@ final class ScriptInjector implements InjectorInterface
     {
         $this->scriptDir = $scriptDir;
         $this->lazyModule = $lazyModule ?: function () {
-            return new EmptyModule;
+            return new NullModule;
         };
         $this->registerLoader();
         $prototype = function ($dependencyIndex, array $injectionPoint = []) {

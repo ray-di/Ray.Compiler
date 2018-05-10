@@ -8,7 +8,7 @@ namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
 use Ray\Aop\WeavedInterface;
-use Ray\Di\EmptyModule;
+use Ray\Di\NullModule;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 
@@ -159,7 +159,7 @@ class ScriptInjectorTest extends TestCase
 
     public function testDependInjector()
     {
-        $diCompiler = new DiCompiler(new EmptyModule, $_ENV['TMP_DIR']);
+        $diCompiler = new DiCompiler(new NullModule, $_ENV['TMP_DIR']);
         $diCompiler->compile();
         $factory = $diCompiler->getInstance(FakeFactory::class);
         $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
