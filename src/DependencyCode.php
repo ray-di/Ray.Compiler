@@ -114,7 +114,7 @@ final class DependencyCode implements SetContextInterface
      */
     private function getInstanceCode(Instance $instance) : Code
     {
-        $node = $this->normalizer->__invoke($instance->value);
+        $node = ($this->normalizer)($instance->value);
 
         return new Code(new Node\Stmt\Return_($node), false);
     }
@@ -126,7 +126,7 @@ final class DependencyCode implements SetContextInterface
     {
         $prop = $this->privateProperty;
         $node = $this->getFactoryNode($dependency);
-        $this->aopCode->__invoke($dependency, $node);
+        ($this->aopCode)($dependency, $node);
         $isSingleton = $prop($dependency, 'isSingleton');
         $node[] = $this->getIsSingletonCode($isSingleton);
         $node[] = new Node\Stmt\Return_(new Node\Expr\Variable('instance'));

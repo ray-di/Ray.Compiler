@@ -72,7 +72,7 @@ final class DiCompiler implements InjectorInterface
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
             $code = $this->dependencyCompiler->getCode($dependency);
-            $this->dependencySaver->__invoke($dependencyIndex, $code);
+            ($this->dependencySaver)($dependencyIndex, $code);
         }
         $this->savePointcuts($this->container);
         \file_put_contents($this->scriptDir . ScriptInjector::MODULE, \serialize($this->module));

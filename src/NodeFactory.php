@@ -81,10 +81,10 @@ final class NodeFactory
     {
         $setters = [];
         foreach ($setterMethods as $setterMethod) {
-            $isOptional = $this->privateProperty->__invoke($setterMethod, 'isOptional');
-            $method = $this->privateProperty->__invoke($setterMethod, 'method');
-            $argumentsObject = $this->privateProperty->__invoke($setterMethod, 'arguments');
-            $arguments = $this->privateProperty->__invoke($argumentsObject, 'arguments');
+            $isOptional = ($this->privateProperty)($setterMethod, 'isOptional');
+            $method = ($this->privateProperty)($setterMethod, 'method');
+            $argumentsObject = ($this->privateProperty)($setterMethod, 'arguments');
+            $arguments = ($this->privateProperty)($argumentsObject, 'arguments');
             $args = $this->getSetterParams($arguments, $isOptional);
             if (! $args) {
                 continue;
@@ -108,7 +108,7 @@ final class NodeFactory
         if ($argument->isDefaultAvailable()) {
             $default = $argument->getDefaultValue();
 
-            return $this->normalizer->__invoke($default);
+            return ($this->normalizer)($default);
         }
         throw new Unbound($argument->getMeta());
     }

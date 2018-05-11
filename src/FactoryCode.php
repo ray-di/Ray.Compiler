@@ -98,10 +98,10 @@ final class FactoryCode
         }
         $dependency = $this->container->getContainer()[$dependencyIndex];
         if ($dependency instanceof Instance) {
-            return $this->normalizer->__invoke($dependency->value);
+            return ($this->normalizer)($dependency->value);
         }
 
-        return $this->functionCompiler->__invoke($argument, $dependency);
+        return ($this->functionCompiler)($argument, $dependency);
     }
 
     private function getConstructorInjection(string $class, array $arguments = []) : Expr\New_
