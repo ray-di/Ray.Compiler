@@ -118,9 +118,7 @@ final class ScriptInjector implements InjectorInterface
         $this->__construct(
             $this->scriptDir,
             function () {
-                $file = $this->scriptDir . self::MODULE;
-
-                return \file_exists($file) ? \unserialize(\file_get_contents($file)) : new NullModule;
+                return $this->getModule();
             }
         );
     }
@@ -155,7 +153,7 @@ final class ScriptInjector implements InjectorInterface
 
     public function isSingleton($dependencyIndex) : bool
     {
-        $module = \file_exists($this->scriptDir . self::MODULE) ? \unserialize(\file_get_contents($this->scriptDir . self::MODULE)) : new NullModule;
+        $module = $this->getModule();
         /** @var AbstractModule $module */
         $container = $module->getContainer()->getContainer();
         if (! isset($container[$dependencyIndex])) {
@@ -165,6 +163,11 @@ final class ScriptInjector implements InjectorInterface
         $isSingleton = $dependency instanceof Dependency ? (new PrivateProperty)($dependency, 'isSingleton') : false;
 
         return $isSingleton;
+    }
+
+    private function getModule() : AbstractModule
+    {
+        return \file_exists($this->scriptDir . self::MODULE) ? \unserialize(\file_get_contents($this->scriptDir . self::MODULE)) : new NullModule;
     }
 
     /**
