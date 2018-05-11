@@ -9,9 +9,9 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Dependency;
-use Ray\Di\EmptyModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
+use Ray\Di\NullModule;
 
 final class ScriptInjector implements InjectorInterface
 {
@@ -61,7 +61,7 @@ final class ScriptInjector implements InjectorInterface
      *
      * @var array
      */
-    private $saved = [];
+    private static $saved = [];
 
     /**
      * @param string   $scriptDir  generated instance script folder path
@@ -71,7 +71,7 @@ final class ScriptInjector implements InjectorInterface
     {
         $this->scriptDir = $scriptDir;
         $this->lazyModule = $lazyModule ?: function () {
-            return new EmptyModule;
+            return new NullModule;
         };
         $this->registerLoader();
         $prototype = function ($dependencyIndex, array $injectionPoint = []) {
@@ -99,15 +99,12 @@ final class ScriptInjector implements InjectorInterface
             return $this;
         };
         $this->functions = [$prototype, $singleton, $injection_point, $injector];
+        self::$saved = [];
     }
 
     public function __sleep()
     {
-        if (! \in_array($this->scriptDir, $this->saved, true)) {
-            $this->saved[] = $this->scriptDir;
-            $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
-            \file_put_contents($this->scriptDir . self::MODULE, \serialize($module));
-        }
+        $this->saveModule();
 
         return ['scriptDir', 'singletons'];
     }
@@ -117,9 +114,7 @@ final class ScriptInjector implements InjectorInterface
         $this->__construct(
             $this->scriptDir,
             function () {
-                $module = $this->scriptDir . self::MODULE;
-
-                return \file_exists($module) ? \unserialize(\file_get_contents($module)) : new EmptyModule();
+                return $this->getModule();
             }
         );
     }
@@ -154,7 +149,7 @@ final class ScriptInjector implements InjectorInterface
 
     public function isSingleton($dependencyIndex) : bool
     {
-        $module = \unserialize(\file_get_contents($this->scriptDir . self::MODULE));
+        $module = $this->getModule();
         /** @var AbstractModule $module */
         $container = $module->getContainer()->getContainer();
         if (! isset($container[$dependencyIndex])) {
@@ -164,6 +159,11 @@ final class ScriptInjector implements InjectorInterface
         $isSingleton = $dependency instanceof Dependency ? (new PrivateProperty)($dependency, 'isSingleton') : false;
 
         return $isSingleton;
+    }
+
+    private function getModule() : AbstractModule
+    {
+        return \file_exists($this->scriptDir . self::MODULE) ? \unserialize(\file_get_contents($this->scriptDir . self::MODULE)) : new NullModule;
     }
 
     /**
@@ -212,11 +212,20 @@ final class ScriptInjector implements InjectorInterface
         $isFirstCompile = ! \file_exists($this->scriptDir . self::AOP);
         if ($isFirstCompile) {
             (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
-            $this->__sleep();
+            $this->saveModule();
         }
         (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);
 
         return $file;
+    }
+
+    private function saveModule()
+    {
+        if (! \in_array($this->scriptDir, self::$saved, true)) {
+            self::$saved[] = $this->scriptDir;
+            $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
+            \file_put_contents($this->scriptDir . self::MODULE, \serialize($module));
+        }
     }
 
     /**
