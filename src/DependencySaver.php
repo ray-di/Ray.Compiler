@@ -16,8 +16,6 @@ final class DependencySaver
     public function __construct(string $scriptDir)
     {
         $this->scriptDir = $scriptDir;
-        $qualifier = $this->scriptDir . '/qualifer';
-        ! \file_exists($qualifier) && \mkdir($qualifier);
     }
 
     public function __invoke($dependencyIndex, Code $code)
@@ -32,6 +30,8 @@ final class DependencySaver
 
     private function saveQualifier(IpQualifier $qualifer)
     {
+        $qualifier = $this->scriptDir . '/qualifer';
+        ! \file_exists($qualifier) && \mkdir($qualifier);
         $fileName = \sprintf(
             ScriptInjector::QUALIFIER,
             $this->scriptDir,
