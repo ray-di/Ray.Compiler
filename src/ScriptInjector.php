@@ -104,11 +104,7 @@ final class ScriptInjector implements InjectorInterface
 
     public function __sleep()
     {
-        if (! \in_array($this->scriptDir, self::$saved, true)) {
-            self::$saved[] = $this->scriptDir;
-            $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
-            \file_put_contents($this->scriptDir . self::MODULE, \serialize($module));
-        }
+        $this->saveModule();
 
         return ['scriptDir', 'singletons'];
     }
@@ -216,11 +212,20 @@ final class ScriptInjector implements InjectorInterface
         $isFirstCompile = ! \file_exists($this->scriptDir . self::AOP);
         if ($isFirstCompile) {
             (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
-            $this->__sleep();
+            $this->saveModule();
         }
         (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);
 
         return $file;
+    }
+
+    private function saveModule()
+    {
+        if (! \in_array($this->scriptDir, self::$saved, true)) {
+            self::$saved[] = $this->scriptDir;
+            $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
+            \file_put_contents($this->scriptDir . self::MODULE, \serialize($module));
+        }
     }
 
     /**
