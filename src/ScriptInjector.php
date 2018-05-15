@@ -64,6 +64,11 @@ final class ScriptInjector implements InjectorInterface
     private static $saved = [];
 
     /**
+     * @var bool
+     */
+    private $wakeup = false;
+
+    /**
      * @param string   $scriptDir  generated instance script folder path
      * @param callable $lazyModule callable variable which return AbstractModule instance
      */
@@ -221,7 +226,8 @@ final class ScriptInjector implements InjectorInterface
 
     private function saveModule()
     {
-        if (! \in_array($this->scriptDir, self::$saved, true)) {
+        $isNotUnserializedAndWriteOnce = ! \in_array($this->scriptDir, self::$saved, true) && ! $this->wakeup;
+        if ($isNotUnserializedAndWriteOnce) {
             self::$saved[] = $this->scriptDir;
             $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
             \file_put_contents($this->scriptDir . self::MODULE, \serialize($module));
