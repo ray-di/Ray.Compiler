@@ -81,15 +81,18 @@ final class ScriptInjector implements InjectorInterface
         $this->registerLoader();
         $prototype = function ($dependencyIndex, array $injectionPoint = []) {
             $this->ip = $injectionPoint;
+            list($prototype, $singleton, $injection_point, $injector) = $this->functions;
 
-            return $this->getNodeInstance($dependencyIndex);
+            return require $this->getInstanceFile($dependencyIndex);
         };
         $singleton = function ($dependencyIndex, array $injectionPoint = []) {
             if (isset($this->singletons[$dependencyIndex])) {
                 return $this->singletons[$dependencyIndex];
             }
             $this->ip = $injectionPoint;
-            $instance = $this->getNodeInstance($dependencyIndex);
+            list($prototype, $singleton, $injection_point, $injector) = $this->functions;
+
+            $instance = require $this->getInstanceFile($dependencyIndex);
             $this->singletons[$dependencyIndex] = $instance;
 
             return $instance;
@@ -133,7 +136,10 @@ final class ScriptInjector implements InjectorInterface
         if (isset($this->singletons[$dependencyIndex])) {
             return $this->singletons[$dependencyIndex];
         }
-        list($instance, $isSingleton) = $this->getRootInstance($dependencyIndex);
+        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
+        $instance = require $this->getInstanceFile($dependencyIndex);
+        /* @var bool $is_singleton */
+        $isSingleton = (isset($is_singleton) && $is_singleton) ? true : false;
         if ($isSingleton) {
             $this->singletons[$dependencyIndex] = $instance;
         }
@@ -171,36 +177,6 @@ final class ScriptInjector implements InjectorInterface
         return \file_exists($this->scriptDir . self::MODULE) ? \unserialize(\file_get_contents($this->scriptDir . self::MODULE)) : new NullModule;
     }
 
-    /**
-     * Return root object of object graph and isSingleton information
-     *
-     * Only root object needs the information of $isSingleton. That meta information for node object was determined
-     * in compile timecalled and instatiate with singleton() method call.
-     *
-     * @return array [(mixed) $instance, (bool) $isSigleton]
-     */
-    private function getRootInstance(string $dependencyIndex) : array
-    {
-        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
-
-        $instance = require $this->getInstanceFile($dependencyIndex);
-        /** @var bool $is_singleton */
-        $isSingleton = (isset($is_singleton) && $is_singleton) ? true : false;
-
-        return [$instance, $isSingleton];
-    }
-
-    /**
-     * Return node object of object graph
-     *
-     * @return mixed
-     */
-    private function getNodeInstance(string $dependencyIndex)
-    {
-        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
-
-        return require $this->getInstanceFile($dependencyIndex);
-    }
 
     /**
      * Return compiled script file name
