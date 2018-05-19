@@ -69,6 +69,11 @@ final class ScriptInjector implements InjectorInterface
     private $wakeup = false;
 
     /**
+     * @var array
+     */
+    private $container;
+
+    /**
      * @param string   $scriptDir  generated instance script folder path
      * @param callable $lazyModule callable variable which return AbstractModule instance
      */
@@ -160,13 +165,16 @@ final class ScriptInjector implements InjectorInterface
 
     public function isSingleton($dependencyIndex) : bool
     {
-        $module = $this->getModule();
-        /** @var AbstractModule $module */
-        $container = $module->getContainer()->getContainer();
-        if (! isset($container[$dependencyIndex])) {
+        if (! $this->container) {
+            $module = $this->getModule();
+            /** @var AbstractModule $module */
+            $this->container = $module->getContainer()->getContainer();
+        }
+
+        if (! isset($this->container[$dependencyIndex])) {
             throw new Unbound($dependencyIndex);
         }
-        $dependency = $container[$dependencyIndex];
+        $dependency = $this->container[$dependencyIndex];
         $isSingleton = $dependency instanceof Dependency ? (new PrivateProperty)($dependency, 'isSingleton') : false;
 
         return $isSingleton;
