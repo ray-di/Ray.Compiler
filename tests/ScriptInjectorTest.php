@@ -135,7 +135,6 @@ class ScriptInjectorTest extends TestCase
         $hash1 = \spl_object_hash($dependSingleton1->robot);
         $hash2 = \spl_object_hash($dependSingleton2->robot);
         $this->assertSame($hash1, $hash2);
-        $this->testOnDemandPrototype();
     }
 
     public function testOnDemandPrototype()

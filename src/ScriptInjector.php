@@ -57,16 +57,14 @@ final class ScriptInjector implements InjectorInterface
     private $module;
 
     /**
-     * Saved modules
-     *
      * @var array
      */
-    private static $saved = [];
+    private $container;
 
     /**
      * @var bool
      */
-    private $wakeup = false;
+    private $isSaving = false;
 
     /**
      * @param string   $scriptDir  generated instance script folder path
@@ -81,15 +79,18 @@ final class ScriptInjector implements InjectorInterface
         $this->registerLoader();
         $prototype = function ($dependencyIndex, array $injectionPoint = []) {
             $this->ip = $injectionPoint;
+            list($prototype, $singleton, $injection_point, $injector) = $this->functions;
 
-            return $this->getNodeInstance($dependencyIndex);
+            return require $this->getInstanceFile($dependencyIndex);
         };
         $singleton = function ($dependencyIndex, array $injectionPoint = []) {
             if (isset($this->singletons[$dependencyIndex])) {
                 return $this->singletons[$dependencyIndex];
             }
             $this->ip = $injectionPoint;
-            $instance = $this->getNodeInstance($dependencyIndex);
+            list($prototype, $singleton, $injection_point, $injector) = $this->functions;
+
+            $instance = require $this->getInstanceFile($dependencyIndex);
             $this->singletons[$dependencyIndex] = $instance;
 
             return $instance;
@@ -104,7 +105,6 @@ final class ScriptInjector implements InjectorInterface
             return $this;
         };
         $this->functions = [$prototype, $singleton, $injection_point, $injector];
-        self::$saved = [];
     }
 
     public function __sleep()
@@ -133,7 +133,10 @@ final class ScriptInjector implements InjectorInterface
         if (isset($this->singletons[$dependencyIndex])) {
             return $this->singletons[$dependencyIndex];
         }
-        list($instance, $isSingleton) = $this->getRootInstance($dependencyIndex);
+        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
+        $instance = require $this->getInstanceFile($dependencyIndex);
+        /* @var bool $is_singleton */
+        $isSingleton = (isset($is_singleton) && $is_singleton) ? true : false;
         if ($isSingleton) {
             $this->singletons[$dependencyIndex] = $instance;
         }
@@ -154,13 +157,16 @@ final class ScriptInjector implements InjectorInterface
 
     public function isSingleton($dependencyIndex) : bool
     {
-        $module = $this->getModule();
-        /** @var AbstractModule $module */
-        $container = $module->getContainer()->getContainer();
-        if (! isset($container[$dependencyIndex])) {
+        if (! $this->container) {
+            $module = $this->getModule();
+            /* @var AbstractModule $module */
+            $this->container = $module->getContainer()->getContainer();
+        }
+
+        if (! isset($this->container[$dependencyIndex])) {
             throw new Unbound($dependencyIndex);
         }
-        $dependency = $container[$dependencyIndex];
+        $dependency = $this->container[$dependencyIndex];
         $isSingleton = $dependency instanceof Dependency ? (new PrivateProperty)($dependency, 'isSingleton') : false;
 
         return $isSingleton;
@@ -172,37 +178,6 @@ final class ScriptInjector implements InjectorInterface
     }
 
     /**
-     * Return root object of object graph and isSingleton information
-     *
-     * Only root object needs the information of $isSingleton. That meta information for node object was determined
-     * in compile timecalled and instatiate with singleton() method call.
-     *
-     * @return array [(mixed) $instance, (bool) $isSigleton]
-     */
-    private function getRootInstance(string $dependencyIndex) : array
-    {
-        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
-
-        $instance = require $this->getInstanceFile($dependencyIndex);
-        /** @var bool $is_singleton */
-        $isSingleton = (isset($is_singleton) && $is_singleton) ? true : false;
-
-        return [$instance, $isSingleton];
-    }
-
-    /**
-     * Return node object of object graph
-     *
-     * @return mixed
-     */
-    private function getNodeInstance(string $dependencyIndex)
-    {
-        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
-
-        return require $this->getInstanceFile($dependencyIndex);
-    }
-
-    /**
      * Return compiled script file name
      */
     private function getInstanceFile(string $dependencyIndex) : string
@@ -211,24 +186,15 @@ final class ScriptInjector implements InjectorInterface
         if (\file_exists($file)) {
             return $file;
         }
-        if (! $this->module instanceof AbstractModule) {
-            $this->module = ($this->lazyModule)();
-        }
-        $isFirstCompile = ! \file_exists($this->scriptDir . self::AOP);
-        if ($isFirstCompile) {
-            (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
-            $this->saveModule();
-        }
-        (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);
+        $this->compileOnDemand($dependencyIndex);
 
         return $file;
     }
 
     private function saveModule()
     {
-        $isNotUnserializedAndWriteOnce = ! \in_array($this->scriptDir, self::$saved, true) && ! $this->wakeup;
-        if ($isNotUnserializedAndWriteOnce) {
-            self::$saved[] = $this->scriptDir;
+        if (! $this->isSaving && ! \file_exists($this->scriptDir . self::MODULE)) {
+            $this->isSaving = true;
             $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
             \file_put_contents($this->scriptDir . self::MODULE, \serialize($module));
         }
@@ -247,5 +213,18 @@ final class ScriptInjector implements InjectorInterface
                 // codeCoverageIgnoreEnd
             }
         });
+    }
+
+    private function compileOnDemand(string $dependencyIndex)
+    {
+        if (! $this->module instanceof AbstractModule) {
+            $this->module = ($this->lazyModule)();
+        }
+        $isFirstCompile = ! \file_exists($this->scriptDir . self::AOP);
+        if ($isFirstCompile) {
+            (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
+            $this->saveModule();
+        }
+        (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);
     }
 }
