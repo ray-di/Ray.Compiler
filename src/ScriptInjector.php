@@ -167,7 +167,7 @@ final class ScriptInjector implements InjectorInterface
     {
         if (! $this->container) {
             $module = $this->getModule();
-            /** @var AbstractModule $module */
+            /* @var AbstractModule $module */
             $this->container = $module->getContainer()->getContainer();
         }
 
@@ -185,7 +185,6 @@ final class ScriptInjector implements InjectorInterface
         return \file_exists($this->scriptDir . self::MODULE) ? \unserialize(\file_get_contents($this->scriptDir . self::MODULE)) : new NullModule;
     }
 
-
     /**
      * Return compiled script file name
      */
@@ -195,15 +194,7 @@ final class ScriptInjector implements InjectorInterface
         if (\file_exists($file)) {
             return $file;
         }
-        if (! $this->module instanceof AbstractModule) {
-            $this->module = ($this->lazyModule)();
-        }
-        $isFirstCompile = ! \file_exists($this->scriptDir . self::AOP);
-        if ($isFirstCompile) {
-            (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
-            $this->saveModule();
-        }
-        (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);
+        $this->compileOnDemand($dependencyIndex);
 
         return $file;
     }
@@ -231,5 +222,18 @@ final class ScriptInjector implements InjectorInterface
                 // codeCoverageIgnoreEnd
             }
         });
+    }
+
+    private function compileOnDemand(string $dependencyIndex)
+    {
+        if (! $this->module instanceof AbstractModule) {
+            $this->module = ($this->lazyModule)();
+        }
+        $isFirstCompile = ! \file_exists($this->scriptDir . self::AOP);
+        if ($isFirstCompile) {
+            (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
+            $this->saveModule();
+        }
+        (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);
     }
 }
