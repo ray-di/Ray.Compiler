@@ -57,21 +57,14 @@ final class ScriptInjector implements InjectorInterface
     private $module;
 
     /**
-     * Saved modules
-     *
      * @var array
      */
-    private static $saved = [];
+    private $container;
 
     /**
      * @var bool
      */
-    private $wakeup = false;
-
-    /**
-     * @var array
-     */
-    private $container;
+    private $isSaving = false;
 
     /**
      * @param string   $scriptDir  generated instance script folder path
@@ -112,7 +105,6 @@ final class ScriptInjector implements InjectorInterface
             return $this;
         };
         $this->functions = [$prototype, $singleton, $injection_point, $injector];
-        self::$saved = [];
     }
 
     public function __sleep()
@@ -201,9 +193,8 @@ final class ScriptInjector implements InjectorInterface
 
     private function saveModule()
     {
-        $isNotUnserializedAndWriteOnce = ! \in_array($this->scriptDir, self::$saved, true) && ! $this->wakeup;
-        if ($isNotUnserializedAndWriteOnce) {
-            self::$saved[] = $this->scriptDir;
+        if (! $this->isSaving && ! \file_exists($this->scriptDir . self::MODULE)) {
+            $this->isSaving = true;
             $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
             \file_put_contents($this->scriptDir . self::MODULE, \serialize($module));
         }
