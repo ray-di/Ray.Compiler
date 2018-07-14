@@ -79,13 +79,14 @@ final class InjectionPoint implements InjectionPointInterface
             $this->parameter->getDeclaringFunction()->name,
             $this->parameter->name
         );
-        if (\file_exists($qualifierFile)) {
-            $qualifier = \file_get_contents($qualifierFile);
-            if (\is_bool($qualifier)) {
-                throw new \RuntimeException; // @codeCoverageIgnore
-            }
-
-            return \unserialize($qualifier, ['allowed_classes' => true]);
+        if (! \file_exists($qualifierFile)) {
+            return;
         }
+        $qualifier = \file_get_contents($qualifierFile);
+        if (\is_bool($qualifier)) {
+            throw new \RuntimeException; // @codeCoverageIgnore
+        }
+
+        return \unserialize($qualifier, ['allowed_classes' => true]);
     }
 }
