@@ -15,7 +15,9 @@ class NormalizerTest extends TestCase
     {
         $normalizer = new Normalizer;
         $string = $normalizer('ray');
-        /* @var $string String_ */
+        if (! $string instanceof String_) {
+            throw new \LogicException;
+        }
         $this->assertInstanceOf(String_::class, $string);
         $this->assertSame('ray', $string->value);
     }
