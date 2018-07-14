@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Ray.Compiler package.
  *
@@ -174,7 +175,13 @@ final class ScriptInjector implements InjectorInterface
 
     private function getModule() : AbstractModule
     {
-        return \file_exists($this->scriptDir . self::MODULE) ? \unserialize(\file_get_contents($this->scriptDir . self::MODULE)) : new NullModule;
+        $file = \file_get_contents($this->scriptDir . self::MODULE);
+        if (\is_bool($file)) {
+            throw new \RuntimeException($this->scriptDir . self::MODULE . ' is not readable'); // @codeCoverageIgnore
+        }
+
+        /* @noinspection UnserializeExploitsInspection */
+        return \file_exists($this->scriptDir . self::MODULE) ? \unserialize($file) : new NullModule;
     }
 
     /**
