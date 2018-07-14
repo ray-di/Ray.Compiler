@@ -148,7 +148,7 @@ final class NodeFactory
      * @param Argument[] $arguments
      * @param bool       $isOptional
      *
-     * @return Node\Arg[]|false
+     * @return Node\Expr[]|false
      */
     private function getSetterParams(array $arguments, bool $isOptional)
     {
