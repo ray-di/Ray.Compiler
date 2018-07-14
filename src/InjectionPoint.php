@@ -68,15 +68,19 @@ final class InjectionPoint implements InjectionPointInterface
      */
     public function getQualifier()
     {
+        $class = $this->parameter->getDeclaringClass();
+        if (! $class instanceof \ReflectionClass) {
+            throw new \LogicException; // @codeCoverageIgnore
+        }
         $file = \sprintf(
             ScriptInjector::QUALIFIER,
             $this->scriptDir,
-            \str_replace('\\', '_', $this->parameter->getDeclaringClass()->name),
+            \str_replace('\\', '_', $class->name),
             $this->parameter->getDeclaringFunction()->name,
             $this->parameter->name
         );
         if (\file_exists($file)) {
-            return \unserialize(\file_get_contents($file));
+            return \unserialize(\file_get_contents($file), ['allowed_classes' => true]);
         }
     }
 }
