@@ -16,8 +16,7 @@
     "require-dev": {
         "ray/di": "^2.6.7",
         "ray/aop": "2.x-dev",
-        "phpunit/phpunit": "^6.5",
-        "phpstan/phpstan-shim": "dev-master"
+        "phpunit/phpunit": "^6.5"
     },
     "autoload": {
         "psr-4": {
