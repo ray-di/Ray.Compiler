@@ -9,7 +9,8 @@
     "license": "MIT",
     "require": {
         "php": ">=7.0.0",
-        "koriym/printo": "^1.0"
+        "koriym/printo": "^1.0",
+        "nikic/php-parser": "^3.1.5"
     },
     "require-dev": {
         "ray/di": "^2.6.7",
