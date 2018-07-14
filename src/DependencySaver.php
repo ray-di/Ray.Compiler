@@ -32,10 +32,14 @@ final class DependencySaver
     {
         $qualifier = $this->scriptDir . '/qualifer';
         ! \file_exists($qualifier) && \mkdir($qualifier);
+        $class = $qualifer->param->getDeclaringClass();
+        if (! $class instanceof \ReflectionClass) {
+            throw new \LogicException; // @codeCoverageIgnore
+        }
         $fileName = \sprintf(
             ScriptInjector::QUALIFIER,
             $this->scriptDir,
-            \str_replace('\\', '_', $qualifer->param->getDeclaringClass()->name),
+            \str_replace('\\', '_', $class->name),
             $qualifer->param->getDeclaringFunction()->name,
             $qualifer->param->name
         );

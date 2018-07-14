@@ -47,7 +47,12 @@ final class InjectionPoint implements InjectionPointInterface
      */
     public function getClass() : \ReflectionClass
     {
-        return $this->parameter->getDeclaringClass();
+        $class = $this->parameter->getDeclaringClass();
+        if (! $class instanceof \ReflectionClass) {
+            throw new \LogicException; // @codeCoverageIgnore
+        }
+
+        return $class;
     }
 
     /**
@@ -63,15 +68,25 @@ final class InjectionPoint implements InjectionPointInterface
      */
     public function getQualifier()
     {
-        $file = \sprintf(
+        $class = $this->parameter->getDeclaringClass();
+        if (! $class instanceof \ReflectionClass) {
+            throw new \LogicException; // @codeCoverageIgnore
+        }
+        $qualifierFile = \sprintf(
             ScriptInjector::QUALIFIER,
             $this->scriptDir,
-            \str_replace('\\', '_', $this->parameter->getDeclaringClass()->name),
+            \str_replace('\\', '_', $class->name),
             $this->parameter->getDeclaringFunction()->name,
             $this->parameter->name
         );
-        if (\file_exists($file)) {
-            return \unserialize(\file_get_contents($file));
+        if (! \file_exists($qualifierFile)) {
+            return;
         }
+        $qualifier = \file_get_contents($qualifierFile);
+        if (\is_bool($qualifier)) {
+            throw new \RuntimeException; // @codeCoverageIgnore
+        }
+
+        return \unserialize($qualifier, ['allowed_classes' => true]);
     }
 }

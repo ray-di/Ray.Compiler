@@ -91,6 +91,9 @@ final class FunctionCode
     {
         $param = $argument->get();
         $class = $param->getDeclaringClass();
+        if (! $class instanceof \ReflectionClass) {
+            throw new \LogicException; // @codeCoverageIgnore
+        }
         $method = $param->getDeclaringFunction();
         $this->setQualifiers($method, $param);
 

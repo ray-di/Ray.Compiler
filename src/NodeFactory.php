@@ -125,11 +125,15 @@ final class NodeFactory
     private function getInjectionProviderParams(Argument $argument)
     {
         $param = $argument->get();
+        $class = $param->getDeclaringClass();
+        if (! $class instanceof \ReflectionClass) {
+            throw new \LogicException; // @codeCoverageIgnore
+        }
 
         return [
             new Node\Arg(new Scalar\String_((string) $argument)),
             new Expr\Array_([
-                new Node\Expr\ArrayItem(new Scalar\String_($param->getDeclaringClass()->name)),
+                new Node\Expr\ArrayItem(new Scalar\String_($class->name)),
                 new Node\Expr\ArrayItem(new Scalar\String_($param->getDeclaringFunction()->name)),
                 new Node\Expr\ArrayItem(new Scalar\String_($param->name))
             ])
@@ -144,7 +148,7 @@ final class NodeFactory
      * @param Argument[] $arguments
      * @param bool       $isOptional
      *
-     * @return Node\Arg[]|false
+     * @return Node\Expr[]|false
      */
     private function getSetterParams(array $arguments, bool $isOptional)
     {

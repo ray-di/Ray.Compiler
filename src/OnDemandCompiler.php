@@ -69,11 +69,15 @@ final class OnDemandCompiler
      */
     private function loadPointcuts()
     {
-        $pointcuts = $this->scriptDir . ScriptInjector::AOP;
-        if (! \file_exists($pointcuts)) {
+        $pointcutsFile = $this->scriptDir . ScriptInjector::AOP;
+        if (! \file_exists($pointcutsFile)) {
             return false;
         }
+        $pointcuts = \file_get_contents($pointcutsFile);
+        if (\is_bool($pointcuts)) {
+            throw new \RuntimeException; // @codeCoverageIgnore
+        }
 
-        return  \unserialize(\file_get_contents($pointcuts));
+        return  \unserialize($pointcuts, ['allowed_classes' => true]);
     }
 }
