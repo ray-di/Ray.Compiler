@@ -33,7 +33,7 @@ final class AopCode
         $newInstance = $prop($dependency, 'newInstance');
         $bind = $prop($newInstance, 'bind');
         $bind = $prop($bind, 'bind');
-        /** @var array $bindings */
+        /** @var string[][] $bindings */
         $bindings = $prop($bind, 'bindings', null);
         if (! $bindings || ! \is_array($bindings)) {
             return;
