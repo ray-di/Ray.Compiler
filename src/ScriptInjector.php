@@ -148,7 +148,7 @@ final class ScriptInjector implements InjectorInterface
     public function clear()
     {
         $unlink = function ($path) use (&$unlink) {
-            foreach (\glob(\rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '*') as $file) {
+            foreach ((array) \glob(\rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '*') as $file) {
                 \is_dir($file) ? $unlink($file) : \unlink($file);
                 @\rmdir($file);
             }
