@@ -19,7 +19,7 @@ class DependencyCompilerTest extends TestCase
      */
     private $dependency;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
         delete_dir($_ENV['TMP_DIR']);
