@@ -53,7 +53,7 @@ final class ScriptInjector implements InjectorInterface
     private $lazyModule;
 
     /**
-     * @var AbstractModule
+     * @var AbstractModule|null
      */
     private $module;
 
