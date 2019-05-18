@@ -19,7 +19,7 @@ class ScriptInjectorTest extends TestCase
      */
     private $injector;
 
-    public function setUp()
+    public function setUp() : void
     {
         delete_dir($_ENV['TMP_DIR']);
         $this->injector = new ScriptInjector($_ENV['TMP_DIR']);
@@ -238,10 +238,10 @@ class ScriptInjectorTest extends TestCase
             }
         );
         $injector->getInstance(FakeCar::class);
-        $count = \count(\glob($_ENV['TMP_DIR'] . '/*'));
+        $count = \count((array) \glob($_ENV['TMP_DIR'] . '/*'));
         $this->assertGreaterThan(0, $count);
         $injector->clear();
-        $countAfterClear = \count(\glob($_ENV['TMP_DIR'] . '/*'));
+        $countAfterClear = \count((array) \glob($_ENV['TMP_DIR'] . '/*'));
         $this->assertSame(0, $countAfterClear);
     }
 }
