@@ -29,6 +29,8 @@ class FakeCar implements FakeCarInterface
      */
     public $handle;
 
+    private $transmission;
+
     public $null = false;
 
     /**
@@ -74,6 +76,15 @@ class FakeCar implements FakeCarInterface
     public function setHandle(FakeHandleInterface $handle)
     {
         $this->handle = $handle;
+    }
+
+    /**
+     * @Inject
+     * @Named("mt5speed=mt/5speed")
+     */
+    public function setTransmission(FakeTransmissionInterface $mt5speed)
+    {
+        $this->transmission = $mt5speed;
     }
 
     /**

@@ -20,7 +20,7 @@ final class DependencySaver
 
     public function __invoke($dependencyIndex, Code $code)
     {
-        $pearStyleName = \str_replace('\\', '_', $dependencyIndex);
+        $pearStyleName = \str_replace(['\\', '/'], '_', $dependencyIndex);
         $instanceScript = \sprintf(ScriptInjector::INSTANCE, $this->scriptDir, $pearStyleName);
         \file_put_contents($instanceScript, (string) $code . PHP_EOL, LOCK_EX);
         if ($code->qualifiers) {
@@ -39,7 +39,7 @@ final class DependencySaver
         $fileName = \sprintf(
             ScriptInjector::QUALIFIER,
             $this->scriptDir,
-            \str_replace('\\', '_', $class->name),
+            \str_replace(['\\', '/'], '_', $class->name),
             $qualifer->param->getDeclaringFunction()->name,
             $qualifer->param->name
         );

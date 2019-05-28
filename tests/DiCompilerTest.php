@@ -33,6 +33,7 @@ class DiCompilerTest extends TestCase
             'Ray_Compiler_FakeMirrorInterface-right.php',
             'Ray_Compiler_FakeMirrorInterface-left.php',
             "Ray_Compiler_FakeTyreInterface-{$any}.php",
+            'Ray_Compiler_FakeTransmissionInterface-mt_5speed.php'
         ];
         foreach ($files as $file) {
             $filePath = $_ENV['TMP_DIR'] . '/' . $file;

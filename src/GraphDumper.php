@@ -58,7 +58,7 @@ final class GraphDumper
         if (! \file_exists($graphDir)) {
             \mkdir($graphDir);
         }
-        $file = $graphDir . \str_replace('\\', '_', $dependencyIndex) . '.html';
+        $file = $graphDir . \str_replace(['\\', '/'], '_', $dependencyIndex) . '.html';
         \file_put_contents($file, $graph);
     }
 }

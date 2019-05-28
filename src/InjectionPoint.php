@@ -75,7 +75,7 @@ final class InjectionPoint implements InjectionPointInterface
         $qualifierFile = \sprintf(
             ScriptInjector::QUALIFIER,
             $this->scriptDir,
-            \str_replace('\\', '_', $class->name),
+            \str_replace(['\\', '/'], '_', $class->name),
             $this->parameter->getDeclaringFunction()->name,
             $this->parameter->name
         );

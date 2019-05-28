@@ -77,6 +77,7 @@ $instance->setHardtop($prototype('Ray\\Compiler\\FakeHardtopInterface-{ANY}'));
 $instance->setMirrors($singleton('Ray\\Compiler\\FakeMirrorInterface-right'), $singleton('Ray\\Compiler\\FakeMirrorInterface-left'));
 $instance->setSpareMirror($singleton('Ray\\Compiler\\FakeMirrorInterface-right'));
 $instance->setHandle($prototype('Ray\\Compiler\\FakeHandleInterface-{ANY}', array('Ray\\Compiler\\FakeCar', 'setHandle', 'handle')));
+$instance->setTransmission($prototype('Ray\\Compiler\\FakeTransmissionInterface-mt/5speed'));
 $instance->postConstruct();
 $is_singleton = false;
 return $instance;

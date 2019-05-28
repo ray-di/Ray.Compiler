@@ -190,7 +190,7 @@ final class ScriptInjector implements InjectorInterface
      */
     private function getInstanceFile(string $dependencyIndex) : string
     {
-        $file = \sprintf(self::INSTANCE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
+        $file = \sprintf(self::INSTANCE, $this->scriptDir, \str_replace(['\\', '/'], '_', $dependencyIndex));
         if (\file_exists($file)) {
             return $file;
         }
