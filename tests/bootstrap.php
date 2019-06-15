@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Ray\Compiler;
 
 /* @var $loader \Composer\Autoload\ClassLoader */

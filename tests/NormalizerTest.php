@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Ray\Compiler;
 
 use PhpParser\Node\Scalar\String_;
