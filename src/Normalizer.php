@@ -1,9 +1,7 @@
 <?php
-/**
- * This file is part of the Ray.Compiler package.
- *
- * @license http://opensource.org/licenses/MIT MIT
- */
+
+declare(strict_types=1);
+
 namespace Ray\Compiler;
 
 use PhpParser\Node;
@@ -32,15 +30,19 @@ final class Normalizer
             return new Expr\ConstFetch(
                 new Node\Name('null')
             );
-        } elseif (\is_bool($value)) {
+        }
+        if (\is_bool($value)) {
             return new Expr\ConstFetch(
                 new Node\Name($value ? 'true' : 'false')
             );
-        } elseif (\is_int($value)) {
+        }
+        if (\is_int($value)) {
             return new Scalar\LNumber($value);
-        } elseif (\is_float($value)) {
+        }
+        if (\is_float($value)) {
             return new Scalar\DNumber($value);
-        } elseif (\is_string($value)) {
+        }
+        if (\is_string($value)) {
             return new Scalar\String_($value);
         }
 
@@ -50,17 +52,17 @@ final class Normalizer
     /**
      * Return array or object node
      *
-     * @param mixed $value
-     *
      * @return Expr\Array_|Expr\FuncCall
      */
     private function noScalar($value) : Expr
     {
         if (\is_array($value)) {
             return $this->arrayValue($value);
-        } elseif (\is_object($value)) {
+        }
+        if (\is_object($value)) {
             return $this->normalizeObject($value);
         }
+
         throw new InvalidInstance; //@codeCoverageIgnore
     }
 
@@ -81,8 +83,6 @@ final class Normalizer
 
     /**
      * Return array value node
-     *
-     * @param mixed $value
      */
     private function arrayValue($value) : Expr\Array_
     {
