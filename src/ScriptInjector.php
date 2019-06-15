@@ -213,7 +213,7 @@ final class ScriptInjector implements InjectorInterface
     private function registerLoader()
     {
         \spl_autoload_register(function ($class) {
-            $file = \sprintf('%s/%s.php', $this->scriptDir, $class);
+            $file = \sprintf('%s/%s.php', $this->scriptDir, \str_replace('\\', '_', $class));
             if (\file_exists($file)) {
                 // @codeCoverageIgnoreStart
                 require $file;
