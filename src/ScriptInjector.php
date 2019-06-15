@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace Ray\Compiler;
 
 use Ray\Compiler\Exception\Unbound;
