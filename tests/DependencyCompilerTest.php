@@ -1,9 +1,7 @@
 <?php
-/**
- * This file is part of the Ray.Compiler package.
- *
- * @license http://opensource.org/licenses/MIT MIT
- */
+
+declare(strict_types=1);
+
 namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;

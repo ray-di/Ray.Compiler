@@ -1,19 +1,15 @@
 <?php
-/**
- * This file is part of the Ray.Compiler package.
- *
- * @license http://opensource.org/licenses/MIT MIT
- */
+
+declare(strict_types=1);
+
 namespace Ray\Compiler;
 
 final class PrivateProperty
 {
     /**
      * @param object $object
-     * @param string $prop
-     * @param mixed  $default
      *
-     * @return mixed|null
+     * @return null|mixed
      */
     public function __invoke($object, string $prop, $default = null)
     {
@@ -23,8 +19,7 @@ final class PrivateProperty
             return $default;
         }
         $refProp->setAccessible(true);
-        $value = $refProp->getValue($object);
 
-        return $value;
+        return $refProp->getValue($object);
     }
 }

@@ -1,9 +1,7 @@
 <?php
-/**
- * This file is part of the Ray.Compiler package.
- *
- * @license http://opensource.org/licenses/MIT MIT
- */
+
+declare(strict_types=1);
+
 namespace Ray\Compiler;
 
 use PhpParser\BuilderFactory;
@@ -31,7 +29,7 @@ final class DependencyCode implements SetContextInterface
     private $container;
 
     /**
-     * @var ScriptInjector|null
+     * @var null|ScriptInjector
      */
     private $injector;
 
@@ -51,7 +49,7 @@ final class DependencyCode implements SetContextInterface
     private $privateProperty;
 
     /**
-     * @var IpQualifier|null
+     * @var null|IpQualifier
      */
     private $qualifier;
 
@@ -80,9 +78,11 @@ final class DependencyCode implements SetContextInterface
     {
         if ($dependency instanceof Dependency) {
             return $this->getDependencyCode($dependency);
-        } elseif ($dependency instanceof Instance) {
+        }
+        if ($dependency instanceof Instance) {
             return $this->getInstanceCode($dependency);
-        } elseif ($dependency instanceof DependencyProvider) {
+        }
+        if ($dependency instanceof DependencyProvider) {
             return $this->getProviderCode($dependency);
         }
 

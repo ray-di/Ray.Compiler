@@ -1,9 +1,7 @@
 <?php
-/**
- * This file is part of the Ray.Compiler package.
- *
- * @license http://opensource.org/licenses/MIT MIT
- */
+
+declare(strict_types=1);
+
 namespace Ray\Compiler;
 
 use PhpParser\Node;
@@ -18,7 +16,7 @@ use Ray\Di\SetterMethod;
 final class NodeFactory
 {
     /**
-     * @var InjectorInterface|null
+     * @var null|InjectorInterface
      */
     private $injector;
 
@@ -66,13 +64,11 @@ final class NodeFactory
         }
         $func = $isSingleton ? 'singleton' : 'prototype';
         $args = $this->getInjectionProviderParams($argument);
-        $node = new Expr\FuncCall(new Expr\Variable($func), $args);
 
-        return $node;
+        return new Expr\FuncCall(new Expr\Variable($func), $args);
     }
 
     /**
-     * @param Expr\Variable  $instance
      * @param SetterMethod[] $setterMethods
      *
      * @return Expr\MethodCall[]
@@ -110,6 +106,7 @@ final class NodeFactory
 
             return ($this->normalizer)($default);
         }
+
         throw new Unbound($argument->getMeta());
     }
 
@@ -117,8 +114,6 @@ final class NodeFactory
      * Return code for provider
      *
      * "$provider" needs [class, method, parameter] for InjectionPoint (Contextual Dependency Injection)
-     *
-     * @param Argument $argument
      *
      * @return array
      */
@@ -146,9 +141,8 @@ final class NodeFactory
      * Return false when no dependency given and @ Inject(optional=true) annotated to setter method.
      *
      * @param Argument[] $arguments
-     * @param bool       $isOptional
      *
-     * @return Node\Expr[]|false
+     * @return false|Node\Expr[]
      */
     private function getSetterParams(array $arguments, bool $isOptional)
     {
