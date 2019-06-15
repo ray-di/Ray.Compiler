@@ -1,9 +1,7 @@
 <?php
-/**
- * This file is part of the Ray.Compiler package.
- *
- * @license http://opensource.org/licenses/MIT MIT
- */
+
+declare(strict_types=1);
+
 namespace Ray\Compiler;
 
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -64,8 +62,6 @@ final class FunctionCode
      *
      * [class, method, param] is added if dependency is provider for DI context
      *
-     * @param Argument $argument
-     *
      * @return Node\Arg[]
      */
     private function getInjectionFuncParams(Argument $argument) : array
@@ -82,10 +78,6 @@ final class FunctionCode
      * Return code for provider
      *
      * "$provider" needs [class, method, parameter] for InjectionPoint (Contextual Dependency Injection)
-     *
-     * @param Argument $argument
-     *
-     * @return array
      */
     private function getInjectionProviderParams(Argument $argument) : array
     {

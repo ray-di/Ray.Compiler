@@ -1,9 +1,7 @@
 <?php
-/**
- * This file is part of the Ray.Compiler package.
- *
- * @license http://opensource.org/licenses/MIT MIT
- */
+
+declare(strict_types=1);
+
 namespace Ray\Compiler;
 
 use Ray\Di\AbstractModule;
@@ -35,7 +33,7 @@ final class DiCompiler implements InjectorInterface
     private $injector;
 
     /**
-     * @var AbstractModule|null
+     * @var null|AbstractModule
      */
     private $module;
 

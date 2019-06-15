@@ -1,9 +1,8 @@
 <?php
-/**
- * This file is part of the Ray.Compiler package.
- *
- * @license http://opensource.org/licenses/MIT MIT
- */
+
+declare(strict_types=1);
+
+
 namespace Ray\Compiler;
 
 use PhpParser\Node\Scalar\String_;
@@ -22,11 +21,10 @@ class NormalizerTest extends TestCase
         $this->assertSame('ray', $string->value);
     }
 
-    /**
-     * @expectedException \Ray\Compiler\Exception\InvalidInstance
-     */
     public function testInvalidValue()
     {
+        $this->expectException(\Ray\Compiler\Exception\InvalidInstance::class);
+
         $normalizer = new Normalizer;
         $resource = \fopen(__FILE__, 'r');
         $normalizer($resource);

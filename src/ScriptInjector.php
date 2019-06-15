@@ -1,10 +1,8 @@
 <?php
 
-/**
- * This file is part of the Ray.Compiler package.
- *
- * @license http://opensource.org/licenses/MIT MIT
- */
+declare(strict_types=1);
+
+
 namespace Ray\Compiler;
 
 use Ray\Compiler\Exception\Unbound;
@@ -17,8 +15,11 @@ use Ray\Di\NullModule;
 final class ScriptInjector implements InjectorInterface
 {
     const MODULE = '/module.txt';
+
     const AOP = '/aop.txt';
+
     const INSTANCE = '%s/%s.php';
+
     const QUALIFIER = '%s/qualifer/%s-%s-%s';
 
     /**
@@ -53,7 +54,7 @@ final class ScriptInjector implements InjectorInterface
     private $lazyModule;
 
     /**
-     * @var AbstractModule|null
+     * @var null|AbstractModule
      */
     private $module;
 
@@ -169,9 +170,8 @@ final class ScriptInjector implements InjectorInterface
             throw new Unbound($dependencyIndex);
         }
         $dependency = $this->container[$dependencyIndex];
-        $isSingleton = $dependency instanceof Dependency ? (new PrivateProperty)($dependency, 'isSingleton') : false;
 
-        return $isSingleton;
+        return $dependency instanceof Dependency ? (new PrivateProperty)($dependency, 'isSingleton') : false;
     }
 
     private function getModule() : AbstractModule
