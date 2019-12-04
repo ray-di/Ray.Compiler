@@ -1,5 +1,6 @@
 {
     "name": "ray/compiler",
+    "version": "1.x-dev",
     "description": "A dependency injection compiler for Ray.Di",
     "keywords": [
         "Ray.Di",
@@ -12,7 +13,7 @@
     },
     "require-dev": {
         "ray/di": "2.x-dev",
-        "ray/aop": "^2.8.1",
+        "ray/aop": "^2.9",
         "koriym/printo": "^1.0",
         "nikic/php-parser": "^4.0",
         "phpunit/phpunit": "^7.5"
