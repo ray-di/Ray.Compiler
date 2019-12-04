@@ -1,6 +1,6 @@
 {
     "name": "ray/compiler",
-    "version": "1.3.7",
+    "version": "1.x-dev",
     "description": "A dependency injection compiler for Ray.Di",
     "keywords": [
         "Ray.Di",
@@ -9,14 +9,14 @@
     ],
     "license": "MIT",
     "require": {
-        "php": ">=7.1.0"
+        "php": ">=7.2.0"
     },
     "require-dev": {
         "ray/di": "2.x-dev",
-        "ray/aop": "^2.8.1",
+        "ray/aop": "^2.9",
         "koriym/printo": "^1.0",
         "nikic/php-parser": "^4.0",
-        "phpunit/phpunit": "^6.5"
+        "phpunit/phpunit": "^7.5"
     },
     "autoload": {
         "psr-4": {
@@ -34,6 +34,7 @@
         "tests": ["@test", "@cs", "phpstan analyse -l max src tests -c phpstan.neon --no-progress"],
         "coverage": ["php -dzend_extension=xdebug.so ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage"],
         "cs": ["php-cs-fixer fix -v --dry-run", "phpcs --standard=./phpcs.xml src"],
-        "cs-fix": ["php-cs-fixer fix -v", "phpcbf src"]
+        "cs-fix": ["php-cs-fixer fix -v", "phpcbf src"],
+        "metrics": ["phpmetrics --report-html=build/metrics --excluded-dirs=src/Exception src"]
     }
 }
