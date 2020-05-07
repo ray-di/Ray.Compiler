@@ -41,6 +41,6 @@ final class DependencySaver
             $qualifer->param->getDeclaringFunction()->name,
             $qualifer->param->name
         );
-        \file_put_contents($fileName, \serialize($qualifer->qualifier) . PHP_EOL);
+        \file_put_contents($fileName, \serialize($qualifer->qualifier) . PHP_EOL, LOCK_EX);
     }
 }
