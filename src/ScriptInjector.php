@@ -7,7 +7,6 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Dependency;
-use Ray\Di\Injector;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use Ray\Di\NullModule;
