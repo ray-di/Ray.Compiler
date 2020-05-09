@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Dependency;
+use Ray\Di\Injector;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use Ray\Di\NullModule;
@@ -66,6 +67,11 @@ final class ScriptInjector implements InjectorInterface
      * @var bool
      */
     private $isSaving = false;
+
+    /**
+     * @var bool
+     */
+    private $cacheable = true;
 
     /**
      * @param string   $scriptDir  generated instance script folder path
@@ -145,6 +151,11 @@ final class ScriptInjector implements InjectorInterface
         return $instance;
     }
 
+    public function disableCache() : void
+    {
+        $this->cacheable = false;
+    }
+
     public function clear()
     {
         $unlink = function ($path) use (&$unlink) {
@@ -179,7 +190,6 @@ final class ScriptInjector implements InjectorInterface
         if (\is_bool($moduleFile)) {
             throw new \RuntimeException($this->scriptDir . self::MODULE . ' is not readable'); // @codeCoverageIgnore
         }
-
         /* @noinspection UnserializeExploitsInspection */
         return \file_exists($this->scriptDir . self::MODULE) ? \unserialize($moduleFile) : new NullModule;
     }
@@ -190,7 +200,7 @@ final class ScriptInjector implements InjectorInterface
     private function getInstanceFile(string $dependencyIndex) : string
     {
         $file = \sprintf(self::INSTANCE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
-        if (\file_exists($file)) {
+        if ($this->cacheable && \file_exists($file)) {
             return $file;
         }
         $this->compileOnDemand($dependencyIndex);
