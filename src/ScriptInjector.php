@@ -68,6 +68,11 @@ final class ScriptInjector implements InjectorInterface
     private $isSaving = false;
 
     /**
+     * @var bool
+     */
+    private $cacheable = true;
+
+    /**
      * @param string   $scriptDir  generated instance script folder path
      * @param callable $lazyModule callable variable which return AbstractModule instance
      */
@@ -145,6 +150,11 @@ final class ScriptInjector implements InjectorInterface
         return $instance;
     }
 
+    public function disableCache() : void
+    {
+        $this->cacheable = false;
+    }
+
     public function clear()
     {
         $unlink = function ($path) use (&$unlink) {
@@ -179,7 +189,6 @@ final class ScriptInjector implements InjectorInterface
         if (\is_bool($moduleFile)) {
             throw new \RuntimeException($this->scriptDir . self::MODULE . ' is not readable'); // @codeCoverageIgnore
         }
-
         /* @noinspection UnserializeExploitsInspection */
         return \file_exists($this->scriptDir . self::MODULE) ? \unserialize($moduleFile) : new NullModule;
     }
@@ -190,7 +199,7 @@ final class ScriptInjector implements InjectorInterface
     private function getInstanceFile(string $dependencyIndex) : string
     {
         $file = \sprintf(self::INSTANCE, $this->scriptDir, \str_replace('\\', '_', $dependencyIndex));
-        if (\file_exists($file)) {
+        if ($this->cacheable && \file_exists($file)) {
             return $file;
         }
         $this->compileOnDemand($dependencyIndex);
