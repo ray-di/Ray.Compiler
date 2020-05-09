@@ -13,9 +13,9 @@ use Ray\Di\NullModule;
 
 final class ScriptInjector implements InjectorInterface
 {
-    const MODULE = '/module.txt';
+    const MODULE = '/_module.txt';
 
-    const AOP = '/aop.txt';
+    const AOP = '/_aop.txt';
 
     const INSTANCE = '%s/%s.php';
 
