@@ -11,16 +11,22 @@ final class DependencySaver
      */
     private $scriptDir;
 
+    /**
+     * @var FilePutContents
+     */
+    private $filePutContents;
+
     public function __construct(string $scriptDir)
     {
         $this->scriptDir = $scriptDir;
+        $this->filePutContents = new FilePutContents;
     }
 
     public function __invoke($dependencyIndex, Code $code)
     {
         $pearStyleName = \str_replace('\\', '_', $dependencyIndex);
         $instanceScript = \sprintf(ScriptInjector::INSTANCE, $this->scriptDir, $pearStyleName);
-        \file_put_contents($instanceScript, (string) $code . PHP_EOL, LOCK_EX);
+        ($this->filePutContents)($instanceScript, (string) $code . PHP_EOL);
         if ($code->qualifiers) {
             $this->saveQualifier($code->qualifiers);
         }
@@ -41,6 +47,6 @@ final class DependencySaver
             $qualifer->param->getDeclaringFunction()->name,
             $qualifer->param->name
         );
-        \file_put_contents($fileName, \serialize($qualifer->qualifier) . PHP_EOL, LOCK_EX);
+        ($this->filePutContents)($fileName, \serialize($qualifer->qualifier) . PHP_EOL);
     }
 }

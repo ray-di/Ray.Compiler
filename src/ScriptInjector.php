@@ -185,12 +185,18 @@ final class ScriptInjector implements InjectorInterface
 
     private function getModule() : AbstractModule
     {
-        $moduleFile = \file_get_contents($this->scriptDir . self::MODULE);
-        if (\is_bool($moduleFile)) {
-            throw new \RuntimeException($this->scriptDir . self::MODULE . ' is not readable'); // @codeCoverageIgnore
+        $modulePath = $this->scriptDir . self::MODULE;
+        if (! file_exists($modulePath)) {
+            return new NullModule;
         }
-        /* @noinspection UnserializeExploitsInspection */
-        return \file_exists($this->scriptDir . self::MODULE) ? \unserialize($moduleFile) : new NullModule;
+        $serialized = file_get_contents($modulePath);
+        assert(! is_bool($serialized));
+        $er = error_reporting(error_reporting() ^ E_NOTICE);
+        $module = unserialize($serialized, ['allowed_classes' => true]);
+        error_reporting($er);
+        assert($module instanceof AbstractModule);
+
+        return $module;
     }
 
     /**
@@ -212,7 +218,7 @@ final class ScriptInjector implements InjectorInterface
         if (! $this->isSaving && ! \file_exists($this->scriptDir . self::MODULE)) {
             $this->isSaving = true;
             $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
-            \file_put_contents($this->scriptDir . self::MODULE, \serialize($module), LOCK_EX);
+            (new FilePutContents)($this->scriptDir . self::MODULE, \serialize($module));
         }
     }
 
