@@ -71,10 +71,10 @@ final class OnDemandCompiler
         if (! \file_exists($pointcutsPath)) {
             return false;
         }
-        $serializedPointcuts = \file_get_contents($pointcutsPath);
-        assert(! is_bool($serializedPointcuts));
+        $serialized = \file_get_contents($pointcutsPath);
+        assert(! is_bool($serialized));
         $er = error_reporting(error_reporting() ^ E_NOTICE);
-        $pointcuts = \unserialize($serializedPointcuts, ['allowed_classes' => true]);
+        $pointcuts = \unserialize($serialized, ['allowed_classes' => true]);
         error_reporting($er);
 
         return $pointcuts;
