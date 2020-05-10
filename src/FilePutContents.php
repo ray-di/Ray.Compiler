@@ -11,10 +11,10 @@ final class FilePutContents
     public function __invoke(string $filename, string $content) : void
     {
         $tmpFile = tempnam(dirname($filename), 'swap');
-        if (file_put_contents($tmpFile, $content) && rename($tmpFile, $filename)) {
+        if (is_string($tmpFile) && file_put_contents($tmpFile, $content) && @rename($tmpFile, $filename)) {
             return;
         }
-        @unlink($tmpFile);
+        @unlink((string) $tmpFile);
 
         throw new FileNotWritable($filename);
     }
