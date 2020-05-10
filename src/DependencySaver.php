@@ -20,7 +20,9 @@ final class DependencySaver
     {
         $pearStyleName = \str_replace('\\', '_', $dependencyIndex);
         $instanceScript = \sprintf(ScriptInjector::INSTANCE, $this->scriptDir, $pearStyleName);
-        \file_put_contents($instanceScript, (string) $code . PHP_EOL, LOCK_EX);
+        $tmp = $instanceScript . getmypid();
+        \file_put_contents($tmp, (string) $code . PHP_EOL);
+        rename($tmp, $instanceScript);
         if ($code->qualifiers) {
             $this->saveQualifier($code->qualifiers);
         }
