@@ -240,28 +240,4 @@ class ScriptInjectorTest extends TestCase
         $countAfterClear = \count((array) \glob($_ENV['TMP_DIR'] . '/*'));
         $this->assertSame(0, $countAfterClear);
     }
-
-    public function testDisableCache()
-    {
-        $injector = new ScriptInjector(
-            $_ENV['TMP_DIR'],
-            function () {
-                return new FakeCarModule;
-            }
-        );
-        // first compile
-        $car = $injector->getInstance(FakeCar::class);
-        $script = $_ENV['TMP_DIR'] . '/Ray_Compiler_FakeCar-.php';
-        $this->assertInstanceOf(FakeCar::class, $car);
-        // add noise
-        $marker = '//should-be-deleted';
-        file_put_contents($script, $marker, FILE_APPEND);
-        $this->assertInstanceOf(FakeCar::class, $car);
-        $this->assertContains($marker, file_get_contents($script));
-        // script file should be rewrite = marker deleted
-        $injector->disableCache();
-        $car = $injector->getInstance(FakeCar::class);
-        $this->assertInstanceOf(FakeCar::class, $car);
-        $this->assertNotContains($marker, file_get_contents($script));
-    }
 }
