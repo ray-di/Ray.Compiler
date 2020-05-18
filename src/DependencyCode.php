@@ -53,6 +53,9 @@ final class DependencyCode implements SetContextInterface
      */
     private $qualifier;
 
+    /**
+     * @var string
+     */
     private $context;
 
     /**
@@ -97,7 +100,7 @@ final class DependencyCode implements SetContextInterface
         $this->context = $context;
     }
 
-    public function setQaulifier(IpQualifier $qualifer)
+    public function setQaulifier(IpQualifier $qualifer) : void
     {
         $this->qualifier = $qualifer;
     }
