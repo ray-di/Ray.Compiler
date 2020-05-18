@@ -68,6 +68,11 @@ final class ScriptInjector implements InjectorInterface
     private $isSaving = false;
 
     /**
+     * @var array<string>
+     */
+    private static $scriptDirs = [];
+
+    /**
      * @param string   $scriptDir  generated instance script folder path
      * @param callable $lazyModule callable variable which return AbstractModule instance
      */
@@ -212,19 +217,25 @@ final class ScriptInjector implements InjectorInterface
         }
     }
 
-    /**
-     * Register autoload for AOP file
-     */
     private function registerLoader()
     {
-        \spl_autoload_register(function ($class) {
-            $file = \sprintf('%s/%s.php', $this->scriptDir, \str_replace('\\', '_', $class));
-            if (\file_exists($file)) {
-                // @codeCoverageIgnoreStart
-                require $file;
-                // codeCoverageIgnoreEnd
-            }
-        });
+        if (in_array($this->scriptDir, self::$scriptDirs, true)) {
+            return;
+        }
+        if (self::$scriptDirs === []) {
+            \spl_autoload_register(
+                function (string $class) {
+                    foreach (self::$scriptDirs as $scriptDir) {
+                        $file = \sprintf('%s/%s.php', $scriptDir, \str_replace('\\', '_', $class));
+                        if (\file_exists($file)) {
+                            require $file; // @codeCoverageIgnore
+                        }
+                    }
+                },
+                false
+            );
+        }
+        self::$scriptDirs[] = $this->scriptDir;
     }
 
     private function compileOnDemand(string $dependencyIndex)
