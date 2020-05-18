@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-function delete_dir($path)
+function delete_dir(string $path) : void
 {
     foreach ((array) \glob(\rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '*') as $f) {
         $file = (string) $f;
