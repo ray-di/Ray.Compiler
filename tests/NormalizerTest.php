@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class NormalizerTest extends TestCase
 {
-    public function testString()
+    public function testString() : void
     {
         $normalizer = new Normalizer;
         $string = $normalizer('ray');
@@ -20,7 +20,7 @@ class NormalizerTest extends TestCase
         $this->assertSame('ray', $string->value);
     }
 
-    public function testInvalidValue()
+    public function testInvalidValue() : void
     {
         $this->expectException(\Ray\Compiler\Exception\InvalidInstance::class);
 
