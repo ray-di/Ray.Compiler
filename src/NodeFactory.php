@@ -65,7 +65,7 @@ final class NodeFactory
         $func = $isSingleton ? 'singleton' : 'prototype';
         $args = $this->getInjectionProviderParams($argument);
 
-        return new Expr\FuncCall(new Expr\Variable($func), $args);
+        return new Expr\FuncCall(new Expr\Variable($func), $args); // @phpstan-ignore-line
     }
 
     /**
@@ -115,7 +115,7 @@ final class NodeFactory
      *
      * "$provider" needs [class, method, parameter] for InjectionPoint (Contextual Dependency Injection)
      *
-     * @return array
+     * @return array<Expr\Array_|Node\Arg>
      */
     private function getInjectionProviderParams(Argument $argument)
     {
