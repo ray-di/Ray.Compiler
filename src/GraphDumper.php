@@ -27,7 +27,7 @@ final class GraphDumper
         $this->scriptDir = $scriptDir;
     }
 
-    public function __invoke()
+    public function __invoke() : void
     {
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
@@ -38,10 +38,7 @@ final class GraphDumper
         }
     }
 
-    /**
-     * Write html
-     */
-    private function write(string $dependencyIndex)
+    private function write(string $dependencyIndex) : void
     {
         if ($dependencyIndex === 'Ray\Aop\MethodInvocation-') {
             return;
