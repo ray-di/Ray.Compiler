@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Ray\Aop\ReflectionMethod;
 use Ray\Di\InjectionPointInterface;
 
 final class InjectionPoint implements InjectionPointInterface
@@ -37,7 +38,10 @@ final class InjectionPoint implements InjectionPointInterface
      */
     public function getMethod() : \ReflectionMethod
     {
-        return $this->parameter->getDeclaringFunction();
+        $reflectionMethod = $this->parameter->getDeclaringFunction();
+        assert($reflectionMethod instanceof ReflectionMethod);
+
+        return $reflectionMethod;
     }
 
     /**

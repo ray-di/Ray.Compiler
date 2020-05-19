@@ -89,6 +89,7 @@ final class FunctionCode
             throw new \LogicException; // @codeCoverageIgnore
         }
         $method = $param->getDeclaringFunction();
+        assert($method instanceof \ReflectionMethod);
         $this->setQualifiers($method, $param);
 
         return [

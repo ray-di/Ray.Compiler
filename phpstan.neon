@@ -4,9 +4,5 @@ parameters:
         - %currentWorkingDirectory%/tests/Fake/*
         - %currentWorkingDirectory%/tests/bootstrap.php
     ignoreErrors:
-        - '#Variable \$is_singleton in isset\(\) is never defined.#'
         - '#Parameter \#2 \$args of class PhpParser\\Node\\Expr\\New_ constructor expects array<PhpParser\\Node\\Arg>, array<int, PhpParser\\Node\\Expr>#'
         - '#Parameter \#3 \$args of class PhpParser\\Node\\Expr\\MethodCall constructor expects array<PhpParser\\Node\\Arg>, array<PhpParser\\Node\\Expr>#'
-        - '#Ray\\Compiler\\FunctionCode::setQualifiers\(\) expects ReflectionMethod, ReflectionFunctionAbstract given.#'
-        - '#Method Ray\\Compiler\\InjectionPoint::getMethod\(\) should return ReflectionMethod but returns ReflectionFunctionAbstract#'
-        - '#Result of && is always false.#'
