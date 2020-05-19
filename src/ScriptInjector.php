@@ -64,6 +64,11 @@ final class ScriptInjector implements InjectorInterface
     private $container;
 
     /**
+     * @var bool
+     */
+    private $isModuleLocked = false;
+
+    /**
      * @var array<string>
      */
     private static $scriptDirs = [];
@@ -218,10 +223,12 @@ final class ScriptInjector implements InjectorInterface
 
     private function saveModule() : void
     {
-        if (! \file_exists($this->scriptDir . self::MODULE)) {
-            $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
-            (new FilePutContents)($this->scriptDir . self::MODULE, \serialize($module));
+        if ($this->isModuleLocked || \file_exists($this->scriptDir . self::MODULE)) {
+            return;
         }
+        $this->isModuleLocked = true;
+        $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
+        (new FilePutContents)($this->scriptDir . self::MODULE, \serialize($module));
     }
 
     private function registerLoader() : void
