@@ -174,7 +174,7 @@ final class DependencyCode implements SetContextInterface
      *
      * This code is used by Dependency and DependencyProvider
      *
-     * @return \PhpParser\Node[]
+     * @return array<Node>
      */
     private function getFactoryNode(DependencyInterface $dependency) : array
     {

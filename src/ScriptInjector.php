@@ -34,7 +34,7 @@ final class ScriptInjector implements InjectorInterface
      *
      * @var array{0: string, 1: string, 2: string}
      */
-    private $ip;
+    private $ip = ['', '', ''];
 
     /**
      * Singleton instance container
@@ -75,15 +75,17 @@ final class ScriptInjector implements InjectorInterface
     public function __construct($scriptDir, callable $lazyModule = null)
     {
         $this->scriptDir = $scriptDir;
-        $this->lazyModule = $lazyModule ?: function () {
+        $this->lazyModule = $lazyModule ?: function () : NullModule {
             return new NullModule;
         };
         $this->registerLoader();
         $prototype =
             /**
              * @param array{0: string, 1: string, 2: string} $injectionPoint
+             *
+             * @return mixed
              */
-            function (string $dependencyIndex, array $injectionPoint = []) {
+            function (string $dependencyIndex, array $injectionPoint = ['', '', '']) {
                 $this->ip = $injectionPoint; // @phpstan-ignore-line
                 [$prototype, $singleton, $injection_point, $injector] = $this->functions;
 
@@ -92,8 +94,10 @@ final class ScriptInjector implements InjectorInterface
         $singleton =
             /**
              * @param array{0: string, 1: string, 2: string} $injectionPoint
+             *
+             * @return mixed
              */
-            function (string $dependencyIndex, $injectionPoint = []) {
+            function (string $dependencyIndex, $injectionPoint = ['', '', '']) {
                 if (isset($this->singletons[$dependencyIndex])) {
                     return $this->singletons[$dependencyIndex];
                 }
@@ -105,13 +109,13 @@ final class ScriptInjector implements InjectorInterface
 
                 return $instance;
             };
-        $injection_point = function () use ($scriptDir) {
+        $injection_point = function () use ($scriptDir) : InjectionPoint {
             return new InjectionPoint(
                 new \ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2]),
                 $scriptDir
             );
         };
-        $injector = function () {
+        $injector = function () : self {
             return $this;
         };
         $this->functions = [$prototype, $singleton, $injection_point, $injector];
@@ -156,7 +160,7 @@ final class ScriptInjector implements InjectorInterface
 
     public function clear() : void
     {
-        $unlink = function ($path) use (&$unlink) {
+        $unlink = function (string $path) use (&$unlink) : void {
             foreach ((array) \glob(\rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '*') as $f) {
                 $file = (string) $f;
                 \is_dir($file) ? $unlink($file) : \unlink($file);
