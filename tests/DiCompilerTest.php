@@ -11,14 +11,14 @@ use Ray\Di\Name;
 
 class DiCompilerTest extends TestCase
 {
-    public function testUnbound()
+    public function testUnbound() : void
     {
         $this->expectException(Unbound::class);
         $injector = new ScriptInjector($_ENV['TMP_DIR']);
         $injector->getInstance(FakeCarInterface::class);
     }
 
-    public function testCompile()
+    public function testCompile() : void
     {
         $compiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
         $compiler->compile();
@@ -41,14 +41,14 @@ class DiCompilerTest extends TestCase
         $this->assertInstanceOf(FakeCar::class, $car);
     }
 
-    public function testsGetInstance()
+    public function testsGetInstance() : void
     {
         $compiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
         $car = $compiler->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $car);
     }
 
-    public function testAopCompile()
+    public function testAopCompile() : void
     {
         $compiler = new DiCompiler(new FakeAopModule, $_ENV['TMP_DIR']);
         $compiler->compile();
@@ -67,7 +67,7 @@ class DiCompilerTest extends TestCase
     /**
      * @depends testAopCompile
      */
-    public function testAopCompileFile()
+    public function testAopCompileFile() : void
     {
         $script = new ScriptInjector($_ENV['TMP_DIR']);
         /** @var FakeAop $instance */
@@ -79,7 +79,7 @@ class DiCompilerTest extends TestCase
         $this->assertSame($expected, $result);
     }
 
-    public function testInjectionPoint()
+    public function testInjectionPoint() : void
     {
         $compiler = new DiCompiler(new FakeLoggerModule, $_ENV['TMP_DIR']);
         $compiler->compile();
@@ -90,7 +90,7 @@ class DiCompilerTest extends TestCase
         $this->assertSame('MEMORY', $loggerConsumer->logger->type);
     }
 
-    public function testDump()
+    public function testDump() : void
     {
         $compiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
         $compiler->dumpGraph();
@@ -98,7 +98,10 @@ class DiCompilerTest extends TestCase
         $this->assertFileExists($_ENV['TMP_DIR'] . '/graph/Ray_Compiler_FakeCarInterface-' . $any . '.html');
     }
 
-    public function instanceProvider()
+    /**
+     * @return array<int, array<int, null|array<int|string, int>|float|int|string|true>>
+     */
+    public function instanceProvider() : array
     {
         return [
             ['bool', true],
@@ -114,9 +117,9 @@ class DiCompilerTest extends TestCase
     /**
      * @dataProvider instanceProvider
      *
-     * @param string $name
+     * @param null|array<int|string, int>|float|int|string|true $expected
      */
-    public function testInstance($name, $expected)
+    public function testInstance(string $name, $expected) : void
     {
         $compiler = new DiCompiler(new FakeInstanceModule, $_ENV['TMP_DIR']);
         $compiler->compile();
