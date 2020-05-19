@@ -223,7 +223,7 @@ final class ScriptInjector implements InjectorInterface
 
     private function saveModule() : void
     {
-        if ($this->isModuleLocked || ! \file_exists($this->scriptDir . self::MODULE)) {
+        if ($this->isModuleLocked || \file_exists($this->scriptDir . self::MODULE)) {
             return;
         }
         $this->isModuleLocked = true;
