@@ -18,7 +18,7 @@ final class InjectionPoint implements InjectionPointInterface
      */
     private $scriptDir;
 
-    public function __construct(\ReflectionParameter $parameter, $scriptDir)
+    public function __construct(\ReflectionParameter $parameter, string $scriptDir)
     {
         $this->parameter = $parameter;
         $this->scriptDir = $scriptDir;
@@ -55,6 +55,8 @@ final class InjectionPoint implements InjectionPointInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @return array<null|object>
      */
     public function getQualifiers() : array
     {
@@ -63,6 +65,8 @@ final class InjectionPoint implements InjectionPointInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @return ?object
      */
     public function getQualifier()
     {
@@ -78,7 +82,7 @@ final class InjectionPoint implements InjectionPointInterface
             $this->parameter->name
         );
         if (! \file_exists($qualifierFile)) {
-            return;
+            return null;
         }
         $qualifier = \file_get_contents($qualifierFile);
         if (\is_bool($qualifier)) {
