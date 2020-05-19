@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use Ray\Aop\Compiler;
+use Ray\Aop\Pointcut;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Bind;
@@ -36,11 +37,11 @@ final class OnDemandCompiler
     }
 
     /**
-     * Compile depdency on demand
+     * Compile dependency on demand
      */
-    public function __invoke(string $dependencyIndex)
+    public function __invoke(string $dependencyIndex) : void
     {
-        list($class) = \explode('-', $dependencyIndex);
+        [$class] = \explode('-', $dependencyIndex);
         $containerObject = $this->module->getContainer();
         try {
             new Bind($containerObject, $class);
@@ -63,7 +64,7 @@ final class OnDemandCompiler
     }
 
     /**
-     * @return array|false
+     * @return array<Pointcut>|false
      */
     private function loadPointcuts()
     {
