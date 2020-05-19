@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use Ray\Aop\Compiler;
+use Ray\Aop\Pointcut;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Bind;
 use Ray\Di\Dependency;
+use Ray\Di\DependencyInterface;
 use Ray\Di\Exception\NotFound;
 
 final class OnDemandCompiler
@@ -36,11 +38,11 @@ final class OnDemandCompiler
     }
 
     /**
-     * Compile depdency on demand
+     * Compile dependency on demand
      */
-    public function __invoke(string $dependencyIndex)
+    public function __invoke(string $dependencyIndex) : void
     {
-        list($class) = \explode('-', $dependencyIndex);
+        [$class] = \explode('-', $dependencyIndex);
         $containerObject = $this->module->getContainer();
         try {
             new Bind($containerObject, $class);
@@ -48,13 +50,12 @@ final class OnDemandCompiler
             throw new Unbound($dependencyIndex, 0, $e);
         }
         $containerArray = $containerObject->getContainer();
-        /* @var \Ray\Di\Dependency $dependency */
         if (! isset($containerArray[$dependencyIndex])) {
             throw new Unbound($dependencyIndex, 0);
         }
-        /** @var Dependency $dependency */
         $dependency = $containerArray[$dependencyIndex];
         $pointCuts = $this->loadPointcuts();
+        assert($dependency instanceof DependencyInterface);
         if ($dependency instanceof Dependency && \is_array($pointCuts)) {
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
@@ -63,7 +64,7 @@ final class OnDemandCompiler
     }
 
     /**
-     * @return array|false
+     * @return array<Pointcut>|false
      */
     private function loadPointcuts()
     {

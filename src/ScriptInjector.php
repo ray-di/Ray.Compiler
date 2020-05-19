@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Dependency;
+use Ray\Di\DependencyInterface;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use Ray\Di\NullModule;
@@ -31,19 +32,19 @@ final class ScriptInjector implements InjectorInterface
      *
      * [$class, $method, $parameter]
      *
-     * @var array
+     * @var array{0: string, 1: string, 2: string}
      */
-    private $ip;
+    private $ip = ['', '', ''];
 
     /**
      * Singleton instance container
      *
-     * @var array
+     * @var array<object>
      */
     private $singletons = [];
 
     /**
-     * @var array [[$class,],]
+     * @var array<callable>
      */
     private $functions;
 
@@ -58,14 +59,9 @@ final class ScriptInjector implements InjectorInterface
     private $module;
 
     /**
-     * @var array
+     * @var array<DependencyInterface>
      */
     private $container;
-
-    /**
-     * @var bool
-     */
-    private $isSaving = false;
 
     /**
      * @var array<string>
@@ -79,35 +75,47 @@ final class ScriptInjector implements InjectorInterface
     public function __construct($scriptDir, callable $lazyModule = null)
     {
         $this->scriptDir = $scriptDir;
-        $this->lazyModule = $lazyModule ?: function () {
+        $this->lazyModule = $lazyModule ?: function () : NullModule {
             return new NullModule;
         };
         $this->registerLoader();
-        $prototype = function ($dependencyIndex, array $injectionPoint = []) {
-            $this->ip = $injectionPoint;
-            list($prototype, $singleton, $injection_point, $injector) = $this->functions;
+        $prototype =
+            /**
+             * @param array{0: string, 1: string, 2: string} $injectionPoint
+             *
+             * @return mixed
+             */
+            function (string $dependencyIndex, array $injectionPoint = ['', '', '']) {
+                $this->ip = $injectionPoint; // @phpstan-ignore-line
+                [$prototype, $singleton, $injection_point, $injector] = $this->functions;
 
-            return require $this->getInstanceFile($dependencyIndex);
-        };
-        $singleton = function ($dependencyIndex, array $injectionPoint = []) {
-            if (isset($this->singletons[$dependencyIndex])) {
-                return $this->singletons[$dependencyIndex];
-            }
-            $this->ip = $injectionPoint;
-            list($prototype, $singleton, $injection_point, $injector) = $this->functions;
+                return require $this->getInstanceFile($dependencyIndex);
+            };
+        $singleton =
+            /**
+             * @param array{0: string, 1: string, 2: string} $injectionPoint
+             *
+             * @return mixed
+             */
+            function (string $dependencyIndex, $injectionPoint = ['', '', '']) {
+                if (isset($this->singletons[$dependencyIndex])) {
+                    return $this->singletons[$dependencyIndex];
+                }
+                $this->ip = $injectionPoint;
+                [$prototype, $singleton, $injection_point, $injector] = $this->functions;
 
-            $instance = require $this->getInstanceFile($dependencyIndex);
-            $this->singletons[$dependencyIndex] = $instance;
+                $instance = require $this->getInstanceFile($dependencyIndex);
+                $this->singletons[$dependencyIndex] = $instance;
 
-            return $instance;
-        };
-        $injection_point = function () use ($scriptDir) {
+                return $instance;
+            };
+        $injection_point = function () use ($scriptDir) : InjectionPoint {
             return new InjectionPoint(
                 new \ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2]),
                 $scriptDir
             );
         };
-        $injector = function () {
+        $injector = function () : self {
             return $this;
         };
         $this->functions = [$prototype, $singleton, $injection_point, $injector];
@@ -139,10 +147,10 @@ final class ScriptInjector implements InjectorInterface
         if (isset($this->singletons[$dependencyIndex])) {
             return $this->singletons[$dependencyIndex];
         }
-        list($prototype, $singleton, $injection_point, $injector) = $this->functions;
+        [$prototype, $singleton, $injection_point, $injector] = $this->functions;
         $instance = require $this->getInstanceFile($dependencyIndex);
-        /* @var bool $is_singleton */
-        $isSingleton = (isset($is_singleton) && $is_singleton) ? true : false;
+        /** @global bool $is_singleton */
+        $isSingleton = (isset($is_singleton) && $is_singleton) ? true : false; // @phpstan-ignore-line
         if ($isSingleton) {
             $this->singletons[$dependencyIndex] = $instance;
         }
@@ -150,9 +158,9 @@ final class ScriptInjector implements InjectorInterface
         return $instance;
     }
 
-    public function clear()
+    public function clear() : void
     {
-        $unlink = function ($path) use (&$unlink) {
+        $unlink = function (string $path) use (&$unlink) : void {
             foreach ((array) \glob(\rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '*') as $f) {
                 $file = (string) $f;
                 \is_dir($file) ? $unlink($file) : \unlink($file);
@@ -162,7 +170,7 @@ final class ScriptInjector implements InjectorInterface
         $unlink($this->scriptDir);
     }
 
-    public function isSingleton($dependencyIndex) : bool
+    public function isSingleton(string $dependencyIndex) : bool
     {
         if (! $this->container) {
             $module = $this->getModule();
@@ -208,23 +216,22 @@ final class ScriptInjector implements InjectorInterface
         return $file;
     }
 
-    private function saveModule()
+    private function saveModule() : void
     {
-        if (! $this->isSaving && ! \file_exists($this->scriptDir . self::MODULE)) {
-            $this->isSaving = true;
+        if (! \file_exists($this->scriptDir . self::MODULE)) {
             $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
             (new FilePutContents)($this->scriptDir . self::MODULE, \serialize($module));
         }
     }
 
-    private function registerLoader()
+    private function registerLoader() : void
     {
         if (in_array($this->scriptDir, self::$scriptDirs, true)) {
             return;
         }
         if (self::$scriptDirs === []) {
             \spl_autoload_register(
-                function (string $class) {
+                function (string $class) : void {
                     foreach (self::$scriptDirs as $scriptDir) {
                         $file = \sprintf('%s/%s.php', $scriptDir, \str_replace('\\', '_', $class));
                         if (\file_exists($file)) {
@@ -238,7 +245,7 @@ final class ScriptInjector implements InjectorInterface
         self::$scriptDirs[] = $this->scriptDir;
     }
 
-    private function compileOnDemand(string $dependencyIndex)
+    private function compileOnDemand(string $dependencyIndex) : void
     {
         if (! $this->module instanceof AbstractModule) {
             $this->module = ($this->lazyModule)();
@@ -248,6 +255,7 @@ final class ScriptInjector implements InjectorInterface
             (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
             $this->saveModule();
         }
+        assert($this->module instanceof AbstractModule);
         (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);
     }
 }

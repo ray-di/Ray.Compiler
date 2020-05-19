@@ -24,7 +24,7 @@ final class Code
      */
     private $node;
 
-    public function __construct(Node $node, $isSingleton = false, IpQualifier $qualifier = null)
+    public function __construct(Node $node, bool $isSingleton = false, IpQualifier $qualifier = null)
     {
         $this->node = $node;
         $this->isSingleton = $isSingleton;

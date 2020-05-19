@@ -22,7 +22,7 @@ final class DependencySaver
         $this->filePutContents = new FilePutContents;
     }
 
-    public function __invoke($dependencyIndex, Code $code)
+    public function __invoke(string $dependencyIndex, Code $code) : void
     {
         $pearStyleName = \str_replace('\\', '_', $dependencyIndex);
         $instanceScript = \sprintf(ScriptInjector::INSTANCE, $this->scriptDir, $pearStyleName);
@@ -32,7 +32,7 @@ final class DependencySaver
         }
     }
 
-    private function saveQualifier(IpQualifier $qualifer)
+    private function saveQualifier(IpQualifier $qualifer) : void
     {
         $qualifier = $this->scriptDir . '/qualifer';
         ! \file_exists($qualifier) && ! @mkdir($qualifier) && ! is_dir($qualifier);

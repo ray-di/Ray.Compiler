@@ -23,7 +23,7 @@ class ScriptInjectorTest extends TestCase
         $this->injector = new ScriptInjector($_ENV['TMP_DIR']);
     }
 
-    public function testGetInstance()
+    public function testGetInstance() : FakeCar
     {
         $diCompiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
         $diCompiler->compile();
@@ -36,19 +36,19 @@ class ScriptInjectorTest extends TestCase
     /**
      * @depends testGetInstance
      */
-    public function testDefaultValueInjected($car)
+    public function testDefaultValueInjected(FakeCar $car) : void
     {
         $this->assertNull($car->null);
     }
 
-    public function testCompileException()
+    public function testCompileException() : void
     {
         $this->expectException(Unbound::class);
         $script = new ScriptInjector($_ENV['TMP_DIR']);
         $script->getInstance('invalid-class');
     }
 
-    public function testToPrototype()
+    public function testToPrototype() : void
     {
         (new DiCompiler(new FakeToBindPrototypeModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
@@ -56,7 +56,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertNotSame(\spl_object_hash($instance1), \spl_object_hash($instance2));
     }
 
-    public function testToSingleton()
+    public function testToSingleton() : void
     {
         (new DiCompiler(new FakeToBindSingletonModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
@@ -64,7 +64,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertSame($instance1, $instance2);
     }
 
-    public function testToProviderPrototype()
+    public function testToProviderPrototype() : void
     {
         (new DiCompiler(new FakeToProviderPrototypeModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
@@ -72,7 +72,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertNotSame($instance1, $instance2);
     }
 
-    public function testToProviderSingleton()
+    public function testToProviderSingleton() : void
     {
         (new DiCompiler(new FakeToProviderSingletonModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
@@ -80,7 +80,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertSame($instance1, $instance2);
     }
 
-    public function testToInstancePrototype()
+    public function testToInstancePrototype() : void
     {
         (new DiCompiler(new FakeToInstancePrototypeModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
@@ -88,7 +88,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertNotSame($instance1, $instance2);
     }
 
-    public function testToInstanceSingleton()
+    public function testToInstanceSingleton() : void
     {
         (new DiCompiler(new FakeToInstanceSingletonModule, $_ENV['TMP_DIR']))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
@@ -96,7 +96,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertSame($instance1, $instance2);
     }
 
-    public function testSerializable()
+    public function testSerializable() : void
     {
         $diCompiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
         $diCompiler->compile();
@@ -106,7 +106,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertInstanceOf(FakeCar::class, $car);
     }
 
-    public function testAop()
+    public function testAop() : void
     {
         $compiler = new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']);
         $compiler->compile();
@@ -121,7 +121,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertInstanceOf(FakeRobot::class, $instance3->robot);
     }
 
-    public function testOnDemandSingleton()
+    public function testOnDemandSingleton() : void
     {
         (new DiCompiler(new FakeToBindSingletonModule, $_ENV['TMP_DIR']))->compile();
         /* @var  $dependSingleton1 FakeDependSingleton */
@@ -133,7 +133,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertSame($hash1, $hash2);
     }
 
-    public function testOnDemandPrototype()
+    public function testOnDemandPrototype() : void
     {
         (new DiCompiler(new FakeCarModule, $_ENV['TMP_DIR']))->compile();
         /* @var  $fakeDependPrototype1 FakeDependPrototype */
@@ -145,14 +145,14 @@ class ScriptInjectorTest extends TestCase
         $this->assertNotSame($hash1, $hash2);
     }
 
-    public function testOptional()
+    public function testOptional() : void
     {
         /* @var $optional FakeOptional */
         $optional = $this->injector->getInstance(FakeOptional::class);
         $this->assertNull($optional->robot);
     }
 
-    public function testDependInjector()
+    public function testDependInjector() : void
     {
         $diCompiler = new DiCompiler(new NullModule, $_ENV['TMP_DIR']);
         $diCompiler->compile();
@@ -164,7 +164,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
     }
 
-    public function testUnbound()
+    public function testUnbound() : void
     {
         $this->expectException(Unbound::class);
         $this->expectExceptionMessage('NOCLASS-NONAME');
@@ -172,7 +172,7 @@ class ScriptInjectorTest extends TestCase
         $injector->getInstance('NOCLASS', 'NONAME');
     }
 
-    public function testCompileOnDemand()
+    public function testCompileOnDemand() : void
     {
         $injector = new ScriptInjector(
             $_ENV['TMP_DIR'],
@@ -184,7 +184,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertTrue($car instanceof FakeCar);
     }
 
-    public function testCompileOnDemandAop()
+    public function testCompileOnDemandAop() : void
     {
         $injector = new ScriptInjector(
             $_ENV['TMP_DIR'],
@@ -198,7 +198,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertSame(2, $result);
     }
 
-    public function testCompileOnDemandSerialize()
+    public function testCompileOnDemandSerialize() : void
     {
         $serialize = \serialize(new ScriptInjector(
             $_ENV['TMP_DIR'],
@@ -211,7 +211,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertTrue($car instanceof FakeCar);
     }
 
-    public function testCompileOnDemandAopSerialize()
+    public function testCompileOnDemandAopSerialize() : void
     {
         $injector = \unserialize(\serialize(new ScriptInjector(
             $_ENV['TMP_DIR'],
@@ -225,7 +225,7 @@ class ScriptInjectorTest extends TestCase
         $this->assertSame(2, $result);
     }
 
-    public function testClear()
+    public function testClear() : void
     {
         $injector = new ScriptInjector(
             $_ENV['TMP_DIR'],
