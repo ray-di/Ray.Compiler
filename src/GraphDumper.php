@@ -31,8 +31,8 @@ final class GraphDumper
     {
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
-            $isNorInjector = $dependencyIndex !== 'Ray\Di\InjectorInterface-' . Name::ANY;
-            if ($dependency instanceof DependencyInterface && $isNorInjector) {
+            $isNotInjector = $dependencyIndex !== 'Ray\Di\InjectorInterface-' . Name::ANY;
+            if ($isNotInjector) {
                 $this->write($dependencyIndex);
             }
         }
