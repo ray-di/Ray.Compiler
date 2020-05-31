@@ -27,6 +27,8 @@ final class AopCode
      * Add aop factory code if bindings are given
      *
      * @param array<Expr> $node
+     *
+     * @param-out array<Expr|mixed> $node
      */
     public function __invoke(Dependency $dependency, array &$node) : void
     {
@@ -34,7 +36,7 @@ final class AopCode
         $newInstance = $prop($dependency, 'newInstance');
         $bind = $prop($newInstance, 'bind');
         $bind = $prop($bind, 'bind');
-        /** @var string[][] $bindings */
+        /** @var null|string[][] $bindings */
         $bindings = $prop($bind, 'bindings', null);
         if (! \is_array($bindings)) {
             return;
@@ -48,6 +50,8 @@ final class AopCode
     /**
      * @param array<Expr>   $array
      * @param array<Assign> $insertValue
+     *
+     * @param-out array<Expr|mixed> $array
      */
     private function setBindingAssignAfterInitialization(array &$array, array $insertValue, int $position) : void
     {
