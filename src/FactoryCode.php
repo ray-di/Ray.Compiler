@@ -32,11 +32,6 @@ final class FactoryCode
     private $injector;
 
     /**
-     * @var DependencyCode
-     */
-    private $compiler;
-
-    /**
      * @var NodeFactory
      */
     private $nodeFactory;
@@ -63,7 +58,7 @@ final class FactoryCode
      * @param array<Argument>     $arguments
      * @param array<SetterMethod> $setterMethods
      *
-     * @return Node[]
+     * @return array<Expr>
      */
     public function getFactoryCode(string $class, array $arguments, array $setterMethods, string $postConstruct) : array
     {
@@ -116,7 +111,7 @@ final class FactoryCode
             //            $argument = $argument->isDefaultAvailable() ? $argument->getDefaultValue() : $argument;
             $args[] = $this->getArgStmt($argument);
         }
-
+        /** @var array<Node\Arg> $args */
         return new Expr\New_(new Node\Name\FullyQualified($class), $args);
     }
 

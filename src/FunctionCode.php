@@ -54,7 +54,8 @@ final class FunctionCode
         $func = $isSingleton ? 'singleton' : 'prototype';
         $args = $this->getInjectionFuncParams($argument);
 
-        return new Expr\FuncCall(new Expr\Variable($func), $args); // @phpstan-ignore-line
+        /** @var array<Node\Arg> $args */
+        return new Expr\FuncCall(new Expr\Variable($func), $args);
     }
 
     /**

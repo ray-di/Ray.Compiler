@@ -7,6 +7,3 @@ parameters:
     - %currentWorkingDirectory%/tests/tmp/*
     - %currentWorkingDirectory%/tests/Fake/*
     - %currentWorkingDirectory%/tests/bootstrap.php
-  ignoreErrors:
-    - '#Parameter \#2 \$args of class PhpParser\\Node\\Expr\\New_ constructor expects array<PhpParser\\Node\\Arg>, array<int, PhpParser\\Node\\Expr>#'
-    - '#Parameter \#3 \$args of class PhpParser\\Node\\Expr\\MethodCall constructor expects array<PhpParser\\Node\\Arg>, array<PhpParser\\Node\\Expr>#'
