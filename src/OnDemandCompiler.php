@@ -55,7 +55,6 @@ final class OnDemandCompiler
         }
         $dependency = $containerArray[$dependencyIndex];
         $pointCuts = $this->loadPointcuts();
-        assert($dependency instanceof DependencyInterface);
         if ($dependency instanceof Dependency && \is_array($pointCuts)) {
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
