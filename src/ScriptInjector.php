@@ -59,7 +59,7 @@ final class ScriptInjector implements InjectorInterface
     private $module;
 
     /**
-     * @var array<DependencyInterface>
+     * @var ?array<DependencyInterface>
      */
     private $container;
 
