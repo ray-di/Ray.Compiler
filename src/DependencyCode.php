@@ -134,11 +134,12 @@ final class DependencyCode implements SetContextInterface
         $isSingleton = $prop($dependency, 'isSingleton');
         $node[] = $this->getIsSingletonCode($isSingleton);
         $node[] = new Node\Stmt\Return_(new Node\Expr\Variable('instance'));
-        $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
+        /** @var Stmt\Namespace_ $namespace */
+        $namespace = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
         $qualifer = $this->qualifier;
         $this->qualifier = null;
 
-        return new Code($node, $isSingleton, $qualifer);
+        return new Code($namespace, $isSingleton, $qualifer);
     }
 
     /**
@@ -175,7 +176,7 @@ final class DependencyCode implements SetContextInterface
      *
      * This code is used by Dependency and DependencyProvider
      *
-     * @return array<Node>
+     * @return array<Expr>
      */
     private function getFactoryNode(DependencyInterface $dependency) : array
     {

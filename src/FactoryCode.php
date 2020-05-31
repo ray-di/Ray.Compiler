@@ -58,7 +58,7 @@ final class FactoryCode
      * @param array<Argument>     $arguments
      * @param array<SetterMethod> $setterMethods
      *
-     * @return Node[]
+     * @return array<Expr>
      */
     public function getFactoryCode(string $class, array $arguments, array $setterMethods, string $postConstruct) : array
     {
