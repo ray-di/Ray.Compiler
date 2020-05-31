@@ -65,7 +65,8 @@ final class NodeFactory
         $func = $isSingleton ? 'singleton' : 'prototype';
         $args = $this->getInjectionProviderParams($argument);
 
-        return new Expr\FuncCall(new Expr\Variable($func), $args); // @phpstan-ignore-line
+        /** @var array<Node\Arg> $args */
+        return new Expr\FuncCall(new Expr\Variable($func), $args);
     }
 
     /**
@@ -85,6 +86,7 @@ final class NodeFactory
             if (! $args) {
                 continue;
             }
+            /** @var array<Node\Arg> $args */
             $setters[] = new Expr\MethodCall($instance, $method, $args);
         }
 
