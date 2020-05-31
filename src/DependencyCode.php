@@ -55,6 +55,7 @@ final class DependencyCode implements SetContextInterface
 
     /**
      * @var string
+     * @psalm-suppress PropertyNotSetInConstructor
      */
     private $context;
 
