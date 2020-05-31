@@ -240,4 +240,16 @@ class ScriptInjectorTest extends TestCase
         $countAfterClear = \count((array) \glob($_ENV['TMP_DIR'] . '/*'));
         $this->assertSame(0, $countAfterClear);
     }
+
+    public function testParentBindingTest() : void
+    {
+        $injector = new ScriptInjector(
+            $_ENV['TMP_DIR'],
+            function () {
+                return new FakeAbstractClassModule;
+            }
+        );
+        $instance = $injector->getInstance(FakeAbstractClass::class);
+        $this->assertInstanceOf(FakeExtendedClass::class, $instance);
+    }
 }

@@ -219,8 +219,12 @@ final class ScriptInjector implements InjectorInterface
         if (\file_exists($file)) {
             return $file;
         }
-        $this->compileOnDemand($dependencyIndex);
-        assert(\file_exists($file));
+        try {
+            $this->compileOnDemand($dependencyIndex);
+        } catch (Unbound $e) {
+            $this->parentClassBinding($dependencyIndex, $e);
+        }
+        assert(file_exists($file));
 
         return $file;
     }
@@ -268,5 +272,20 @@ final class ScriptInjector implements InjectorInterface
         }
         assert($this->module instanceof AbstractModule);
         (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);
+    }
+
+    private function parentClassBinding(string $dependencyIndex, Unbound $e) : string
+    {
+        [$class, $name] = explode('-', $dependencyIndex);
+        if (! class_exists($class)) {
+            throw $e;
+        }
+        $parent = (new \ReflectionClass($class))->getParentClass();
+        if (! $parent instanceof \ReflectionClass) {
+            throw $e;
+        }
+        $parentIndex = $parent->getName() . '-' . $name;
+
+        return $this->getInstanceFile($parentIndex);
     }
 }
