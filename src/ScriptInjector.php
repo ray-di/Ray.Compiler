@@ -76,6 +76,8 @@ final class ScriptInjector implements InjectorInterface
     /**
      * @param string   $scriptDir  generated instance script folder path
      * @param callable $lazyModule callable variable which return AbstractModule instance
+     *
+     * @psalm-suppress UnresolvableInclude
      */
     public function __construct($scriptDir, callable $lazyModule = null)
     {
@@ -153,6 +155,7 @@ final class ScriptInjector implements InjectorInterface
             return $this->singletons[$dependencyIndex];
         }
         [$prototype, $singleton, $injection_point, $injector] = $this->functions;
+        /** @psalm-suppress UnresolvableInclude */
         $instance = require $this->getInstanceFile($dependencyIndex);
         /** @global bool $is_singleton */
         $isSingleton = (isset($is_singleton) && $is_singleton) ? true : false; // @phpstan-ignore-line
@@ -217,6 +220,7 @@ final class ScriptInjector implements InjectorInterface
             return $file;
         }
         $this->compileOnDemand($dependencyIndex);
+        assert(\file_exists($file));
 
         return $file;
     }
