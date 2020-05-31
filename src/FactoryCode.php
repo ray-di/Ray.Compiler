@@ -116,7 +116,7 @@ final class FactoryCode
             //            $argument = $argument->isDefaultAvailable() ? $argument->getDefaultValue() : $argument;
             $args[] = $this->getArgStmt($argument);
         }
-
+        /** @var array<Node\Arg> $args */
         return new Expr\New_(new Node\Name\FullyQualified($class), $args);
     }
 
