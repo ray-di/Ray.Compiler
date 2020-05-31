@@ -10,7 +10,6 @@ use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Bind;
 use Ray\Di\Dependency;
-use Ray\Di\DependencyInterface;
 use Ray\Di\Exception\NotFound;
 
 final class OnDemandCompiler

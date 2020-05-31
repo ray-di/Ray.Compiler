@@ -52,7 +52,7 @@ final class Normalizer
     /**
      * Return array or object node
      *
-     * @param array<mixed>|object|mixed $value
+     * @param array<mixed>|mixed|object $value
      *
      * @return Expr\Array_|Expr\FuncCall
      */
@@ -64,6 +64,7 @@ final class Normalizer
         if (\is_object($value)) {
             return $this->normalizeObject($value);
         }
+
         throw new InvalidInstance;
     }
 
