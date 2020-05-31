@@ -61,6 +61,7 @@ final class InjectionPoint implements InjectionPointInterface
      * {@inheritdoc}
      *
      * @return array<null|object>
+     * @psalm-suppress ImplementedReturnTypeMismatch
      */
     public function getQualifiers() : array
     {
@@ -70,7 +71,7 @@ final class InjectionPoint implements InjectionPointInterface
     /**
      * {@inheritdoc}
      *
-     * @return ?object
+     * @return null|object
      */
     public function getQualifier()
     {
