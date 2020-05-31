@@ -32,11 +32,6 @@ final class FactoryCode
     private $injector;
 
     /**
-     * @var DependencyCode
-     */
-    private $compiler;
-
-    /**
      * @var NodeFactory
      */
     private $nodeFactory;
