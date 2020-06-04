@@ -1,21 +1,25 @@
 {
     "name": "ray/compiler",
-    "version": "1.x-dev",
     "description": "A dependency injection compiler for Ray.Di",
     "keywords": [
-        "Ray.Di",
+        "di",
         "compiler",
         "code-gen"
     ],
     "license": "MIT",
+    "authors": [
+      {
+        "name": "Akihito Koriyama",
+        "email": "akihito.koriyama@gmail.com"
+      }
+    ],
     "require": {
         "php": ">=7.2.0"
     },
     "require-dev": {
         "ray/di": "2.x-dev",
-        "ray/aop": "^2.9",
+        "ray/aop": "^2.9.8",
         "koriym/printo": "^1.0",
-        "nikic/php-parser": "^4.0",
         "phpunit/phpunit": "^7.5"
     },
     "autoload": {
