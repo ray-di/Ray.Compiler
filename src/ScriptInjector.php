@@ -59,9 +59,14 @@ final class ScriptInjector implements InjectorInterface
     private $module;
 
     /**
-     * @var array<DependencyInterface>
+     * @var ?array<DependencyInterface>
      */
     private $container;
+
+    /**
+     * @var bool
+     */
+    private $isModuleLocked = false;
 
     /**
      * @var array<string>
@@ -71,6 +76,8 @@ final class ScriptInjector implements InjectorInterface
     /**
      * @param string   $scriptDir  generated instance script folder path
      * @param callable $lazyModule callable variable which return AbstractModule instance
+     *
+     * @psalm-suppress UnresolvableInclude
      */
     public function __construct($scriptDir, callable $lazyModule = null)
     {
@@ -148,6 +155,7 @@ final class ScriptInjector implements InjectorInterface
             return $this->singletons[$dependencyIndex];
         }
         [$prototype, $singleton, $injection_point, $injector] = $this->functions;
+        /** @psalm-suppress UnresolvableInclude */
         $instance = require $this->getInstanceFile($dependencyIndex);
         /** @global bool $is_singleton */
         $isSingleton = (isset($is_singleton) && $is_singleton) ? true : false; // @phpstan-ignore-line
@@ -212,16 +220,19 @@ final class ScriptInjector implements InjectorInterface
             return $file;
         }
         $this->compileOnDemand($dependencyIndex);
+        assert(\file_exists($file));
 
         return $file;
     }
 
     private function saveModule() : void
     {
-        if (! \file_exists($this->scriptDir . self::MODULE)) {
-            $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
-            (new FilePutContents)($this->scriptDir . self::MODULE, \serialize($module));
+        if ($this->isModuleLocked || \file_exists($this->scriptDir . self::MODULE)) {
+            return;
         }
+        $this->isModuleLocked = true;
+        $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
+        (new FilePutContents)($this->scriptDir . self::MODULE, \serialize($module));
     }
 
     private function registerLoader() : void

@@ -6,7 +6,6 @@ namespace Ray\Compiler;
 
 use Koriym\Printo\Printo;
 use Ray\Di\Container;
-use Ray\Di\DependencyInterface;
 use Ray\Di\Name;
 
 final class GraphDumper
@@ -31,8 +30,8 @@ final class GraphDumper
     {
         $container = $this->container->getContainer();
         foreach ($container as $dependencyIndex => $dependency) {
-            $isNorInjector = $dependencyIndex !== 'Ray\Di\InjectorInterface-' . Name::ANY;
-            if ($dependency instanceof DependencyInterface && $isNorInjector) {
+            $isNotInjector = $dependencyIndex !== 'Ray\Di\InjectorInterface-' . Name::ANY;
+            if ($isNotInjector) {
                 $this->write($dependencyIndex);
             }
         }

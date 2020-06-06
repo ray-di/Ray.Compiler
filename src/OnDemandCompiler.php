@@ -10,7 +10,6 @@ use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Bind;
 use Ray\Di\Dependency;
-use Ray\Di\DependencyInterface;
 use Ray\Di\Exception\NotFound;
 
 final class OnDemandCompiler
@@ -55,7 +54,6 @@ final class OnDemandCompiler
         }
         $dependency = $containerArray[$dependencyIndex];
         $pointCuts = $this->loadPointcuts();
-        assert($dependency instanceof DependencyInterface);
         if ($dependency instanceof Dependency && \is_array($pointCuts)) {
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }

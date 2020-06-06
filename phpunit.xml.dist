@@ -2,7 +2,7 @@
          xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="tests/bootstrap.php">
 <testsuites>
-    <testsuite name="all">
+    <testsuite name="Ray.Compiler Test Suite">
         <directory>tests</directory>
     </testsuite>
 </testsuites>
