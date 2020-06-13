@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use function crc32;
 use Doctrine\Common\Cache\Cache;
 use Ray\Di\InjectorInterface;
+use Ray\Di\AbstractModule;
 
 /**
  * @psalm-immutable
@@ -23,11 +24,12 @@ final class CachedFactory
     }
 
     /**
-     * @param class-string|callable():AbstractModule $initialModule
-     * @param array<class-string<AbstractModule>>    $contextModules
-     * @param array<class-string>                    $savedSingletons
+     * @param callable():\Ray\Di\AbstractModule $modules
+     * @param array<class-string<\Ray\Di\AbstractModule>>    $savedSingletons
+     *
+     * @return InjectorInterface
      */
-    public static function getInstance($initialModule, array $contextModules, string $scriptDir, Cache $cache, array $savedSingletons = []) : InjectorInterface
+    public static function getInstance(callable $modules, string $scriptDir, Cache $cache, array $savedSingletons = []) : InjectorInterface
     {
         $injectorId = crc32($scriptDir);
         if (isset(self::$instances[$injectorId])) {
@@ -35,7 +37,7 @@ final class CachedFactory
         }
         /** @var ?InjectorInterface $cachedInjector */
         $cachedInjector = $cache->fetch(InjectorInterface::class);
-        $injector = $cachedInjector instanceof InjectorInterface ? $cachedInjector : InjectorFactory::getInstance($initialModule, $contextModules, $scriptDir);
+        $injector = $cachedInjector instanceof InjectorInterface ? $cachedInjector : InjectorFactory::getInstance($modules, $scriptDir);
         self::saveSingletons($injector, $savedSingletons);
         self::$instances[$injectorId] = $injector;
 

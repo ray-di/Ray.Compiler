@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use function is_callable;
 use Ray\Compiler\Annotation\Compile;
 use Ray\Di\AbstractModule;
-use Ray\Di\AssistedModule;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\Injector as RayInjector;
 use Ray\Di\InjectorInterface;
@@ -22,20 +20,13 @@ final class InjectorFactory
     }
 
     /**
-     * @param class-string|callable():AbstractModule $initialModule
-     * @param array<class-string<AbstractModule>>    $contextModules
+     * @param callable():\Ray\Di\AbstractModule $modules
      */
-    public static function getInstance($initialModule, array $contextModules, string $scriptDir) : InjectorInterface
+    public static function getInstance(callable $modules, string $scriptDir) : InjectorInterface
     {
         ! is_dir($scriptDir) && ! @mkdir($scriptDir) && ! is_dir($scriptDir);
-        $module = is_callable($initialModule) ? $initialModule() : new $initialModule;
-        $module->override(new AssistedModule);
-        foreach ($contextModules as $contextModule) {
-            /** @var $module AbstractModule */
-            $module->override(new $contextModule);
-        }
+        $module = $modules();
         $rayInjector = new RayInjector($module, $scriptDir);
-        /** @var bool $isProd */
         $isProd = false;
         try {
             $isProd = $rayInjector->getInstance('', Compile::class);

@@ -6,78 +6,57 @@ namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
 use Ray\Di\AbstractModule;
+use Ray\Di\Injector;
 
 class InjectorFactoryTest extends TestCase
 {
-    /**
-     * @return array<array<array<class-string<AbstractModule>>>>
-     */
-    public function dataProvider() : array
-    {
-        return [
-            [[]], // Ray.Di Injector
-            [[FakeProdModule::class]] // ScriptInjector
-        ];
-    }
-
-    /**
-     * @dataProvider dataProvider
-     *
-     * @param array<class-string<AbstractModule>> $contextModules
-     */
-    public function testInject(array $contextModules) : void
+    public function getInstanceRayDiInjector() : void
     {
         $injector = InjectorFactory::getInstance(
-            FakeToBindPrototypeModule::class,
-            $contextModules,
+            function () : AbstractModule {
+                return new FakeToBindPrototypeModule;
+            },
             __DIR__ . '/tmp/base'
         );
         $instance = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobot::class, $instance);
+        $this->assertInstanceOf(Injector::class, $injector);
     }
 
-    /**
-     * @param array<class-string<AbstractModule>> $contextModules
-     *
-     * @dataProvider dataProvider
-     */
-    public function testInjectDecorateModule(array $contextModules) : void
+    public function getInstanceScriptInjector() : void
     {
         $injector = InjectorFactory::getInstance(
-            FakeToBindPrototypeModule::class,
-            [FakeDevModule::class] + $contextModules,
-            __DIR__ . '/tmp/dev'
+            function () : AbstractModule {
+                $modue = new FakeToBindPrototypeModule;
+                $modue->install(new FakeProdModule);
+
+                return $modue;
+            },
+            __DIR__ . '/tmp/base'
         );
         $instance = $injector->getInstance(FakeRobotInterface::class);
-        $this->assertInstanceOf(FakeDevRobot::class, $instance);
+        $this->assertInstanceOf(FakeRobot::class, $instance);
+        $this->assertInstanceOf(ScriptInjector::class, $injector);
     }
 
-    /**
-     * @param array<class-string<AbstractModule>> $contextModules
-     *
-     * @dataProvider dataProvider
-     */
-    public function testInjectComplexModule(array $contextModules) : void
+    public function testInjectComplexModule() : void
     {
         $injector = InjectorFactory::getInstance(
-            FakeCarModule::class,
-            $contextModules,
+            function () : AbstractModule {
+                return new FakeCarModule;
+            },
             __DIR__ . '/tmp/car'
         );
         $instance = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $instance);
     }
 
-    /**
-     * @param array<class-string<AbstractModule>> $contextModules
-     *
-     * @dataProvider dataProvider
-     */
-    public function testInjectionPoint(array $contextModules) : void
+    public function testInjectionPoint() : void
     {
         $injector = InjectorFactory::getInstance(
-            FakeLoggerModule::class,
-            $contextModules,
+            function () : AbstractModule {
+                return new FakeLoggerModule;
+            },
             __DIR__ . '/tmp/logger'
         );
         $instance = $injector->getInstance(FakeLoggerConsumer::class);

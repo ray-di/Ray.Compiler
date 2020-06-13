@@ -6,6 +6,7 @@ namespace Ray\Compiler;
 
 use Doctrine\Common\Cache\ArrayCache;
 use PHPUnit\Framework\TestCase;
+use Ray\Di\AbstractModule;
 use function spl_object_hash;
 
 class CachedFactoryTest extends TestCase
@@ -14,14 +15,16 @@ class CachedFactoryTest extends TestCase
     {
         $cache = new ArrayCache;
         $injector1 = CachedFactory::getInstance(
-            FakeToBindPrototypeModule::class,
-            [],
+            function () : AbstractModule {
+                return new FakeToBindPrototypeModule;
+            },
             __DIR__ . '/tmp/base',
             $cache
         );
         $injector2 = CachedFactory::getInstance(
-            FakeToBindPrototypeModule::class,
-            [],
+            function () : AbstractModule {
+                return new FakeToBindPrototypeModule;
+            },
             __DIR__ . '/tmp/base',
             $cache
         );
