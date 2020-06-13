@@ -7,7 +7,6 @@ namespace Ray\Compiler;
 use function crc32;
 use Doctrine\Common\Cache\Cache;
 use Ray\Di\InjectorInterface;
-use Ray\Di\AbstractModule;
 
 /**
  * @psalm-immutable
@@ -25,9 +24,7 @@ final class CachedFactory
 
     /**
      * @param callable():\Ray\Di\AbstractModule $modules
-     * @param array<class-string<\Ray\Di\AbstractModule>>    $savedSingletons
-     *
-     * @return InjectorInterface
+     * @param array<class-string>               $savedSingletons
      */
     public static function getInstance(callable $modules, string $scriptDir, Cache $cache, array $savedSingletons = []) : InjectorInterface
     {
