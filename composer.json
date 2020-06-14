@@ -15,12 +15,14 @@
     ],
     "require": {
         "php": ">=7.2.0",
-        "doctrine/cache": "^1.10"
+        "doctrine/annotations": "^1.10",
+        "doctrine/cache": "^1.10",
+        "koriym/printo": "^1.0",
+        "nikic/php-parser": "^4.5",
+        "ray/aop": "^2.9",
+        "ray/di": "^2.10|2.x-dev"
     },
     "require-dev": {
-        "ray/di": "2.x-dev",
-        "ray/aop": "^2.9.8",
-        "koriym/printo": "^1.0",
         "phpunit/phpunit": "^7.5"
     },
     "autoload": {
