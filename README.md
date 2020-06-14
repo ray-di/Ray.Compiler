@@ -125,6 +125,10 @@ $compiler->dumpGraph();
 open tmp/graph/Ray_Compiler_FakeCarInterface-.html
 ```
 
+## Performance
+
+The `CachedInejctorFactory` gives you the best performance in both development (x2) and production (x10) by switching two injector. 
+See [CachedInjectorFactory](https://github.com/ray-di/Ray.Compiler/issues/75).
 
 ## Ray.Di
 This **Ray.Compiler** package is a sub component package for [Ray.Di](https://github.com/ray-di/Ray.Di)
