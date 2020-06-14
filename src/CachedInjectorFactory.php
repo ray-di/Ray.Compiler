@@ -11,7 +11,7 @@ use Ray\Di\InjectorInterface;
 /**
  * @psalm-immutable
  */
-final class CachedFactory
+final class CachedInjectorFactory
 {
     /**
      * @var array<InjectorInterface>

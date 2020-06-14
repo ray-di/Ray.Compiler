@@ -8,20 +8,28 @@
     ],
     "license": "MIT",
     "authors": [
-      {
-        "name": "Akihito Koriyama",
-        "email": "akihito.koriyama@gmail.com"
-      }
+        {
+            "name": "Akihito Koriyama",
+            "email": "akihito.koriyama@gmail.com"
+        }
     ],
     "require": {
         "php": ">=7.2.0",
-        "doctrine/cache": "^1.10"
+        "doctrine/annotations": "^1.10",
+        "doctrine/cache": "^1.10",
+        "koriym/printo": "^1.0",
+        "nikic/php-parser": "^4.5",
+        "ray/aop": "^2.9",
+        "ray/di": "^2.10.3 || 2.x-dev"
+    },
+    "replace": {
+        "ray/compiler": "self.version"
     },
     "require-dev": {
-        "ray/di": "2.x-dev",
-        "ray/aop": "^2.9.8",
-        "koriym/printo": "^1.0",
         "phpunit/phpunit": "^7.5"
+    },
+    "config": {
+        "sort-packages": true
     },
     "autoload": {
         "psr-4": {
@@ -30,16 +38,38 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Ray\\Compiler\\": ["tests/", "tests/Fake"]
+            "Ray\\Compiler\\": [
+                "tests/",
+                "tests/Fake"
+            ]
         },
-        "files": ["tests/delete_dir.php"]
+        "files": [
+            "tests/delete_dir.php"
+        ]
     },
-    "scripts" :{
-        "test": ["phpunit"],
-        "tests": ["phpstan analyse -c phpstan.neon --no-progress", "psalm", "@cs", "@test"],
-        "coverage": ["php -dzend_extension=xdebug.so ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage"],
-        "cs": ["php-cs-fixer fix -v --dry-run", "phpcs --standard=./phpcs.xml src"],
-        "cs-fix": ["php-cs-fixer fix -v", "phpcbf src"],
-        "metrics": ["phpmetrics --report-html=build/metrics --excluded-dirs=src/Exception src"]
+    "scripts": {
+        "coverage": [
+            "php -dzend_extension=xdebug.so ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage"
+        ],
+        "cs": [
+            "php-cs-fixer fix -v --dry-run",
+            "phpcs --standard=./phpcs.xml src"
+        ],
+        "cs-fix": [
+            "php-cs-fixer fix -v",
+            "phpcbf src"
+        ],
+        "metrics": [
+            "phpmetrics --report-html=build/metrics --excluded-dirs=src/Exception src"
+        ],
+        "test": [
+            "phpunit"
+        ],
+        "tests": [
+            "phpstan analyse -c phpstan.neon --no-progress",
+            "psalm",
+            "@cs",
+            "@test"
+        ]
     }
 }
