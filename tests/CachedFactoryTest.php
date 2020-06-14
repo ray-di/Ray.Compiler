@@ -14,14 +14,14 @@ class CachedFactoryTest extends TestCase
     public function testInsntanceCached() : void
     {
         $cache = new ArrayCache;
-        $injector1 = CachedFactory::getInstance(
+        $injector1 = CachedInjectorFactory::getInstance(
             function () : AbstractModule {
                 return new FakeToBindPrototypeModule;
             },
             __DIR__ . '/tmp/base',
             $cache
         );
-        $injector2 = CachedFactory::getInstance(
+        $injector2 = CachedInjectorFactory::getInstance(
             function () : AbstractModule {
                 return new FakeToBindPrototypeModule;
             },
