@@ -16,7 +16,7 @@ before_install:
   - composer self-update
 
 install:
-  - COMPOSER_ROOT_VERSION=dev-1.x composer install
+  - COMPOSER_ROOT_VERSION=1.x-dev composer install
 
 script:
   - ./vendor/bin/phpunit;
