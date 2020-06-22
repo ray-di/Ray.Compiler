@@ -24,8 +24,8 @@ class CachedFactoryTest extends TestCase
         $injector1 = $this->getInjector('prod');
         $this->assertFalse(DevCache::$wasHit);
         $injector2 = $this->getInjector('prod');
-        $this->assertTrue(DevCache::$wasHit);
-        $this->assertNotSame(spl_object_hash($injector1), spl_object_hash($injector2));
+        $this->assertFalse(DevCache::$wasHit);
+        $this->assertSame(spl_object_hash($injector1), spl_object_hash($injector2));
         $injector2->getInstance(FakeRobotInterface::class);
     }
 
