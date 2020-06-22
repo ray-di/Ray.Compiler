@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
+use Doctrine\Common\Cache\VoidCache;
 use Ray\Di\InjectorInterface;
 
 final class CachedInjectorFactory
 {
     /**
-     * @var array<string, CacheProvider>
+     * @var array<string, InjectorInterface>
      */
-    private static $cache = [];
+    private static $injectors = [];
 
     private function __construct()
     {
@@ -25,30 +25,35 @@ final class CachedInjectorFactory
      */
     public static function getInstance(string $injectorId, string $scriptDir, callable $modules, CacheProvider $cache = null, array $savedSingletons = []) : InjectorInterface
     {
-        if (! isset(self::$cache[$injectorId])) {
-            self::$cache[$injectorId] = $cache ?? new ArrayCache;
+        if (isset(self::$injectors[$injectorId])) {
+            return self::$injectors[$injectorId];
         }
-        $cache = self::$cache[$injectorId];
+        $cache = $cache ?? new VoidCache;
         $cache->setNamespace($injectorId);
-        /** @var ?InjectorInterface $cachedInjector */
         $cachedInjector = $cache->fetch(InjectorInterface::class);
         if ($cachedInjector instanceof InjectorInterface) {
             return $cachedInjector;
         }
-        $injector = InjectorFactory::getInstance($modules, $scriptDir);
-        self::saveSingletons($injector, $savedSingletons);
-        $cache->save(InjectorInterface::class, $injector);
+        $injector = self::getInjector($modules, $scriptDir, $savedSingletons);
+        if ($injector instanceof ScriptInjector) {
+            $cache->save(InjectorInterface::class, $injector);
+        }
+        self::$injectors[$injectorId] = $injector;
 
         return $injector;
     }
 
     /**
-     * @param array<class-string> $savedSingletons
+     * @param callable():\Ray\Di\AbstractModule $modules
+     * @param array<class-string>               $savedSingletons
      */
-    private static function saveSingletons(InjectorInterface $injector, array $savedSingletons) : void
+    private static function getInjector(callable $modules, string $scriptDir, array $savedSingletons) : InjectorInterface
     {
+        $injector = InjectorFactory::getInstance($modules, $scriptDir);
         foreach ($savedSingletons as $singleton) {
             $injector->getInstance($singleton);
         }
+
+        return $injector;
     }
 }
