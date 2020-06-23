@@ -27,7 +27,7 @@ jobs:
     - stage: Test
       name: Lowest dependencies
       php: 7.2
-      install: COMPOSER_ROOT_VERSION=1.x-dev update --prefer-dist --prefer-lowest
+      install: COMPOSER_ROOT_VERSION=1.x-dev composer update --prefer-dist --prefer-lowest
 
     - stage: Code Quality
       name: Code coverage
