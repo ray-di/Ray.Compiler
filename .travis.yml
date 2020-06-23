@@ -16,7 +16,7 @@ before_install:
   - composer self-update
 
 install:
-  - composer update
+  - COMPOSER_ROOT_VERSION=1.x-dev composer update
 
 script:
   - ./vendor/bin/phpunit;
@@ -27,7 +27,7 @@ jobs:
     - stage: Test
       name: Lowest dependencies
       php: 7.2
-      install: composer update --prefer-dist --prefer-lowest
+      install: COMPOSER_ROOT_VERSION=1.x-dev composer update --prefer-dist --prefer-lowest
 
     - stage: Code Quality
       name: Code coverage
