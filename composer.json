@@ -20,7 +20,10 @@
         "koriym/printo": "^1.0",
         "nikic/php-parser": "^4.5",
         "ray/aop": "^2.9 || dev-2.x",
-        "ray/di": "^2.10 || dev-php8"
+        "ray/di": "dev-php8"
+    },
+    "replace": {
+        "ray/compiler": "dev-php8"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5 || ^9.3"
