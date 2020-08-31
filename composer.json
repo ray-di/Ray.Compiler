@@ -18,14 +18,14 @@
         "doctrine/annotations": "^1.10",
         "doctrine/cache": "^1.10",
         "koriym/printo": "^1.0",
-        "nikic/php-parser": "^4.5"
+        "nikic/php-parser": "^4.5",
+        "ray/aop": "^2.9 || 2.x-dev",
+        "ray/di": "^2.10 || 2.x-dev"
     },
     "replace": {
         "ray/compiler": "self.version"
     },
     "require-dev": {
-        "ray/aop": "2.x-dev",
-        "ray/di": "2.x-dev",
         "phpunit/phpunit": "^8.5 || ^9.3"
     },
     "config": {
