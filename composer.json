@@ -22,9 +22,6 @@
         "ray/aop": "^2.9 || 2.x-dev",
         "ray/di": "^2.10 || 2.x-dev"
     },
-    "replace": {
-        "ray/compiler": "self.version"
-    },
     "require-dev": {
         "phpunit/phpunit": "^8.5 || ^9.3"
     },
@@ -71,10 +68,5 @@
             "@cs",
             "@test"
         ]
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-1.x": "1.x-dev"
-        }
     }
 }
