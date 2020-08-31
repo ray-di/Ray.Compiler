@@ -22,6 +22,9 @@
         "ray/aop": "^2.9 || 2.x-dev",
         "ray/di": "^2.10 || 2.x-dev"
     },
+    "replace": {
+        "ray/di": "self.version"
+    },
     "require-dev": {
         "phpunit/phpunit": "^8.5 || ^9.3"
     },
