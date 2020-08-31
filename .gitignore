@@ -3,3 +3,4 @@ vendor
 build
 .php_cs.cache
 composer.lock
+.phpunit.result.cache
