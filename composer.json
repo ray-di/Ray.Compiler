@@ -18,15 +18,15 @@
         "doctrine/annotations": "^1.10",
         "doctrine/cache": "^1.10",
         "koriym/printo": "^1.0",
-        "nikic/php-parser": "^4.5",
-        "ray/aop": "php8-dev",
-        "ray/di": "^2.10.3 || 2.x-dev || php8-dev"
+        "nikic/php-parser": "^4.5"
     },
     "replace": {
         "ray/compiler": "self.version"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.5"
+        "ray/aop": "2.x-dev",
+        "ray/di": "2.x-dev",
+        "phpunit/phpunit": "^8.5 || ^9.3"
     },
     "config": {
         "sort-packages": true
@@ -71,5 +71,10 @@
             "@cs",
             "@test"
         ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-1.x": "1.x-dev"
+        }
     }
 }
