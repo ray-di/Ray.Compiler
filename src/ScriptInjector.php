@@ -249,8 +249,7 @@ final class ScriptInjector implements InjectorInterface
                             require $file; // @codeCoverageIgnore
                         }
                     }
-                },
-                false
+                }
             );
         }
         self::$scriptDirs[] = $this->scriptDir;
