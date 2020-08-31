@@ -1,7 +1,6 @@
 {
     "name": "ray/compiler",
     "description": "A dependency injection compiler for Ray.Di",
-    "version": "dev-php8",
     "keywords": [
         "di",
         "compiler",
@@ -20,14 +19,11 @@
         "doctrine/cache": "^1.10",
         "koriym/printo": "^1.0",
         "nikic/php-parser": "^4.5",
-        "ray/aop": "^2.9 || dev-2.x"
-    },
-    "replace": {
-        "ray/compiler": "dev-php8"
+        "ray/aop": "^2.9 || 2.x-dev",
+        "ray/di": "^2.10 || 2.x-dev"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.5 || ^9.3",
-        "ray/di": "dev-php8"
+        "phpunit/phpunit": "^8.5 || ^9.3"
     },
     "config": {
         "sort-packages": true
