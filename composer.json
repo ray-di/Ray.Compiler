@@ -1,6 +1,7 @@
 {
     "name": "ray/compiler",
     "description": "A dependency injection compiler for Ray.Di",
+    "version": "dev-php8",
     "keywords": [
         "di",
         "compiler",
