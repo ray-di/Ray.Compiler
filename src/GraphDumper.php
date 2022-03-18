@@ -33,6 +33,9 @@ final class GraphDumper
         $this->scriptDir = $scriptDir;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function __invoke(): void
     {
         $container = $this->container->getContainer();

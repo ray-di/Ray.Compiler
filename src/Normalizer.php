@@ -124,13 +124,13 @@ final class Normalizer
                 $items[] = new Expr\ArrayItem(
                     $this->__invoke($itemValue)
                 );
-            } else {
-                $lastKey = null;
-                $items[] = new Expr\ArrayItem(
-                    $this->__invoke($itemValue),
-                    $this->__invoke($itemKey)
-                );
+                continue;
             }
+            $lastKey = null;
+            $items[] = new Expr\ArrayItem(
+                $this->__invoke($itemValue),
+                $this->__invoke($itemKey)
+            );
         }
 
         return new Expr\Array_($items);
