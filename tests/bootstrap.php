@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Ray\Compiler;
+use function Ray\Compiler\deleteFiles;
 
-/* @var $loader \Composer\Autoload\ClassLoader */
-require \dirname(__DIR__) . '/vendor/autoload.php';
+require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-$_ENV['TMP_DIR'] = __DIR__ . '/tmp';
-delete_dir($_ENV['TMP_DIR']);
+deleteFiles(__DIR__ . '/compiler/tmp');

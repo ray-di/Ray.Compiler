@@ -8,14 +8,18 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Scalar;
+use Ray\Di\Bind;
 use Ray\Di\Dependency;
 use Ray\Di\Name;
+use Ray\Di\NewInstance;
+
+use function array_merge;
+use function array_splice;
+use function is_array;
 
 final class AopCode
 {
-    /**
-     * @var PrivateProperty
-     */
+    /** @var PrivateProperty */
     private $privateProperty;
 
     public function __construct(PrivateProperty $privateProperty)
@@ -30,17 +34,21 @@ final class AopCode
      *
      * @param-out array<Expr|mixed> $node
      */
-    public function __invoke(Dependency $dependency, array &$node) : void
+    public function __invoke(Dependency $dependency, array &$node): void
     {
         $prop = $this->privateProperty;
+        /** @var ?NewInstance */
         $newInstance = $prop($dependency, 'newInstance');
+        /** @var ?Bind */
         $bind = $prop($newInstance, 'bind');
-        $bind = $prop($bind, 'bind');
-        /** @var null|string[][] $bindings */
-        $bindings = $prop($bind, 'bindings', null);
-        if (! \is_array($bindings)) {
+        /** @var ?Bind */
+        $aspectBind = $prop($bind, 'bind');
+        /** @var string[][]|null $bindings */
+        $bindings = $prop($aspectBind, 'bindings', null);
+        if (! is_array($bindings)) {
             return;
         }
+
         $methodBinding = $this->getMethodBinding($bindings);
         $bindingsProp = new Expr\PropertyFetch(new Expr\Variable('instance'), 'bindings');
         $bindingsAssign = new Assign($bindingsProp, new Expr\Array_($methodBinding));
@@ -53,9 +61,9 @@ final class AopCode
      *
      * @param-out array<Expr|mixed> $array
      */
-    private function setBindingAssignAfterInitialization(array &$array, array $insertValue, int $position) : void
+    private function setBindingAssignAfterInitialization(array &$array, array $insertValue, int $position): void
     {
-        $array = \array_merge(\array_splice($array, 0, $position), $insertValue, $array);
+        $array = array_merge(array_splice($array, 0, $position), $insertValue, $array);
     }
 
     /**
@@ -63,7 +71,7 @@ final class AopCode
      *
      * @return Expr\ArrayItem[]
      */
-    private function getMethodBinding(array $bindings) : array
+    private function getMethodBinding(array $bindings): array
     {
         $methodBinding = [];
         foreach ($bindings as $method => $interceptors) {
@@ -75,6 +83,7 @@ final class AopCode
                 // [$singleton('FakeAopInterface-*'), $singleton('FakeAopInterface-*');]
                 $items[] = new Expr\ArrayItem($singleton);
             }
+
             $arr = new Expr\Array_($items);
             $methodBinding[] = new Expr\ArrayItem($arr, new Scalar\String_($method));
         }

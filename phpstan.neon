@@ -1,9 +1,10 @@
 parameters:
   level: max
   paths:
-    - src
-    - tests
-  excludes_analyse:
-    - %currentWorkingDirectory%/tests/tmp/*
-    - %currentWorkingDirectory%/tests/Fake/*
-    - %currentWorkingDirectory%/tests/bootstrap.php
+    - src/compiler
+    - tests/compiler
+  excludePaths:
+    - tests/compiler/tmp/*
+    - tests/compiler/Fake/*
+  checkGenericClassInNonGenericObjectType: false
+
