@@ -1,8 +1,8 @@
 parameters:
   level: max
   paths:
-    - src/compiler
-    - tests/compiler
+    - src
+    - tests
   excludePaths:
     - tests/compiler/tmp/*
     - tests/compiler/Fake/*
