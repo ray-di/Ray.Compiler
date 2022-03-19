@@ -26,6 +26,7 @@ final class FilePutContents
             return;
         }
 
+        // @codeCoverageIgnoreStart
         @unlink((string) $tmpFile);
 
         throw new FileNotWritable($filename);

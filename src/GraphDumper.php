@@ -50,7 +50,7 @@ final class GraphDumper
     private function write(string $dependencyIndex): void
     {
         if ($dependencyIndex === 'Ray\Aop\MethodInvocation-') {
-            return;
+            return; // @codeCoverageIgnore
         }
 
         [$interface, $name] = explode('-', $dependencyIndex);

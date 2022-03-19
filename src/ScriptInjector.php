@@ -16,6 +16,7 @@ use Ray\Di\NullModule;
 use ReflectionParameter;
 
 use function assert;
+use function error_log;
 use function error_reporting;
 use function file_exists;
 use function file_get_contents;
@@ -219,7 +220,12 @@ final class ScriptInjector implements InjectorInterface
     {
         $modulePath = $this->scriptDir . self::MODULE;
         if (! file_exists($modulePath)) {
+            // @codeCoverageIgnoreStart
+            error_log(sprintf('ModuleFileNotFound: %s', $modulePath));
+            error_log('Please report the issue at https://github.com/ray-di/Ray.Compiler/issues');
+
             return new NullModule();
+            // @codeCoverageIgnoreEnd
         }
 
         $serialized = file_get_contents($modulePath);
