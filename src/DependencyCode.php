@@ -4,53 +4,42 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use DomainException;
 use PhpParser\BuilderFactory;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt;
+use Ray\Di\Argument;
+use Ray\Di\Arguments;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 use Ray\Di\Instance;
+use Ray\Di\NewInstance;
+use Ray\Di\NullObjectDependency;
 use Ray\Di\SetContextInterface;
+use Ray\Di\SetterMethod;
+use Ray\Di\SetterMethods;
+
+use function get_class;
 
 final class DependencyCode implements SetContextInterface
 {
-    /**
-     * @var \PhpParser\BuilderFactory
-     */
+    /** @var BuilderFactory */
     private $factory;
 
-    /**
-     * @var Container
-     */
-    private $container;
-
-    /**
-     * @var null|ScriptInjector
-     */
-    private $injector;
-
-    /**
-     * @var Normalizer
-     */
+    /** @var Normalizer */
     private $normalizer;
 
-    /**
-     * @var FactoryCode
-     */
+    /** @var FactoryCode */
     private $factoryCompiler;
 
-    /**
-     * @var PrivateProperty
-     */
+    /** @var PrivateProperty */
     private $privateProperty;
 
-    /**
-     * @var null|IpQualifier
-     */
+    /** @var IpQualifier|null */
     private $qualifier;
 
     /**
@@ -59,38 +48,40 @@ final class DependencyCode implements SetContextInterface
      */
     private $context;
 
-    /**
-     * @var AopCode
-     */
+    /** @var AopCode */
     private $aopCode;
 
-    public function __construct(Container $container, ScriptInjector $injector = null)
+    public function __construct(Container $container, ?ScriptInjector $injector = null)
     {
-        $this->factory = new BuilderFactory;
-        $this->container = $container;
-        $this->normalizer = new Normalizer;
-        $this->injector = $injector;
-        $this->factoryCompiler = new FactoryCode($container, new Normalizer, $this, $injector);
-        $this->privateProperty = new PrivateProperty;
+        $this->factory = new BuilderFactory();
+        $this->normalizer = new Normalizer();
+        $this->factoryCompiler = new FactoryCode($container, new Normalizer(), $this, $injector);
+        $this->privateProperty = new PrivateProperty();
         $this->aopCode = new AopCode($this->privateProperty);
     }
 
     /**
      * Return compiled dependency code
      */
-    public function getCode(DependencyInterface $dependency) : Code
+    public function getCode(DependencyInterface $dependency, string $scriptDir = ''): Code
     {
         if ($dependency instanceof Dependency) {
             return $this->getDependencyCode($dependency);
         }
+
         if ($dependency instanceof Instance) {
             return $this->getInstanceCode($dependency);
         }
+
         if ($dependency instanceof DependencyProvider) {
             return $this->getProviderCode($dependency);
         }
 
-        throw new \DomainException(\get_class($dependency));
+        if ($dependency instanceof NullObjectDependency) {
+            return $this->getDependencyCode($dependency->toNull($scriptDir));
+        }
+
+        throw new DomainException(get_class($dependency));
     }
 
     /**
@@ -101,22 +92,22 @@ final class DependencyCode implements SetContextInterface
         $this->context = $context;
     }
 
-    public function setQaulifier(IpQualifier $qualifer) : void
+    public function setQaulifier(IpQualifier $qualifer): void
     {
         $this->qualifier = $qualifer;
     }
 
-    public function getIsSingletonCode(bool $isSingleton) : Expr\Assign
+    public function getIsSingletonCode(bool $isSingleton): Expr\Assign
     {
         $bool = new Expr\ConstFetch(new Node\Name([$isSingleton ? 'true' : 'false']));
 
-        return new Expr\Assign(new Expr\Variable('is_singleton'), $bool);
+        return new Expr\Assign(new Expr\Variable('isSingleton'), $bool);
     }
 
     /**
      * Compile DependencyInstance
      */
-    private function getInstanceCode(Instance $instance) : Code
+    private function getInstanceCode(Instance $instance): Code
     {
         $node = ($this->normalizer)($instance->value);
 
@@ -126,15 +117,15 @@ final class DependencyCode implements SetContextInterface
     /**
      * Compile generic object dependency
      */
-    private function getDependencyCode(Dependency $dependency) : Code
+    private function getDependencyCode(Dependency $dependency): Code
     {
         $prop = $this->privateProperty;
         $node = $this->getFactoryNode($dependency);
         ($this->aopCode)($dependency, $node);
+        /** @var bool $isSingleton */
         $isSingleton = $prop($dependency, 'isSingleton');
         $node[] = $this->getIsSingletonCode($isSingleton);
         $node[] = new Node\Stmt\Return_(new Node\Expr\Variable('instance'));
-        /** @var Stmt\Namespace_ $namespace */
         $namespace = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
         $qualifer = $this->qualifier;
         $this->qualifier = null;
@@ -145,15 +136,18 @@ final class DependencyCode implements SetContextInterface
     /**
      * Compile dependency provider
      */
-    private function getProviderCode(DependencyProvider $provider) : Code
+    private function getProviderCode(DependencyProvider $provider): Code
     {
         $prop = $this->privateProperty;
+        /** @var DependencyInterface $dependency */
         $dependency = $prop($provider, 'dependency');
         $node = $this->getFactoryNode($dependency);
         $provider->setContext($this);
         if ($this->context) {
             $node[] = $this->getSetContextCode($this->context); // $instance->setContext($this->context);
         }
+
+        /** @var bool $isSingleton */
         $isSingleton = $prop($provider, 'isSingleton');
         $node[] = $this->getIsSingletonCode($isSingleton);
         $node[] = new Stmt\Return_(new MethodCall(new Expr\Variable('instance'), 'get'));
@@ -164,7 +158,7 @@ final class DependencyCode implements SetContextInterface
         return new Code($node, $isSingleton, $qualifer);
     }
 
-    private function getSetContextCode(string $context) : MethodCall
+    private function getSetContextCode(string $context): MethodCall
     {
         $arg = new Node\Arg(new Node\Scalar\String_($context));
 
@@ -178,16 +172,25 @@ final class DependencyCode implements SetContextInterface
      *
      * @return array<Expr>
      */
-    private function getFactoryNode(DependencyInterface $dependency) : array
+    private function getFactoryNode(DependencyInterface $dependency): array
     {
         $prop = $this->privateProperty;
+        /** @var NewInstance $newInstance */
         $newInstance = $prop($dependency, 'newInstance');
         // class name
+        /** @var class-string $class */
         $class = $prop($newInstance, 'class');
-        $setterMethods = (array) $prop($prop($newInstance, 'setterMethods'), 'setterMethods');
-        $arguments = (array) $prop($prop($newInstance, 'arguments'), 'arguments');
-        $postConstruct = (string) $prop($dependency, 'postConstruct');
+        /** @var SetterMethods $setterMethodsObject */
+        $setterMethodsObject = $prop($newInstance, 'setterMethods');
+        /** @var array<SetterMethod> $setterMethods */
+        $setterMethods = (array) $prop($setterMethodsObject, 'setterMethods');
+        /** @var Arguments $argumentsObject */
+        $argumentsObject = $prop($newInstance, 'arguments');
+        /** @var array<Argument> $arguments */
+        $arguments = (array) $prop($argumentsObject, 'arguments');
+        /** @var ?string $postConstruct */
+        $postConstruct = $prop($dependency, 'postConstruct');
 
-        return $this->factoryCompiler->getFactoryCode($class, $arguments, $setterMethods, $postConstruct);
+        return $this->factoryCompiler->getFactoryCode($class, $arguments, $setterMethods, (string) $postConstruct);
     }
 }

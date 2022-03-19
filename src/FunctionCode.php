@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\Reader;
+use LogicException;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
@@ -13,44 +14,44 @@ use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 use Ray\Di\Di\Qualifier;
+use Ray\ServiceLocator\ServiceLocator;
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionParameter;
+
+use function assert;
+use function is_bool;
 
 final class FunctionCode
 {
-    /**
-     * @var Container
-     */
+    /** @var Container */
     private $container;
 
-    /**
-     * @var PrivateProperty
-     */
+    /** @var PrivateProperty */
     private $privateProperty;
 
-    /**
-     * @var AnnotationReader
-     */
+    /** @var Reader */
     private $reader;
 
-    /**
-     * @var DependencyCode
-     */
+    /** @var DependencyCode */
     private $compiler;
 
     public function __construct(Container $container, PrivateProperty $privateProperty, DependencyCode $compiler)
     {
         $this->container = $container;
         $this->privateProperty = $privateProperty;
-        $this->reader = new AnnotationReader;
+        $this->reader = ServiceLocator::getReader();
         $this->compiler = $compiler;
     }
 
     /**
      * Return arguments code for "$singleton" and "$prototype"
      */
-    public function __invoke(Argument $argument, DependencyInterface $dependency) : Expr\FuncCall
+    public function __invoke(Argument $argument, DependencyInterface $dependency): Expr\FuncCall
     {
         $prop = $this->privateProperty;
         $isSingleton = $prop($dependency, 'isSingleton');
+        assert(is_bool($isSingleton));
         $func = $isSingleton ? 'singleton' : 'prototype';
         $args = $this->getInjectionFuncParams($argument);
 
@@ -65,7 +66,7 @@ final class FunctionCode
      *
      * @return array<int, Node\Arg|Node\Expr\Array_>
      */
-    private function getInjectionFuncParams(Argument $argument) : array
+    private function getInjectionFuncParams(Argument $argument): array
     {
         $dependencyIndex = (string) $argument;
         if ($this->container->getContainer()[$dependencyIndex] instanceof DependencyProvider) {
@@ -82,15 +83,16 @@ final class FunctionCode
      *
      * @return array<int, Expr\Array_|Node\Arg>
      */
-    private function getInjectionProviderParams(Argument $argument) : array
+    private function getInjectionProviderParams(Argument $argument): array
     {
         $param = $argument->get();
         $class = $param->getDeclaringClass();
-        if (! $class instanceof \ReflectionClass) {
-            throw new \LogicException; // @codeCoverageIgnore
+        if (! $class instanceof ReflectionClass) {
+            throw new LogicException(); // @codeCoverageIgnore
         }
+
         $method = $param->getDeclaringFunction();
-        assert($method instanceof \ReflectionMethod);
+        assert($method instanceof ReflectionMethod);
         $this->setQualifiers($method, $param);
 
         return [
@@ -98,18 +100,18 @@ final class FunctionCode
             new Expr\Array_([
                 new Expr\ArrayItem(new Scalar\String_($class->name)),
                 new Expr\ArrayItem(new Scalar\String_($method->name)),
-                new Expr\ArrayItem(new Scalar\String_($param->name))
-            ])
+                new Expr\ArrayItem(new Scalar\String_($param->name)),
+            ]),
         ];
     }
 
-    private function setQualifiers(\ReflectionMethod $method, \ReflectionParameter $param) : void
+    private function setQualifiers(ReflectionMethod $method, ReflectionParameter $param): void
     {
         $annotations = $this->reader->getMethodAnnotations($method);
         foreach ($annotations as $annotation) {
             $qualifier = $this->reader->getClassAnnotation(
-                new \ReflectionClass($annotation),
-                'Ray\Di\Di\Qualifier'
+                new ReflectionClass($annotation),
+                Qualifier::class
             );
             if ($qualifier instanceof Qualifier) {
                 $this->compiler->setQaulifier(new IpQualifier($param, $annotation));

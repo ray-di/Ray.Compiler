@@ -3,7 +3,8 @@ parameters:
   paths:
     - src
     - tests
-  excludes_analyse:
-    - %currentWorkingDirectory%/tests/tmp/*
-    - %currentWorkingDirectory%/tests/Fake/*
-    - %currentWorkingDirectory%/tests/bootstrap.php
+  excludePaths:
+    - tests/tmp/*
+    - tests/Fake/*
+  checkGenericClassInNonGenericObjectType: false
+
