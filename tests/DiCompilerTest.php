@@ -102,7 +102,9 @@ class DiCompilerTest extends TestCase
         // test ip
         $this->assertInstanceOf(ReflectionMethod::class, $ip->getMethod());
         $this->assertSame('setLogger', $ip->getMethod()->name);
-        $this->assertInstanceOf(FakeLoggerInject::class, $ip->getMethod()->getAnnotations()[0]);
+        $method = $ip->getMethod();
+        assert($method instanceof ReflectionMethod);
+        $this->assertInstanceOf(FakeLoggerInject::class, $method->getAnnotations()[0]);
         $this->assertInstanceOf(ReflectionParameter::class, $ip->getParameter());
         $this->assertSame('logger', $ip->getParameter()->name);
     }
