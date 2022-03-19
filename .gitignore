@@ -4,3 +4,5 @@ build
 .php_cs.cache
 composer.lock
 .phpunit.result.cache
+/tests/tmp/_aop.txt
+/coverage.xml

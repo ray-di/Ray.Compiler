@@ -11,6 +11,7 @@ use ReflectionParameter;
 use RuntimeException;
 
 use function assert;
+use function class_exists;
 use function file_exists;
 use function file_get_contents;
 use function is_bool;
@@ -45,10 +46,13 @@ final class InjectionPoint implements InjectionPointInterface
      */
     public function getMethod(): \ReflectionMethod
     {
-        $reflectionMethod = $this->parameter->getDeclaringFunction();
-        assert($reflectionMethod instanceof ReflectionMethod);
+        $this->parameter = $this->getParameter();
+        $class = $this->parameter->getDeclaringClass();
+        assert($class instanceof ReflectionClass);
+        $method = $this->parameter->getDeclaringFunction()->getShortName();
+        assert(class_exists($class->name));
 
-        return $reflectionMethod;
+        return new ReflectionMethod($class->name, $method);
     }
 
     /**
@@ -91,9 +95,12 @@ final class InjectionPoint implements InjectionPointInterface
             $this->parameter->getDeclaringFunction()->name,
             $this->parameter->name
         );
+        // @codeCoverageIgnoreStart
         if (! file_exists($qualifierFile)) {
             return null;
         }
+
+        // @codeCoverageIgnoreEnd
 
         $qualifierString = file_get_contents($qualifierFile);
         if (is_bool($qualifierString)) {
