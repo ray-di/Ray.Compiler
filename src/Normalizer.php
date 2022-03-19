@@ -126,6 +126,7 @@ final class Normalizer
                 );
                 continue;
             }
+
             $lastKey = null;
             $items[] = new Expr\ArrayItem(
                 $this->__invoke($itemValue),

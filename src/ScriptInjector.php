@@ -160,6 +160,7 @@ final class ScriptInjector implements InjectorInterface
 
     /**
      * {@inheritdoc}
+     *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function getInstance($interface, $name = Name::ANY)
