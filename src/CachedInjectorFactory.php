@@ -33,7 +33,7 @@ final class CachedInjectorFactory
         $cache->setNamespace($injectorId);
         $cachedInjector = $cache->fetch(InjectorInterface::class);
         if ($cachedInjector instanceof InjectorInterface) {
-            return $cachedInjector;
+            return $cachedInjector; // @codeCoverageIgnore
         }
 
         $injector = self::getInjector($modules, $scriptDir, $savedSingletons);
