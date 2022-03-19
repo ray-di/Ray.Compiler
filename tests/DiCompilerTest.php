@@ -6,9 +6,11 @@ namespace Ray\Compiler;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
+use Ray\Aop\ReflectionMethod;
 use Ray\Aop\WeavedInterface;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Name;
+use ReflectionParameter;
 
 use function assert;
 use function property_exists;
@@ -93,8 +95,16 @@ class DiCompilerTest extends TestCase
         $loggerConsumer = $injector->getInstance(FakeLoggerConsumer::class);
         assert(property_exists($loggerConsumer, 'logger'));
         assert($loggerConsumer->logger instanceof FakeLogger);
-        $this->assertSame('Ray\Compiler\FakeLoggerConsumer', $loggerConsumer->logger->name);
+        $this->assertSame(FakeLoggerConsumer::class, $loggerConsumer->logger->name);
         $this->assertSame('MEMORY', $loggerConsumer->logger->type);
+
+        $ip = $loggerConsumer->logger->ip;
+        // test ip
+        $this->assertInstanceOf(ReflectionMethod::class, $ip->getMethod());
+        $this->assertSame('setLogger', $ip->getMethod()->name);
+        $this->assertInstanceOf(FakeLoggerInject::class, $ip->getMethod()->getAnnotations()[0]);
+        $this->assertInstanceOf(ReflectionParameter::class, $ip->getParameter());
+        $this->assertSame('logger', $ip->getParameter()->name);
     }
 
     public function testDump(): void
