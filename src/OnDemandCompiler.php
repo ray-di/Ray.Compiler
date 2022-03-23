@@ -66,8 +66,8 @@ final class OnDemandCompiler
         ($this->compiler)($containerObject, $this->scriptDir);
         $dependency = $containerArray[$dependencyIndex];
         $pointCuts = $this->loadPointcuts();
-        $isWeaverable = ($dependency instanceof Dependency);
-        if ($isWeaverable && is_array($pointCuts)) {
+        $isWeaverable = $dependency instanceof Dependency && is_array($pointCuts);
+        if ($isWeaverable) {
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
 
