@@ -161,6 +161,6 @@ class DiCompilerTest extends TestCase
         }
 
         $fakeAop = (new ScriptInjector($scriptDir))->getInstance(FakeAopInterface::class);
-        $this->assertArrayHasKey('returnSame', $fakeAop->bindings);
+        $this->assertArrayHasKey('returnSame', $fakeAop->bindings); // @phpstan-ignore-line
     }
 }

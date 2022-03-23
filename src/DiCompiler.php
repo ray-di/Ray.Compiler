@@ -38,9 +38,6 @@ final class DiCompiler implements InjectorInterface
     /** @var FilePutContents */
     private $filePutContents;
 
-    /** @var CompileNullObject */
-    private $compiler;
-
     public function __construct(AbstractModule $module, string $scriptDir)
     {
         $this->scriptDir = $scriptDir ?: sys_get_temp_dir();
