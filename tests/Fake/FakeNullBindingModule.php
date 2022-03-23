@@ -7,11 +7,11 @@ namespace Ray\Compiler;
 use Ray\Aop\NullInterceptor;
 use Ray\Di\AbstractModule;
 
-class FakeNullObjectModule extends AbstractModule
+class FakeNullBindingModule extends AbstractModule
 {
     protected function configure()
     {
-        $this->bind(FakeTyreInterface::class)->toNull();
+        $this->bind(FakeAopInterface::class)->toNull();
         $this->bindInterceptor(
             $this->matcher->any(),
             $this->matcher->any(),

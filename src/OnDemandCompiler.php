@@ -34,11 +34,15 @@ final class OnDemandCompiler
     /** @var AbstractModule */
     private $module;
 
-    public function __construct(ScriptInjector $injector, string $sctiptDir, AbstractModule $module)
+    /** @var CompileNullObject */
+    private $compiler;
+
+    public function __construct(ScriptInjector $injector, string $scriptDir, AbstractModule $module)
     {
-        $this->scriptDir = $sctiptDir;
+        $this->scriptDir = $scriptDir;
         $this->injector = $injector;
         $this->module = $module;
+        $this->compiler = new CompileNullObject();
     }
 
     /**
@@ -59,9 +63,11 @@ final class OnDemandCompiler
             throw new Unbound($dependencyIndex, 0);
         }
 
+        ($this->compiler)($containerObject, $this->scriptDir);
         $dependency = $containerArray[$dependencyIndex];
         $pointCuts = $this->loadPointcuts();
-        if ($dependency instanceof Dependency && is_array($pointCuts)) {
+        $isWeaverable = $dependency instanceof Dependency && is_array($pointCuts);
+        if ($isWeaverable) {
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
 

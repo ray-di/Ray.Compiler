@@ -148,4 +148,19 @@ class DiCompilerTest extends TestCase
         $object = $injector->getInstance('', 'object');
         $this->assertInstanceOf(DateTime::class, $object);
     }
+
+    public function testNullObjectCompile(): void
+    {
+        $scriptDir = __DIR__ . '/tmp/';
+        $compiler = new DiCompiler(new FakeNullBindingModule(), $scriptDir);
+        $compiler->compile();
+        $any = Name::ANY;
+        $files = ["Ray_Compiler_FakeAopInterface-{$any}.php"];
+        foreach ($files as $file) {
+            $this->assertFileExists($scriptDir . $file);
+        }
+
+        $fakeAop = (new ScriptInjector($scriptDir))->getInstance(FakeAopInterface::class);
+        $this->assertArrayHasKey('returnSame', $fakeAop->bindings); // @phpstan-ignore-line
+    }
 }
