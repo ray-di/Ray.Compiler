@@ -9,8 +9,11 @@ use Ray\Aop\Pointcut;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Bind;
+use Ray\Di\Container;
 use Ray\Di\Dependency;
+use Ray\Di\DependencyInterface;
 use Ray\Di\Exception\NotFound;
+use Ray\Di\NullObjectDependency;
 
 use function assert;
 use function error_reporting;
@@ -59,14 +62,28 @@ final class OnDemandCompiler
             throw new Unbound($dependencyIndex, 0);
         }
 
+        $this->compileNullObject($containerObject, $this->scriptDir);
+
         $dependency = $containerArray[$dependencyIndex];
         $pointCuts = $this->loadPointcuts();
-        if ($dependency instanceof Dependency && is_array($pointCuts)) {
+        $isWeaverable = ($dependency instanceof Dependency);
+        if ($isWeaverable && is_array($pointCuts)) {
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
 
         $code = (new DependencyCode($containerObject, $this->injector))->getCode($dependency, $scriptDir);
         (new DependencySaver($this->scriptDir))($dependencyIndex, $code);
+    }
+
+    private function compileNullObject(Container $container, string $scriptDir): void
+    {
+        $container->map(static function (DependencyInterface $dependency) use ($scriptDir) {
+            if ($dependency instanceof NullObjectDependency) {
+                return $dependency->toNull($scriptDir);
+            }
+
+            return $dependency;
+        });
     }
 
     /**

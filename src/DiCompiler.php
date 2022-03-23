@@ -9,8 +9,10 @@ use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Bind;
 use Ray\Di\Container;
+use Ray\Di\DependencyInterface;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
+use Ray\Di\NullObjectDependency;
 use ReflectionProperty;
 
 use function assert;
@@ -46,6 +48,8 @@ final class DiCompiler implements InjectorInterface
         $this->module = $module;
         $this->dependencySaver = new DependencySaver($scriptDir);
         $this->filePutContents = new FilePutContents();
+        $this->compileNullObject($this->container, $scriptDir);
+
         // Weave AssistedInterceptor and bind InjectorInterface for self
         $module->getContainer()->weaveAspects(new Compiler($scriptDir));
         (new Bind($this->container, InjectorInterface::class))->toInstance($this);
@@ -77,6 +81,17 @@ final class DiCompiler implements InjectorInterface
 
         $this->savePointcuts($this->container);
         ($this->filePutContents)($this->scriptDir . ScriptInjector::MODULE, serialize($this->module));
+    }
+
+    private function compileNullObject(Container $container, string $scriptDir): void
+    {
+        $container->map(static function (DependencyInterface $dependency) use ($scriptDir) {
+            if ($dependency instanceof NullObjectDependency) {
+                return $dependency->toNull($scriptDir);
+            }
+
+            return $dependency;
+        });
     }
 
     public function dumpGraph(): void
