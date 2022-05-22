@@ -25,9 +25,11 @@ abstract class AbstractInjectorContext
     abstract public function getCache(): CacheProvider;
 
     /**
+     * Return array of cacheable singleton class names
+     *
      * @return array<class-string>
      */
-    protected function getCachedInstance(): array
+    public function getSavedSingleton(): array
     {
         return [];
     }

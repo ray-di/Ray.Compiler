@@ -25,7 +25,8 @@ final class ContextInjector
             static function () use ($injectorContext) {
                 return $injectorContext->getModule();
             },
-            $injectorContext->getCache()
+            $injectorContext->getCache(),
+            $injectorContext->getSavedSingleton()
         );
     }
 }
