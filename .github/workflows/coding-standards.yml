@@ -32,7 +32,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run:  COMPOSER_ROOT_VERSION=dev-1.x composer install --no-interaction --no-progress
+        run:  COMPOSER_ROOT_VERSION=1.99 composer install --no-interaction --no-progress
 
       - name: Validate composer.json
         run: composer validate --strict
