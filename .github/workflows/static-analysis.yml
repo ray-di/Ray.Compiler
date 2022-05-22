@@ -32,7 +32,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: COMPOSER_ROOT_VERSION=dev-1.x composer install --no-interaction --no-progress
+        run: COMPOSER_ROOT_VERSION=1.99 composer install --no-interaction --no-progress
 
       - name: Run PHPStan
         run: ./vendor/bin/phpstan analyse -c phpstan.neon --no-progress --no-interaction --error-format=checkstyle | cs2pr
@@ -56,7 +56,7 @@ jobs:
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
       - name: Install dependencies
-        run: COMPOSER_ROOT_VERSION=dev-1.x composer install --no-interaction --no-progress
+        run: COMPOSER_ROOT_VERSION=1.99 composer install --no-interaction --no-progress
 
       - name: Run Psalm
         run: ./vendor/bin/psalm --show-info=false --output-format=checkstyle --shepherd | cs2pr
@@ -85,7 +85,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: COMPOSER_ROOT_VERSION=dev-1.x composer install --no-interaction --no-progress
+        run: COMPOSER_ROOT_VERSION=1.99 composer install --no-interaction --no-progress
 
       - name: Run PHP Mess Detector
         run: ./vendor/bin/phpmd src text ./phpmd.xml
