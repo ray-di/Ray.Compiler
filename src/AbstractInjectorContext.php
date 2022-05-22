@@ -15,9 +15,9 @@ abstract class AbstractInjectorContext
      */
     public $tmpDir;
 
-    public function __construct(string $tmpdDir)
+    public function __construct(string $tmpDir)
     {
-        $this->tmpDir = $tmpdDir;
+        $this->tmpDir = $tmpDir;
     }
 
     abstract public function getModule(): AbstractModule;
