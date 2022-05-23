@@ -7,15 +7,18 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
+use Ray\Di\AssistedModule;
 use Ray\Di\Bind;
 use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use Ray\Di\NullModule;
+use Ray\Di\ProviderSetModule;
 use ReflectionParameter;
 
 use function assert;
+use function count;
 use function error_log;
 use function error_reporting;
 use function file_exists;
@@ -261,7 +264,7 @@ final class ScriptInjector implements InjectorInterface
         }
 
         $this->isModuleLocked = true;
-        $module = $this->module instanceof AbstractModule ? $this->module : ($this->lazyModule)();
+        $module = $this->module instanceof AbstractModule ? $this->module : $this->evaluateModule($this->lazyModule);
         (new FilePutContents())($this->scriptDir . self::MODULE, serialize($module));
     }
 
@@ -290,17 +293,39 @@ final class ScriptInjector implements InjectorInterface
     private function compileOnDemand(string $dependencyIndex): void
     {
         if (! $this->module instanceof AbstractModule) {
-            $this->module = ($this->lazyModule)();
+            $this->module = $this->evaluateModule($this->lazyModule);
         }
 
         $isFirstCompile = ! file_exists($this->scriptDir . self::AOP);
         if ($isFirstCompile) {
-            (new DiCompiler(($this->lazyModule)(), $this->scriptDir))->savePointcuts($this->module->getContainer());
-            $this->saveModule();
+            $this->firstCompile();
         }
 
         assert($this->module instanceof AbstractModule);
         (new Bind($this->module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
         (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex, $this->scriptDir);
+    }
+
+    private function firstCompile(): void
+    {
+        $compiler = new DiCompiler($this->module, $this->scriptDir);
+        $compiler->savePointcuts($this->module->getContainer());
+        $this->saveModule();
+        $compiler->compile();
+    }
+
+    private function evaluateModule(callable $lazyModule): AbstractModule
+    {
+        $module = ($lazyModule)();
+        assert($module instanceof AbstractModule);
+        $module->install(new AssistedModule());
+        $module->install(new ProviderSetModule());
+        $module->install(new PramReaderModule());
+        $hasMultiBindings = count($module->getContainer()->multiBindings);
+        if ($hasMultiBindings) {
+            $module->install(new MapModule());
+        }
+
+        return $module;
     }
 }
