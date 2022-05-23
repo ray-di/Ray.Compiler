@@ -73,7 +73,7 @@ final class DiCompiler implements InjectorInterface
         $container = $this->container->getContainer();
         assert(is_string($scriptDir));
         foreach ($container as $dependencyIndex => $dependency) {
-            $code = $this->dependencyCompiler->getCode($dependency, $scriptDir);
+            $code = $this->dependencyCompiler->getCode($dependency);
             ($this->dependencySaver)($dependencyIndex, $code);
         }
 
