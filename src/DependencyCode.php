@@ -18,7 +18,6 @@ use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 use Ray\Di\Instance;
 use Ray\Di\NewInstance;
-use Ray\Di\NullObjectDependency;
 use Ray\Di\SetContextInterface;
 use Ray\Di\SetterMethod;
 use Ray\Di\SetterMethods;
@@ -63,7 +62,7 @@ final class DependencyCode implements SetContextInterface
     /**
      * Return compiled dependency code
      */
-    public function getCode(DependencyInterface $dependency, string $scriptDir = ''): Code
+    public function getCode(DependencyInterface $dependency): Code
     {
         if ($dependency instanceof Dependency) {
             return $this->getDependencyCode($dependency);
@@ -75,10 +74,6 @@ final class DependencyCode implements SetContextInterface
 
         if ($dependency instanceof DependencyProvider) {
             return $this->getProviderCode($dependency);
-        }
-
-        if ($dependency instanceof NullObjectDependency) {
-            return $this->getDependencyCode($dependency->toNull($scriptDir));
         }
 
         throw new DomainException(get_class($dependency));

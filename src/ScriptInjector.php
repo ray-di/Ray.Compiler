@@ -302,7 +302,7 @@ final class ScriptInjector implements InjectorInterface
         }
 
         (new Bind($this->module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir); // @phpstan-ignore-line
-        (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex, $this->scriptDir);  // @phpstan-ignore-line
+        (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);  // @phpstan-ignore-line
     }
 
     private function firstCompile(): void

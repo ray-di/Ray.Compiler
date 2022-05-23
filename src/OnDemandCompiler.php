@@ -48,7 +48,7 @@ final class OnDemandCompiler
     /**
      * Compile dependency on demand
      */
-    public function __invoke(string $dependencyIndex, string $scriptDir): void
+    public function __invoke(string $dependencyIndex): void
     {
         [$class] = explode('-', $dependencyIndex);
         $containerObject = $this->module->getContainer();
@@ -71,7 +71,7 @@ final class OnDemandCompiler
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
 
-        $code = (new DependencyCode($containerObject, $this->injector))->getCode($dependency, $scriptDir);
+        $code = (new DependencyCode($containerObject, $this->injector))->getCode($dependency);
         (new DependencySaver($this->scriptDir))($dependencyIndex, $code);
     }
 
