@@ -301,13 +301,13 @@ final class ScriptInjector implements InjectorInterface
             $this->firstCompile();
         }
 
-        assert($this->module instanceof AbstractModule);
-        (new Bind($this->module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
-        (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex, $this->scriptDir);
+        (new Bind($this->module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir); // @phpstan-ignore-line
+        (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex, $this->scriptDir);  // @phpstan-ignore-line
     }
 
     private function firstCompile(): void
     {
+        assert($this->module instanceof AbstractModule);
         $compiler = new DiCompiler($this->module, $this->scriptDir);
         $compiler->savePointcuts($this->module->getContainer());
         $this->saveModule();
