@@ -13,6 +13,7 @@ use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
+use Ray\Di\NullModule;
 use Ray\Di\ProviderSetModule;
 use ReflectionParameter;
 
@@ -21,6 +22,7 @@ use function count;
 use function file_exists;
 use function glob;
 use function in_array;
+use function is_callable;
 use function is_dir;
 use function rmdir;
 use function rtrim;
@@ -85,7 +87,7 @@ final class ScriptInjector implements InjectorInterface
     public function __construct($scriptDir, ?callable $lazyModule = null)
     {
         $this->scriptDir = rtrim($scriptDir, '/');
-        $this->lazyModule = $lazyModule ?: new NullLazyModule();
+        $this->lazyModule = $lazyModule;
         $this->isSerializableLazy = $lazyModule instanceof LazyModuleInterface;
         $this->registerLoader();
         $prototype =
@@ -221,11 +223,7 @@ final class ScriptInjector implements InjectorInterface
 
     private function getModule(): AbstractModule
     {
-        if ($this->module instanceof AbstractModule) {
-            return $this->module;
-        }
-
-        if ($this->isSerializableLazy) {
+        if ($this->isSerializableLazy || is_callable($this->lazyModule)) {
             return $this->initModule(($this->lazyModule)());
         }
 
@@ -234,7 +232,7 @@ final class ScriptInjector implements InjectorInterface
             return $this->initModule($fileModule);
         }
 
-        return $this->initModule(($this->lazyModule)());
+        return $this->initModule(new NullModule());
     }
 
     private function initModule(AbstractModule $module): AbstractModule
