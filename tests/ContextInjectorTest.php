@@ -7,7 +7,9 @@ namespace Ray\Compiler;
 use Doctrine\Common\Cache\CacheProvider;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Deep\FakeDeep;
+use Ray\Compiler\Deep\FakeDemand;
 use Ray\Compiler\Deep\FakeInjectorContext;
+use Ray\Compiler\Deep\FakeScriptInjectorContext;
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\NullCache;
@@ -47,9 +49,22 @@ class ContextInjectorTest extends TestCase
         $this->assertInstanceOf(InjectorInterface::class, $injector);
     }
 
-    public function testContainerIsResetWhenTheInjectorIsRetrieved(): void
+    /**
+     * @return array<array<AbstractInjectorContext>>
+     */
+    public function contextProvider(): array
     {
-        $context = new FakeInjectorContext(__DIR__ . '/tmp');
+        return [
+            [new FakeInjectorContext(__DIR__ . '/tmp')],
+            [new FakeScriptInjectorContext(__DIR__ . '/tmp')],
+        ];
+    }
+
+    /**
+     * @dataProvider contextProvider
+     */
+    public function testContainerIsResetWhenTheInjectorIsRetrieved(AbstractInjectorContext $context): void
+    {
         $injector = ContextInjector::getInstance($context);
         $deep = $injector->getInstance(FakeDeep::class);
         assert($deep instanceof FakeDeep);
@@ -61,5 +76,7 @@ class ContextInjectorTest extends TestCase
         $deep2 = $injector->getInstance(FakeDeep::class);
         assert($deep2 instanceof FakeDeep);
         $this->assertFalse($deep2->dep->changed);
+        $demand = $injector->getInstance(FakeDemand::class);
+        $this->assertInstanceOf(FakeDemand::class, $demand);
     }
 }
