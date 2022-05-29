@@ -63,7 +63,7 @@ final class ScriptInjector implements InjectorInterface
     /** @var array<callable> */
     private $functions;
 
-    /** @var callable */
+    /** @var ?callable */
     private $lazyModule;
 
     /** @var AbstractModule|null */
@@ -224,6 +224,8 @@ final class ScriptInjector implements InjectorInterface
     private function getModule(): AbstractModule
     {
         if ($this->isSerializableLazy || is_callable($this->lazyModule)) {
+            assert(is_callable($this->lazyModule));
+
             return $this->initModule(($this->lazyModule)());
         }
 
