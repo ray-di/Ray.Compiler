@@ -6,12 +6,15 @@ namespace Ray\Compiler\Deep;
 
 
 use Doctrine\Common\Cache\CacheProvider;
+use Doctrine\Common\Cache\FilesystemCache;
 use Ray\Compiler\AbstractInjectorContext;
+use Ray\Compiler\Annotation\Compile;
+use Ray\Compiler\DiCompileModule;
 use Ray\Di\AbstractModule;
 use Ray\Di\NullCache;
 use Ray\Di\Scope;
 
-final class FakeInjectorContext extends AbstractInjectorContext
+final class FakeScriptInjectorContext extends AbstractInjectorContext
 {
     public function getModule(): AbstractModule
     {
@@ -20,6 +23,6 @@ final class FakeInjectorContext extends AbstractInjectorContext
 
     public function getCache(): CacheProvider
     {
-       return new NullCache();
+       return new FilesystemCache('/tmp');
     }
 }
