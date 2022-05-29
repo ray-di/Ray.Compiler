@@ -36,6 +36,7 @@ class MultiBindingTest extends TestCase
 
     protected function setUp(): void
     {
+        deleteFiles(__DIR__ . '/tmp');
         $this->injector = new ScriptInjector(__DIR__ . '/tmp', static function () {
             return new FakeMultiBindingsModule();
         });
