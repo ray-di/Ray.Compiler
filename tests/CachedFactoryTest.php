@@ -17,7 +17,7 @@ class CachedFactoryTest extends TestCase
     {
         $injector1 = $this->getInjector('dev');
         $injector2 = $this->getInjector('dev');
-        $this->assertSame(spl_object_hash($injector1), spl_object_hash($injector2));
+        $this->assertNotSame(spl_object_hash($injector1), spl_object_hash($injector2));
     }
 
     public function testInstanceCachedInFileCache(): void
@@ -26,7 +26,7 @@ class CachedFactoryTest extends TestCase
         $this->assertFalse(DevCache::$wasHit);
         $injector2 = $this->getInjector('prod');
         $this->assertFalse(DevCache::$wasHit);
-        $this->assertSame(spl_object_hash($injector1), spl_object_hash($injector2));
+        $this->assertNotSame(spl_object_hash($injector1), spl_object_hash($injector2));
         $injector2->getInstance(FakeRobotInterface::class);
     }
 
