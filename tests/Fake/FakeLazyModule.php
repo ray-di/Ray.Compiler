@@ -10,6 +10,10 @@ class FakeLazyModule implements LazyModuleInterface
 {
     public function __invoke(): AbstractModule
     {
-        return new FakeCarModule();
+        $module = new FakeCarModule();
+        $module->install(new FakeLoggerModule());
+        $module->install(new FakeToBindSingletonModule());
+
+        return $module;
     }
 }
