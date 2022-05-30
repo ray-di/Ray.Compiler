@@ -333,5 +333,7 @@ class ScriptInjectorTest extends TestCase
         );
         $this->assertTrue($injector->isSingleton(FakeRobot::class . '-'));
         $this->assertFalse($injector->isSingleton(FakeEngine::class . '-'));
+        $this->expectException(Unbound::class);
+        $injector->isSingleton('NotBoundClass-');
     }
 }
