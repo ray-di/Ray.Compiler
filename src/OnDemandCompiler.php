@@ -28,15 +28,19 @@ final class OnDemandCompiler
     /** @var string */
     private $scriptDir;
 
+    /** @var ScriptInjector */
+    private $injector;
+
     /** @var AbstractModule */
     private $module;
 
     /** @var CompileNullObject */
     private $compiler;
 
-    public function __construct(string $scriptDir, AbstractModule $module)
+    public function __construct(ScriptInjector $injector, string $scriptDir, AbstractModule $module)
     {
         $this->scriptDir = $scriptDir;
+        $this->injector = $injector;
         $this->module = $module;
         $this->compiler = new CompileNullObject();
     }
@@ -67,7 +71,7 @@ final class OnDemandCompiler
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
 
-        $code = (new DependencyCode($containerObject))->getCode($dependency);
+        $code = (new DependencyCode($containerObject, $this->injector))->getCode($dependency);
         (new DependencySaver($this->scriptDir))($dependencyIndex, $code);
     }
 

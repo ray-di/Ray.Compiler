@@ -7,30 +7,42 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
+use Ray\Di\AssistedModule;
 use Ray\Di\Bind;
 use Ray\Di\Dependency;
+use Ray\Di\DependencyInterface;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use Ray\Di\NullModule;
+use Ray\Di\ProviderSetModule;
 use ReflectionParameter;
 
 use function assert;
+use function count;
+use function error_log;
+use function error_reporting;
 use function file_exists;
+use function file_get_contents;
 use function glob;
 use function in_array;
-use function is_callable;
+use function is_bool;
 use function is_dir;
 use function rmdir;
 use function rtrim;
+use function serialize;
 use function spl_autoload_register;
 use function sprintf;
 use function str_replace;
 use function unlink;
+use function unserialize;
 
 use const DIRECTORY_SEPARATOR;
+use const E_NOTICE;
 
 final class ScriptInjector implements InjectorInterface
 {
+    public const MODULE = '/_module.txt';
+
     public const AOP = '/_aop.txt';
 
     public const INSTANCE = '%s/%s.php';
@@ -59,17 +71,20 @@ final class ScriptInjector implements InjectorInterface
     /** @var array<callable> */
     private $functions;
 
-    /** @var ?callable */
+    /** @var callable */
     private $lazyModule;
 
     /** @var AbstractModule|null */
     private $module;
 
-    /** @var array<string> */
-    private static $scriptDirs = [];
+    /** @var ?array<DependencyInterface> */
+    private $container;
 
     /** @var bool */
-    private $isSerializableLazy;
+    private $isModuleLocked = false;
+
+    /** @var array<string> */
+    private static $scriptDirs = [];
 
     /**
      * @param string   $scriptDir  generated instance script folder path
@@ -79,9 +94,10 @@ final class ScriptInjector implements InjectorInterface
      */
     public function __construct($scriptDir, ?callable $lazyModule = null)
     {
-        $this->scriptDir = rtrim($scriptDir, '/');
-        $this->lazyModule = $lazyModule;
-        $this->isSerializableLazy = $lazyModule instanceof LazyModuleInterface;
+        $this->scriptDir = $scriptDir;
+        $this->lazyModule = $lazyModule ?: static function (): NullModule {
+            return new NullModule();
+        };
         $this->registerLoader();
         $prototype =
             /**
@@ -131,30 +147,17 @@ final class ScriptInjector implements InjectorInterface
      */
     public function __sleep()
     {
-        if ($this->isSerializableLazy) {
-            return ['scriptDir', 'singletons', 'lazyModule', 'isSerializableLazy'];
-        }
+        $this->saveModule();
 
-        ModuleFile::save($this->scriptDir, $this->getModule());
-
-        return ['scriptDir', 'singletons', 'isSerializableLazy'];
+        return ['scriptDir', 'singletons'];
     }
 
     public function __wakeup()
     {
-        if ($this->isSerializableLazy) {
-            $this->__construct(
-                $this->scriptDir,
-                $this->lazyModule
-            );
-
-            return;
-        }
-
         $this->__construct(
             $this->scriptDir,
             function () {
-                return ModuleFile::load($this->scriptDir);
+                return $this->getModule();
             }
         );
     }
@@ -201,38 +204,41 @@ final class ScriptInjector implements InjectorInterface
 
     public function isSingleton(string $dependencyIndex): bool
     {
-        $container = $this->getModule()->getContainer()->getContainer();
+        if (! $this->container) {
+            $module = $this->getModule();
+            /** @var AbstractModule $module */
+            $this->container = $module->getContainer()->getContainer();
+        }
 
-        if (! isset($container[$dependencyIndex])) {
+        if (! isset($this->container[$dependencyIndex])) {
             throw new Unbound($dependencyIndex);
         }
 
-        $dependency = $container[$dependencyIndex];
+        $dependency = $this->container[$dependencyIndex];
 
         return $dependency instanceof Dependency ? (bool) (new PrivateProperty())($dependency, 'isSingleton') : false;
     }
 
     private function getModule(): AbstractModule
     {
-        if ($this->isSerializableLazy || is_callable($this->lazyModule)) {
-            assert(is_callable($this->lazyModule));
+        $modulePath = $this->scriptDir . self::MODULE;
+        if (! file_exists($modulePath)) {
+            // @codeCoverageIgnoreStart
+            error_log(sprintf('ModuleFileNotFound: %s', $modulePath));
+            error_log('Please report the issue at https://github.com/ray-di/Ray.Compiler/issues');
 
-            return $this->initModule(($this->lazyModule)());
+            return new NullModule();
+            // @codeCoverageIgnoreEnd
         }
 
-        $fileModule = ModuleFile::load($this->scriptDir);
-        if ($fileModule instanceof AbstractModule) {
-            return $this->initModule($fileModule);
-        }
+        $serialized = file_get_contents($modulePath);
+        assert(! is_bool($serialized));
+        $er = error_reporting(error_reporting() ^ E_NOTICE);
+        $module = unserialize($serialized, ['allowed_classes' => true]);
+        error_reporting($er);
+        assert($module instanceof AbstractModule);
 
-        return $this->initModule(new NullModule());
-    }
-
-    private function initModule(AbstractModule $module): AbstractModule
-    {
-        $this->module = (new InstallBuiltinModule())($module);
-
-        return $this->module;
+        return $module;
     }
 
     /**
@@ -245,10 +251,21 @@ final class ScriptInjector implements InjectorInterface
             return $file;
         }
 
-        $this->compileOnDemand($dependencyIndex, $file);
+        $this->compileOnDemand($dependencyIndex);
         assert(file_exists($file));
 
         return $file;
+    }
+
+    private function saveModule(): void
+    {
+        if ($this->isModuleLocked || file_exists($this->scriptDir . self::MODULE)) {
+            return;
+        }
+
+        $this->isModuleLocked = true;
+        $module = $this->module instanceof AbstractModule ? $this->module : $this->evaluateModule($this->lazyModule);
+        (new FilePutContents())($this->scriptDir . self::MODULE, serialize($module));
     }
 
     private function registerLoader(): void
@@ -273,25 +290,42 @@ final class ScriptInjector implements InjectorInterface
         self::$scriptDirs[] = $this->scriptDir;
     }
 
-    private function compileOnDemand(string $dependencyIndex, string $file): void
+    private function compileOnDemand(string $dependencyIndex): void
     {
-        $module = $this->getModule();
-        $isFirstCompile = ! file_exists($this->scriptDir . self::AOP);
-        if ($isFirstCompile) {
-            $this->firstCompile($module);
-            if (file_exists($file)) {
-                return;
-            }
+        if (! $this->module instanceof AbstractModule) {
+            $this->module = $this->evaluateModule($this->lazyModule);
         }
 
-        (new OnDemandCompiler($this->scriptDir, $module))($dependencyIndex);
+        $isFirstCompile = ! file_exists($this->scriptDir . self::AOP);
+        if ($isFirstCompile) {
+            $this->firstCompile();
+        }
+
+        (new Bind($this->module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir); // @phpstan-ignore-line
+        (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);  // @phpstan-ignore-line
     }
 
-    private function firstCompile(AbstractModule $module): void
+    private function firstCompile(): void
     {
-        (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
-        $compiler = new DiCompiler($module, $this->scriptDir);
-        $compiler->savePointcuts($module->getContainer());
+        assert($this->module instanceof AbstractModule);
+        $compiler = new DiCompiler($this->module, $this->scriptDir);
+        $compiler->savePointcuts($this->module->getContainer());
+        $this->saveModule();
         $compiler->compile();
+    }
+
+    private function evaluateModule(callable $lazyModule): AbstractModule
+    {
+        $module = ($lazyModule)();
+        assert($module instanceof AbstractModule);
+        $module->install(new AssistedModule());
+        $module->install(new ProviderSetModule());
+        $module->install(new PramReaderModule());
+        $hasMultiBindings = count($module->getContainer()->multiBindings);
+        if ($hasMultiBindings) {
+            $module->install(new MapModule());
+        }
+
+        return $module;
     }
 }

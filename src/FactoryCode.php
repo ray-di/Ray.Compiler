@@ -9,6 +9,7 @@ use PhpParser\Node\Expr;
 use PhpParser\NodeAbstract;
 use Ray\Di\Argument;
 use Ray\Di\Container;
+use Ray\Di\InjectorInterface;
 use Ray\Di\Instance;
 use Ray\Di\Name;
 use Ray\Di\SetterMethod;
@@ -30,11 +31,12 @@ final class FactoryCode
     public function __construct(
         Container $container,
         Normalizer $normalizer,
-        DependencyCode $compiler
+        DependencyCode $compiler,
+        ?InjectorInterface $injector = null
     ) {
         $this->container = $container;
         $this->normalizer = $normalizer;
-        $this->nodeFactory = new NodeFactory($normalizer, $this);
+        $this->nodeFactory = new NodeFactory($normalizer, $this, $injector);
         $this->functionCompiler = new FunctionCode($container, new PrivateProperty(), $compiler);
     }
 
@@ -77,7 +79,7 @@ final class FactoryCode
 
         $hasDependency = isset($this->container->getContainer()[$dependencyIndex]);
         if (! $hasDependency) {
-            return $this->nodeFactory->getDefault($argument);
+            return $this->nodeFactory->getNode($argument);
         }
 
         $dependency = $this->container->getContainer()[$dependencyIndex];

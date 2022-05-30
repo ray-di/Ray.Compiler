@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use LogicException;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Scalar;
+use Ray\Compiler\Exception\NotCompiled;
 use Ray\Di\Argument;
 use Ray\Di\Arguments;
 use Ray\Di\Exception\Unbound;
+use Ray\Di\InjectorInterface;
 use Ray\Di\SetterMethod;
+use ReflectionClass;
 
 use function assert;
 use function is_bool;
@@ -17,6 +22,9 @@ use function is_string;
 
 final class NodeFactory
 {
+    /** @var InjectorInterface|null */
+    private $injector;
+
     /** @var Normalizer */
     private $normalizer;
 
@@ -28,11 +36,38 @@ final class NodeFactory
 
     public function __construct(
         Normalizer $normalizer,
-        FactoryCode $factoryCompiler
+        FactoryCode $factoryCompiler,
+        ?InjectorInterface $injector = null
     ) {
+        $this->injector = $injector;
         $this->normalizer = $normalizer;
         $this->factoryCompiler = $factoryCompiler;
         $this->privateProperty = new PrivateProperty();
+    }
+
+    /**
+     * Return on-demand dependency pull code for not compiled
+     *
+     * @return Expr|Expr\FuncCall
+     */
+    public function getNode(Argument $argument): Expr
+    {
+        $dependencyIndex = (string) $argument;
+        if (! $this->injector instanceof ScriptInjector) {
+            return $this->getDefault($argument);
+        }
+
+        try {
+            $isSingleton = $this->injector->isSingleton($dependencyIndex);
+        } catch (NotCompiled $e) {
+            return $this->getDefault($argument);
+        }
+
+        $func = $isSingleton ? 'singleton' : 'prototype';
+        $args = $this->getInjectionProviderParams($argument);
+
+        /** @var array<Node\Arg> $args */
+        return new Expr\FuncCall(new Expr\Variable($func), $args);
     }
 
     /**
@@ -72,7 +107,7 @@ final class NodeFactory
     /**
      * Return default argument value
      */
-    public function getDefault(Argument $argument): Expr
+    private function getDefault(Argument $argument): Expr
     {
         if ($argument->isDefaultAvailable()) {
             $default = $argument->getDefaultValue();
@@ -81,6 +116,31 @@ final class NodeFactory
         }
 
         throw new Unbound($argument->getMeta());
+    }
+
+    /**
+     * Return code for provider
+     *
+     * "$provider" needs [class, method, parameter] for InjectionPoint (Contextual Dependency Injection)
+     *
+     * @return array<Expr\Array_|Node\Arg>
+     */
+    private function getInjectionProviderParams(Argument $argument)
+    {
+        $param = $argument->get();
+        $class = $param->getDeclaringClass();
+        if (! $class instanceof ReflectionClass) {
+            throw new LogicException(); // @codeCoverageIgnore
+        }
+
+        return [
+            new Node\Arg(new Scalar\String_((string) $argument)),
+            new Expr\Array_([
+                new Node\Expr\ArrayItem(new Scalar\String_($class->name)),
+                new Node\Expr\ArrayItem(new Scalar\String_($param->getDeclaringFunction()->name)),
+                new Node\Expr\ArrayItem(new Scalar\String_($param->name)),
+            ]),
+        ];
     }
 
     /**
