@@ -233,7 +233,7 @@ final class ScriptInjector implements InjectorInterface
 
     private function initModule(AbstractModule $module): AbstractModule
     {
-        $this->module = $this->installBuiltInModule($module);
+        $this->module = (new InstallBuiltinModule())($module);
 
         return $this->module;
     }
