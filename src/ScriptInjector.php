@@ -248,7 +248,7 @@ final class ScriptInjector implements InjectorInterface
             return $file;
         }
 
-        $this->compileOnDemand($dependencyIndex);
+        $this->compileOnDemand($dependencyIndex, $file);
         assert(file_exists($file));
 
         return $file;
@@ -276,20 +276,23 @@ final class ScriptInjector implements InjectorInterface
         self::$scriptDirs[] = $this->scriptDir;
     }
 
-    private function compileOnDemand(string $dependencyIndex): void
+    private function compileOnDemand(string $dependencyIndex, string $file): void
     {
         $module = $this->getModule();
         $isFirstCompile = ! file_exists($this->scriptDir . self::AOP);
         if ($isFirstCompile) {
             $this->firstCompile($module);
+            if (file_exists($file)) {
+                return;
+            }
         }
 
-        (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
         (new OnDemandCompiler($this->scriptDir, $module))($dependencyIndex);
     }
 
     private function firstCompile(AbstractModule $module): void
     {
+        (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
         $compiler = new DiCompiler($module, $this->scriptDir);
         $compiler->savePointcuts($module->getContainer());
         $compiler->compile();
