@@ -37,7 +37,6 @@ class CompileInjectorTest extends TestCase
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Aop_MethodInvocation-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Koriym_ParamReader_ParamReaderInterface-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Doctrine_Common_Annotations_Reader-.php');
-        $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_AssistedInjectInterceptor-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_AssistedInterceptor-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_InjectorInterface-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_MethodInvocationProvider-.php');
