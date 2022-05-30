@@ -7,17 +7,14 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
-use Ray\Di\AssistedModule;
 use Ray\Di\Bind;
 use Ray\Di\Dependency;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use Ray\Di\NullModule;
-use Ray\Di\ProviderSetModule;
 use ReflectionParameter;
 
 use function assert;
-use function count;
 use function file_exists;
 use function glob;
 use function in_array;
