@@ -17,6 +17,11 @@ use function property_exists;
 
 class DiCompilerTest extends TestCase
 {
+    public function setUp(): void
+    {
+        // do not clear cache
+    }
+
     public function testUnbound(): void
     {
         $this->expectException(Unbound::class);
@@ -112,6 +117,7 @@ class DiCompilerTest extends TestCase
     public function testDump(): void
     {
         $compiler = new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp');
+        $compiler->compile();
         $compiler->dumpGraph();
         $any = Name::ANY;
         $this->assertFileExists(__DIR__ . '/tmp/graph/Ray_Compiler_FakeCarInterface-' . $any . '.html');
