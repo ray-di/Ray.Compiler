@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\AssistedModule;
 use Ray\Di\Bind;
-use Ray\Di\Dependency;
-use Ray\Di\DependencyInterface;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use Ray\Di\NullModule;
@@ -68,9 +65,6 @@ final class ScriptInjector implements InjectorInterface
 
     /** @var AbstractModule|null */
     private $module;
-
-    /** @var ?array<DependencyInterface> */
-    private $container;
 
     /** @var array<string> */
     private static $scriptDirs = [];
@@ -206,21 +200,6 @@ final class ScriptInjector implements InjectorInterface
         $unlink($this->scriptDir);
     }
 
-    public function isSingleton(string $dependencyIndex): bool
-    {
-        if (! $this->container) {
-            $this->container =  $this->getModule()->getContainer()->getContainer();
-        }
-
-        if (! isset($this->container[$dependencyIndex])) {
-            throw new Unbound($dependencyIndex);
-        }
-
-        $dependency = $this->container[$dependencyIndex];
-
-        return $dependency instanceof Dependency ? (bool) (new PrivateProperty())($dependency, 'isSingleton') : false;
-    }
-
     private function getModule(): AbstractModule
     {
         if ($this->isSerializableLazy || is_callable($this->lazyModule)) {
@@ -291,7 +270,7 @@ final class ScriptInjector implements InjectorInterface
         }
 
         (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
-        (new OnDemandCompiler($this, $this->scriptDir, $module))($dependencyIndex);
+        (new OnDemandCompiler($this->scriptDir, $module))($dependencyIndex);
     }
 
     private function firstCompile(AbstractModule $module): void
