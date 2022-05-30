@@ -297,18 +297,4 @@ final class ScriptInjector implements InjectorInterface
         $compiler->savePointcuts($module->getContainer());
         $compiler->compile();
     }
-
-    private function installBuiltInModule(AbstractModule $module): AbstractModule
-    {
-        $module = new DiCompileModule(true, $module);
-        $module->install(new AssistedModule());
-        $module->install(new ProviderSetModule());
-        $module->install(new PramReaderModule());
-        $hasMultiBindings = count($module->getContainer()->multiBindings);
-        if ($hasMultiBindings) {
-            $module->install(new MapModule());
-        }
-
-        return $module;
-    }
 }
