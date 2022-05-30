@@ -6,9 +6,11 @@ namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
 use Ray\Aop\WeavedInterface;
+use Ray\Di\AbstractModule;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\NullModule;
+use Ray\Di\Scope;
 
 use function assert;
 use function count;
@@ -313,5 +315,23 @@ class ScriptInjectorTest extends TestCase
         );
         $robot = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobot::class, $robot);
+    }
+
+    public function testIsSingleton(): void
+    {
+        $injector = new ScriptInjector(
+            __DIR__ . '/tmp',
+            static function (): AbstractModule {
+                return new class extends AbstractModule {
+                    protected function configure(): void
+                    {
+                        $this->bind(FakeRobot::class)->in(Scope::SINGLETON);
+                        $this->bind(FakeEngine::class)->in(Scope::PROTOTYPE);
+                    }
+                };
+            }
+        );
+        $this->assertTrue($injector->isSingleton(FakeRobot::class . '-'));
+        $this->assertFalse($injector->isSingleton(FakeEngine::class . '-'));
     }
 }

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\AssistedModule;
 use Ray\Di\Bind;
+use Ray\Di\Dependency;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use Ray\Di\NullModule;
@@ -198,6 +200,19 @@ final class ScriptInjector implements InjectorInterface
             }
         };
         $unlink($this->scriptDir);
+    }
+
+    public function isSingleton(string $dependencyIndex): bool
+    {
+        $container = $this->getModule()->getContainer()->getContainer();
+
+        if (! isset($container[$dependencyIndex])) {
+            throw new Unbound($dependencyIndex);
+        }
+
+        $dependency = $container[$dependencyIndex];
+
+        return $dependency instanceof Dependency ? (bool) (new PrivateProperty())($dependency, 'isSingleton') : false;
     }
 
     private function getModule(): AbstractModule
