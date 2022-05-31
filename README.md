@@ -54,11 +54,11 @@ The `CompileInjector` gives you the best performance in both development (x2) an
 Get the injector by specifying the binding and cache, depending on the execution context of the application.
 
 ```php
-$injector = new CompileInjector($tmpDir, new DevInjectorContext());
+$injector = new CompileInjector($tmpDir, $injectorContext);
 ```
 
-example: 
- * 
+`$injectorContext` example: 
+
  * [dev](docs/exmaple/DevInjectorContext.php)
  * [prod](docs/exmaple/ProdInjectorContext.php)
 
@@ -66,8 +66,3 @@ The `__invoke()` method prepares the modules needed in that context.
 The `getCache()` method specifies the cache of the injector itself.
 
 Install `DiCompileModule` in the context for production. The injector is more optimized and dependency errors are reported at compile-time instead of run-time.
-
-
-
-See [CachedInjectorFactory](https://github.com/ray-di/Ray.Compiler/issues/75).
-
