@@ -13,7 +13,9 @@ final class ProdInjectorContext extends AbstractInjectorContext
 {
     public function __invoke(): AbstractModule
     {
-        $module = new FakeCarModule();
+        $module = new AppModule();
+
+        // Compile the binding. If dependencies cannot be resolved, an exception is raised at compile time.
         $module->override(new DiCompileModule(true));
 
         return $module;
