@@ -9,9 +9,13 @@ use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\NullCache;
 
+use function assert;
+use function serialize;
+use function unserialize;
+
 final class CachedInjectorFactory
 {
-    /** @var array<string, InjectorInterface> */
+    /** @var array<string, string> */
     private static $injectors = [];
 
     private function __construct()
@@ -25,7 +29,11 @@ final class CachedInjectorFactory
     public static function getInstance(string $injectorId, string $scriptDir, callable $modules, ?CacheProvider $cache = null, array $savedSingletons = []): InjectorInterface
     {
         if (isset(self::$injectors[$injectorId])) {
-            return self::$injectors[$injectorId];
+            /** @noinspection UnserializeExploitsInspection */
+            $injector = unserialize(self::$injectors[$injectorId]);
+            assert($injector instanceof InjectorInterface);
+
+            return $injector;
         }
 
         /** @psalm-suppress DeprecatedClass */
@@ -41,7 +49,7 @@ final class CachedInjectorFactory
             $cache->save(InjectorInterface::class, $injector);
         }
 
-        self::$injectors[$injectorId] = $injector;
+        self::$injectors[$injectorId] = serialize($injector);
 
         return $injector;
     }
