@@ -10,12 +10,14 @@ use Ray\Compiler\FakeCarModule;
 use Ray\Di\AbstractModule;
 use Ray\Di\NullCache;
 
-final class TestInjectorContext extends AbstractInjectorContext
+final class DevInjectorContext extends AbstractInjectorContext
 {
-    public function getModule(): AbstractModule
+    public function __invoke(): AbstractModule
     {
-        $module = new FakeCarModule();
-        $module->override(new TestModule());
+        $module = new AppModule();
+
+        // Override test-only binding
+        $module->override(new DevModule());
 
         return $module;
     }

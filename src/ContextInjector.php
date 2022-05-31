@@ -22,9 +22,7 @@ final class ContextInjector
         return CachedInjectorFactory::getInstance(
             get_class($injectorContext),
             $injectorContext->tmpDir,
-            static function () use ($injectorContext) {
-                return $injectorContext->getModule();
-            },
+            $injectorContext,
             $injectorContext->getCache(),
             $injectorContext->getSavedSingleton()
         );

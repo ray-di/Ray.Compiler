@@ -278,4 +278,40 @@ class ScriptInjectorTest extends TestCase
         $instance = $injector->getInstance(FakeTyreInterface::class);
         $this->assertInstanceOf(FakeTyreInterface::class, $instance);
     }
+
+    public function testLazyModule(): void
+    {
+        $injector = unserialize(serialize(new ScriptInjector(
+            __DIR__ . '/tmp',
+            new FakeLazyModule()
+        )));
+        /** @var InjectorInterface $injector */
+        $car = $injector->getInstance(FakeCarInterface::class);
+        $this->assertInstanceOf(FakeCar::class, $car);
+    }
+
+    public function testNotLazyModule(): void
+    {
+        $injector = unserialize(serialize(new ScriptInjector(
+            __DIR__ . '/tmp',
+            static function () {
+                return new FakeCarModule();
+            }
+        )));
+        /** @var InjectorInterface $injector */
+        $car = $injector->getInstance(FakeCarInterface::class);
+        $this->assertInstanceOf(FakeCar::class, $car);
+    }
+
+    public function testSingleton(): void
+    {
+        $injector = new ScriptInjector(
+            __DIR__ . '/tmp',
+            static function () {
+                return new FakeToBindSingletonModule();
+            }
+        );
+        $robot = $injector->getInstance(FakeRobotInterface::class);
+        $this->assertInstanceOf(FakeRobot::class, $robot);
+    }
 }

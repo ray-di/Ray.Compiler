@@ -11,6 +11,11 @@ use function sprintf;
 
 class ScriptInjectorNullObjectTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        deleteFiles(__DIR__ . '/tmp');
+    }
+
     public function testNullObjectCompile(): ScriptInjector
     {
         passthru(sprintf('php %s/script/null_object.php', __DIR__));

@@ -17,6 +17,11 @@ use function property_exists;
 
 class DiCompilerTest extends TestCase
 {
+    public function setUp(): void
+    {
+        // do not clear cache
+    }
+
     public function testUnbound(): void
     {
         $this->expectException(Unbound::class);
@@ -112,6 +117,7 @@ class DiCompilerTest extends TestCase
     public function testDump(): void
     {
         $compiler = new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp');
+        $compiler->compile();
         $compiler->dumpGraph();
         $any = Name::ANY;
         $this->assertFileExists(__DIR__ . '/tmp/graph/Ray_Compiler_FakeCarInterface-' . $any . '.html');
@@ -151,13 +157,13 @@ class DiCompilerTest extends TestCase
 
     public function testNullObjectCompile(): void
     {
-        $scriptDir = __DIR__ . '/tmp/';
+        $scriptDir = __DIR__ . '/tmp';
         $compiler = new DiCompiler(new FakeNullBindingModule(), $scriptDir);
         $compiler->compile();
         $any = Name::ANY;
         $files = ["Ray_Compiler_FakeAopInterface-{$any}.php"];
         foreach ($files as $file) {
-            $this->assertFileExists($scriptDir . $file);
+            $this->assertFileExists($scriptDir . '/' . $file);
         }
 
         $fakeAop = (new ScriptInjector($scriptDir))->getInstance(FakeAopInterface::class);
