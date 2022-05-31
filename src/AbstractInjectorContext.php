@@ -7,7 +7,7 @@ namespace Ray\Compiler;
 use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
 
-abstract class AbstractInjectorContext
+abstract class AbstractInjectorContext implements LazyModuleInterface
 {
     /**
      * @var string
@@ -20,7 +20,7 @@ abstract class AbstractInjectorContext
         $this->tmpDir = $tmpDir;
     }
 
-    abstract public function getModule(): AbstractModule;
+    abstract public function __invoke(): AbstractModule;
 
     abstract public function getCache(): CacheProvider;
 

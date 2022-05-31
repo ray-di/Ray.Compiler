@@ -74,7 +74,7 @@ class CompileInjectorTest extends TestCase
         deleteFiles(__DIR__ . '/tmp');
         /** @var CompileInjector $injector */
         $injector = unserialize(serialize(new CompileInjector(__DIR__ . '/tmp', new FakeLazyModule())));
-        $instance = $this->injector->getInstance(FakeCarInterface::class);
+        $instance = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCarInterface::class, $instance);
     }
 

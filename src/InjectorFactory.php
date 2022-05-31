@@ -36,7 +36,15 @@ final class InjectorFactory
         } catch (Unbound $e) {
         }
 
-        return $isProd ? self::getScriptInjector($scriptDir, $module) : $rayInjector;
+        if (! $isProd) {
+            return $rayInjector;
+        }
+
+        if ($modules instanceof LazyModuleInterface) {
+            return self::getCompileInjector($scriptDir, $modules);
+        }
+
+        return self::getScriptInjector($scriptDir, $module);
     }
 
     private static function getScriptInjector(string $scriptDir, AbstractModule $module): ScriptInjector
@@ -44,5 +52,10 @@ final class InjectorFactory
         return new ScriptInjector($scriptDir, static function () use ($scriptDir, $module) {
             return new ScriptinjectorModule($scriptDir, $module);
         });
+    }
+
+    private static function getCompileInjector(string $scriptDIr, LazyModuleInterface $module): CompileInjector
+    {
+        return new CompileInjector($scriptDIr, $module);
     }
 }

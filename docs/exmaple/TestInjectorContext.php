@@ -12,7 +12,7 @@ use Ray\Di\NullCache;
 
 final class TestInjectorContext extends AbstractInjectorContext
 {
-    public function getModule(): AbstractModule
+    public function __invoke(): AbstractModule
     {
         $module = new FakeCarModule();
         $module->override(new TestModule());

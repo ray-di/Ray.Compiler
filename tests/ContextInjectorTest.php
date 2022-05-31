@@ -4,49 +4,34 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Doctrine\Common\Cache\CacheProvider;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Deep\FakeDeep;
 use Ray\Compiler\Deep\FakeDemand;
 use Ray\Compiler\Deep\FakeInjectorContext;
 use Ray\Compiler\Deep\FakeScriptInjectorContext;
-use Ray\Di\AbstractModule;
+use Ray\Di\Injector;
 use Ray\Di\InjectorInterface;
-use Ray\Di\NullCache;
 
 use function assert;
 
 class ContextInjectorTest extends TestCase
 {
-    public function testGetInstance(): void
+    public function testGetRayInjector(): InjectorInterface
     {
         $injector = ContextInjector::getInstance(new FakeTestContext(__DIR__ . '/tmp/base'));
-        $this->assertInstanceOf(InjectorInterface::class, $injector);
+        $this->assertInstanceOf(Injector::class, $injector);
         $robot = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobotInterface::class, $robot);
+
+        return $injector;
     }
 
-    /**
-     * Install DiCompileModule when using Script Injector
-     */
-    public function testGetInstanceCompile(): void
+    public function testGetCompileInjector(): void
     {
-        $compileContext = new class (__DIR__ . '/tmp/base') extends AbstractInjectorContext{
-            public function getModule(): AbstractModule
-            {
-                $module = new FakeToBindPrototypeModule();
-                $module->install(new DiCompileModule(true)); // script injector
-
-                return $module;
-            }
-
-            public function getCache(): CacheProvider
-            {
-                return new NullCache();
-            }
-        };
-        $injector = ContextInjector::getInstance($compileContext);
-        $this->assertInstanceOf(InjectorInterface::class, $injector);
+        $injector = ContextInjector::getInstance(new FakeProdContext(__DIR__ . '/tmp/base'));
+        $this->assertInstanceOf(CompileInjector::class, $injector);
+        $robot = $injector->getInstance(FakeRobotInterface::class);
+        $this->assertInstanceOf(FakeRobotInterface::class, $robot);
     }
 
     /**

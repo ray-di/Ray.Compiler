@@ -8,11 +8,14 @@ use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\NullCache;
 
-final class FakeTestContext extends AbstractInjectorContext
+final class FakeProdContext extends AbstractInjectorContext
 {
     function __invoke(): AbstractModule
     {
-        return new FakeToBindPrototypeModule();
+        $module = new FakeToBindPrototypeModule();
+        $module->install(new DiCompileModule(true));
+
+        return $module;
     }
 
     function getCache(): CacheProvider

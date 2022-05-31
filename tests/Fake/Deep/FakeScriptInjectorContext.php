@@ -16,7 +16,7 @@ use Ray\Di\Scope;
 
 final class FakeScriptInjectorContext extends AbstractInjectorContext
 {
-    public function getModule(): AbstractModule
+    public function __invoke(): AbstractModule
     {
         return new FakeDepModule();
     }

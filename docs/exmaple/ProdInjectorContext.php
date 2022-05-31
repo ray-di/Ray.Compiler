@@ -11,7 +11,7 @@ use Ray\Di\AbstractModule;
 
 final class ProdInjectorContext extends AbstractInjectorContext
 {
-    public function getModule(): AbstractModule
+    public function __invoke(): AbstractModule
     {
         $module = new FakeCarModule();
         $module->override(new DiCompileModule(true));
