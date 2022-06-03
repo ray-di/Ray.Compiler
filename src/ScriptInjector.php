@@ -11,7 +11,6 @@ use Ray\Di\AssistedModule;
 use Ray\Di\Bind;
 use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
-use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use Ray\Di\NullModule;
 use Ray\Di\ProviderSetModule;
@@ -39,7 +38,7 @@ use function unserialize;
 use const DIRECTORY_SEPARATOR;
 use const E_NOTICE;
 
-final class ScriptInjector implements InjectorInterface
+final class ScriptInjector implements ScriptInjectorInterface
 {
     public const MODULE = '/_module.txt';
 
