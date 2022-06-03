@@ -65,9 +65,19 @@ final class DiCompiler implements InjectorInterface
     }
 
     /**
-     * Compile all dependencies in container
+     * Compile for ScriptInjector
      */
     public function compile(): void
+    {
+        $this->compileContainer();
+        $this->savePointcuts($this->container);
+        ($this->filePutContents)($this->scriptDir . ScriptInjector::MODULE, serialize($this->module));
+    }
+
+    /**
+     * Compile for CompileInjector
+     */
+    public function compileContainer(): void
     {
         $scriptDir = $this->container->getInstance('', ScriptDir::class);
         $container = $this->container->getContainer();
@@ -76,9 +86,6 @@ final class DiCompiler implements InjectorInterface
             $code = $this->dependencyCompiler->getCode($dependency);
             ($this->dependencySaver)($dependencyIndex, $code);
         }
-
-        $this->savePointcuts($this->container);
-        ($this->filePutContents)($this->scriptDir . ScriptInjector::MODULE, serialize($this->module));
     }
 
     public function dumpGraph(): void
