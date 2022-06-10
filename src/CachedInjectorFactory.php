@@ -39,14 +39,14 @@ final class CachedInjectorFactory
         /** @psalm-suppress DeprecatedClass */
         $cache = $cache ?? new NullCache();
         $cache->setNamespace($injectorId);
-        $cachedInjector = $cache->fetch(InjectorInterface::class);
-        if ($cachedInjector instanceof InjectorInterface) {
+        $cachedInjector = $cache->fetch(ScriptInjectorInterface::class);
+        if ($cachedInjector instanceof ScriptInjectorInterface) {
             return $cachedInjector; // @codeCoverageIgnore
         }
 
         $injector = self::getInjector($modules, $scriptDir, $savedSingletons);
-        if ($injector instanceof ScriptInjector) {
-            $cache->save(InjectorInterface::class, $injector);
+        if ($injector instanceof ScriptInjectorInterface) {
+            $cache->save(ScriptInjectorInterface::class, $injector);
         }
 
         self::$injectors[$injectorId] = serialize($injector);
