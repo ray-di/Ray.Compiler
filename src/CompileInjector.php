@@ -7,7 +7,6 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Bind;
-use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use ReflectionParameter;
 
@@ -18,7 +17,7 @@ use function spl_autoload_register;
 use function sprintf;
 use function str_replace;
 
-final class CompileInjector implements InjectorInterface
+final class CompileInjector implements ScriptInjectorInterface
 {
     public const INSTANCE = '%s/%s.php';
 
