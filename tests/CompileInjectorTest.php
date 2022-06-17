@@ -43,6 +43,8 @@ class CompileInjectorTest extends TestCase
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_ProviderInterface-.php');
         // application binding
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Compiler_FakeCar-.php');
+        // aop
+        $this->assertFileExists(__DIR__ . '/tmp/_aop.txt');
     }
 
     /**
