@@ -85,6 +85,7 @@ final class DiCompiler implements InjectorInterface
             $code = $this->dependencyCompiler->getCode($dependency);
             ($this->dependencySaver)($dependencyIndex, $code);
         }
+
         $this->savePointcuts($this->container);
     }
 
