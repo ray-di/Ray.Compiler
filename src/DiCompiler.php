@@ -70,7 +70,6 @@ final class DiCompiler implements InjectorInterface
     public function compile(): void
     {
         $this->compileContainer();
-        $this->savePointcuts($this->container);
         ($this->filePutContents)($this->scriptDir . ScriptInjector::MODULE, serialize($this->module));
     }
 
@@ -86,6 +85,7 @@ final class DiCompiler implements InjectorInterface
             $code = $this->dependencyCompiler->getCode($dependency);
             ($this->dependencySaver)($dependencyIndex, $code);
         }
+        $this->savePointcuts($this->container);
     }
 
     public function dumpGraph(): void
