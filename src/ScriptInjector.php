@@ -85,6 +85,9 @@ final class ScriptInjector implements ScriptInjectorInterface
     /** @var array<string> */
     private static $scriptDirs = [];
 
+    /** @var bool */
+    private $constructed = false;
+
     /**
      * @param string   $scriptDir  generated instance script folder path
      * @param callable $lazyModule callable variable which return AbstractModule instance
@@ -139,6 +142,7 @@ final class ScriptInjector implements ScriptInjectorInterface
             return $this;
         };
         $this->functions = [$prototype, $singleton, $injectionPoint, $injector];
+        $this->constructed = true;
     }
 
     /**
@@ -168,6 +172,10 @@ final class ScriptInjector implements ScriptInjectorInterface
      */
     public function getInstance($interface, $name = Name::ANY)
     {
+        if (! $this->constructed) {
+            $this->__construct($this->scriptDir);
+        }
+
         $dependencyIndex = $interface . '-' . $name;
         if (isset($this->singletons[$dependencyIndex])) {
             return $this->singletons[$dependencyIndex];
