@@ -2,7 +2,7 @@ vendor
 .idea
 build
 .php_cs.cache
-composer.lock
+/composer.lock
 .phpunit.result.cache
 /tests/tmp/_aop.txt
 /coverage.xml
