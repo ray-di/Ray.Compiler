@@ -13,7 +13,6 @@ use Ray\Di\NullModule;
 use function assert;
 use function count;
 use function glob;
-use function is_object;
 use function property_exists;
 use function serialize;
 use function spl_object_hash;
@@ -61,7 +60,6 @@ class ScriptInjectorTest extends TestCase
         (new DiCompiler(new FakeToBindPrototypeModule(), __DIR__ . '/tmp'))->compile();
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
         $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
-        assert(is_object($instance1) && is_object($instance2));
         $this->assertNotSame(spl_object_hash($instance1), spl_object_hash($instance2));
     }
 
