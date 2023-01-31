@@ -28,10 +28,23 @@ class ContextInjectorTest extends TestCase
 
     public function testGetCompileInjector(): void
     {
-        $injector = ContextInjector::getInstance(new FakeProdContext(__DIR__ . '/tmp/base'));
+        $injector = ContextInjector::getInstance(new FakeProdContext(__DIR__ . '/tmp/prod'));
         $this->assertInstanceOf(CompileInjector::class, $injector);
         $robot = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobotInterface::class, $robot);
+
+        $this->assertFileExists(__DIR__ . '/tmp/prod/Ray_Compiler_FakeAopInterfaceNull.php');
+    }
+
+    /** @depends testGetCompileInjector */
+    public function testOtherContext(): void
+    {
+        $injector = ContextInjector::getInstance(new FakeStgContext(__DIR__ . '/tmp/stg'));
+        $this->assertInstanceOf(CompileInjector::class, $injector);
+        $robot = $injector->getInstance(FakeRobotInterface::class);
+        $this->assertInstanceOf(FakeRobotInterface::class, $robot);
+
+        $this->assertFileExists(__DIR__ . '/tmp/stg/Ray_Compiler_FakeAopInterfaceNull.php');
     }
 
     /**

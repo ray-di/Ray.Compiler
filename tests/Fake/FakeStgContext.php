@@ -8,7 +8,7 @@ use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\NullCache;
 
-final class FakeProdContext extends AbstractInjectorContext
+final class FakeStgContext extends AbstractInjectorContext
 {
     function __invoke(): AbstractModule
     {
