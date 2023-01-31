@@ -23,6 +23,7 @@ use Ray\Di\SetterMethod;
 use Ray\Di\SetterMethods;
 
 use function get_class;
+use function is_a;
 
 final class DependencyCode implements SetContextInterface
 {
@@ -138,7 +139,10 @@ final class DependencyCode implements SetContextInterface
         $dependency = $prop($provider, 'dependency');
         $node = $this->getFactoryNode($dependency);
         $provider->setContext($this);
-        if ($this->context) {
+        /** @var NewInstance $class */
+        $class = $prop($dependency, 'newInstance');
+        $classString = (string) $class;
+        if (is_a($classString, SetContextInterface::class, true)) {
             $node[] = $this->getSetContextCode($this->context); // $instance->setContext($this->context);
         }
 
