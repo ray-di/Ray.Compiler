@@ -23,4 +23,15 @@ final class ContextBindingTest extends TestCase
         $instance = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobotInterface::class, $instance);
     }
+
+    /** @requires PHP >= 7.4 */
+    public function testContextBindingWhenContextIsEmpty(): void
+    {
+        $injector = new ScriptInjector(__DIR__ . '/tmp', static function () {
+            return new FakeContextualModule('');
+        });
+
+        $instance = $injector->getInstance(FakeRobotInterface::class);
+        $this->assertInstanceOf(FakeRobotInterface::class, $instance);
+    }
 }

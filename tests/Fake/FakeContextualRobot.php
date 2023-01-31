@@ -8,7 +8,7 @@ class FakeContextualRobot implements FakeRobotInterface
 {
     public $context;
 
-    public function __construct($context)
+    public function __construct(string $context)
     {
         $this->context = $context;
     }
