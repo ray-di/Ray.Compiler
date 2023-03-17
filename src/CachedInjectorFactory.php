@@ -58,8 +58,25 @@ final class CachedInjectorFactory
      * @param callable(): AbstractModule $modules
      * @param array<class-string>        $savedSingletons
      */
-    private static function getInjector(callable $modules, string $scriptDir, array $savedSingletons): InjectorInterface
+    public static function getOverrideInstance(
+        string $scriptDir,
+        callable $modules,
+        AbstractModule $overrideModule,
+        array $savedSingletons = []
+    ): InjectorInterface {
+        return self::getInjector($modules, $scriptDir, $savedSingletons, $overrideModule);
+    }
+
+    /**
+     * @param callable(): AbstractModule $modules
+     * @param array<class-string>        $savedSingletons
+     */
+    private static function getInjector(callable $modules, string $scriptDir, array $savedSingletons, ?AbstractModule $module = null): InjectorInterface
     {
+        if ($module !== null) {
+            $modules = new OverrideLazyModule($modules, $module);
+        }
+
         $injector = InjectorFactory::getInstance($modules, $scriptDir);
         foreach ($savedSingletons as $singleton) {
             $injector->getInstance($singleton);
