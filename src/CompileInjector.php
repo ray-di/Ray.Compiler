@@ -16,10 +16,12 @@ use function rtrim;
 use function spl_autoload_register;
 use function sprintf;
 use function str_replace;
+use function touch;
 
 final class CompileInjector implements ScriptInjectorInterface
 {
     public const INSTANCE = '%s/%s.php';
+    public const COMPILE_CHECK = '%s/compiled';
 
     /** @var string */
     private $scriptDir;
@@ -157,6 +159,12 @@ final class CompileInjector implements ScriptInjectorInterface
             return $file;
         }
 
+        $checkFile = sprintf(self::COMPILE_CHECK, $this->scriptDir);
+        if (file_exists($checkFile)) {
+            throw new Unbound($dependencyIndex);
+        }
+
+        touch($checkFile);
         $this->compile();
         if (! file_exists($file)) {
             throw new Unbound($dependencyIndex);
