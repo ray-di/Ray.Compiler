@@ -10,6 +10,7 @@ use Ray\Di\Bind;
 use Ray\Di\Name;
 use ReflectionParameter;
 
+use function error_log;
 use function file_exists;
 use function in_array;
 use function rtrim;
@@ -197,6 +198,7 @@ final class CompileInjector implements ScriptInjectorInterface
 
     public function compile(): void
     {
+        error_log(sprintf('compile: %s', __CLASS__));
         $module = (new InstallBuiltinModule())(($this->lazyModule)());
         (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
         (new DiCompiler($module, $this->scriptDir))->compileContainer();

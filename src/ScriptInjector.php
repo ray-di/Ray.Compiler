@@ -310,6 +310,7 @@ final class ScriptInjector implements ScriptInjectorInterface
         $compiler = new DiCompiler($this->module, $this->scriptDir);
         $compiler->savePointcuts($this->module->getContainer());
         $this->saveModule();
+        error_log(sprintf('compile: %s', __CLASS__));
         $compiler->compile();
     }
 
