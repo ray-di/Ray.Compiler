@@ -301,6 +301,7 @@ final class ScriptInjector implements ScriptInjectorInterface
         }
 
         (new Bind($this->module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir); // @phpstan-ignore-line
+        (new FilePutContents())(sprintf('%s/_bindings.log', $this->scriptDir), (string) $this->module);
         (new OnDemandCompiler($this, $this->scriptDir, $this->module))($dependencyIndex);  // @phpstan-ignore-line
     }
 
