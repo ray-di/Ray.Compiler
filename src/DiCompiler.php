@@ -17,6 +17,7 @@ use function assert;
 use function fclose;
 use function fopen;
 use function fwrite;
+use function is_resource;
 use function is_string;
 use function ksort;
 use function serialize;
@@ -90,6 +91,7 @@ final class DiCompiler implements InjectorInterface
         $container = $this->container->getContainer();
         assert(is_string($scriptDir));
         $fp = fopen(sprintf('%s/_compile.log', $this->scriptDir), 'a');
+        assert(is_resource($fp));
         ksort($container);
         foreach ($container as $dependencyIndex => $dependency) {
             fwrite($fp, $dependencyIndex . PHP_EOL);
