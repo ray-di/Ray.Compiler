@@ -14,9 +14,17 @@ use Ray\Di\Name;
 use ReflectionProperty;
 
 use function assert;
+use function fclose;
+use function fopen;
+use function fwrite;
+use function is_resource;
 use function is_string;
+use function ksort;
 use function serialize;
+use function sprintf;
 use function sys_get_temp_dir;
+
+use const PHP_EOL;
 
 final class DiCompiler implements InjectorInterface
 {
@@ -82,10 +90,16 @@ final class DiCompiler implements InjectorInterface
         $scriptDir = $this->container->getInstance('', ScriptDir::class);
         $container = $this->container->getContainer();
         assert(is_string($scriptDir));
+        $fp = fopen(sprintf('%s/_compile.log', $this->scriptDir), 'a');
+        assert(is_resource($fp));
+        ksort($container);
         foreach ($container as $dependencyIndex => $dependency) {
+            fwrite($fp, $dependencyIndex . PHP_EOL);
             $code = $this->dependencyCompiler->getCode($dependency);
             ($this->dependencySaver)($dependencyIndex, $code);
         }
+
+        fclose($fp);
     }
 
     public function dumpGraph(): void

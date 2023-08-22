@@ -198,6 +198,7 @@ final class CompileInjector implements ScriptInjectorInterface
     public function compile(): void
     {
         $module = (new InstallBuiltinModule())(($this->lazyModule)());
+        (new FilePutContents())(sprintf('%s/_bindings.log', $this->scriptDir), (string) $module);
         (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
         (new DiCompiler($module, $this->scriptDir))->compileContainer();
     }
