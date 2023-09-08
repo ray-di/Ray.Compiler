@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Fiber;
 use Ray\Aop\Compiler;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
@@ -93,10 +94,18 @@ final class DiCompiler implements InjectorInterface
         $fp = fopen(sprintf('%s/_compile.log', $this->scriptDir), 'a');
         assert(is_resource($fp));
         ksort($container);
+
+        $fibers = [];
         foreach ($container as $dependencyIndex => $dependency) {
-            fwrite($fp, $dependencyIndex . PHP_EOL);
-            $code = $this->dependencyCompiler->getCode($dependency);
-            ($this->dependencySaver)($dependencyIndex, $code);
+            $fibers[] = new Fiber(function () use ($dependencyIndex, $dependency, $fp): void {
+                $code = $this->dependencyCompiler->getCode($dependency);
+                ($this->dependencySaver)($dependencyIndex, $code);
+                fwrite($fp, $dependencyIndex . PHP_EOL);
+            });
+        }
+
+        foreach ($fibers as $fiber) {
+            $fiber->start();
         }
 
         fclose($fp);
