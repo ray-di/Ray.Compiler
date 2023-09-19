@@ -35,7 +35,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Ray\\Compiler\\": ["src"]
+            "Ray\\Compiler\\": ["src", "src-deprecated"]
         }
     },
     "autoload-dev": {
