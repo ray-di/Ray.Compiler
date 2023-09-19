@@ -82,7 +82,7 @@ final class OnDemandCompiler
     {
         $pointcutsPath = $this->scriptDir . ScriptInjector::AOP;
         if (! file_exists($pointcutsPath)) {
-            return false; // @codeCoverageIgnoreStart
+            return false; // @codeCoverageIgnore
         }
 
         $serialized = file_get_contents($pointcutsPath);

@@ -18,10 +18,6 @@ final class CachedInjectorFactory
     /** @var array<string, string> */
     private static $injectors = [];
 
-    private function __construct()
-    {
-    }
-
     /**
      * @param callable(): AbstractModule $modules
      * @param array<class-string>        $savedSingletons

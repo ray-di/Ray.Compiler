@@ -18,10 +18,6 @@ use function mkdir;
  */
 final class InjectorFactory
 {
-    private function __construct()
-    {
-    }
-
     /**
      * @param callable(): AbstractModule $modules
      */

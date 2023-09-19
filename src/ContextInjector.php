@@ -14,10 +14,6 @@ use function get_class;
  */
 final class ContextInjector
 {
-    private function __construct()
-    {
-    }
-
     public static function getInstance(AbstractInjectorContext $injectorContext): InjectorInterface
     {
         return CachedInjectorFactory::getInstance(
