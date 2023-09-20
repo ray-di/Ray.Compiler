@@ -24,6 +24,6 @@ final class IpQualifier
 
     public function __toString(): string
     {
-        return serialize($this->qualifier); // @codeCoverageIgnoreStart
+        return serialize($this->qualifier); // @codeCoverageIgnore
     }
 }

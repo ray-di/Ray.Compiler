@@ -18,7 +18,7 @@
         "koriym/null-object": "^1.0",
         "koriym/printo": "^1.0",
         "nikic/php-parser": "^4.5",
-        "ray/aop": "^2.10"
+        "ray/aop": "^2.14"
     },
     "require-dev": {
         "ext-pdo": "*",
@@ -35,7 +35,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Ray\\Compiler\\": ["src"]
+            "Ray\\Compiler\\": ["src", "src-deprecated"]
         }
     },
     "autoload-dev": {

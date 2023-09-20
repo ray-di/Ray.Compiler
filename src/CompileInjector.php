@@ -167,7 +167,7 @@ final class CompileInjector implements ScriptInjectorInterface
         touch($checkFile);
         $this->compile();
         if (! file_exists($file)) {
-            throw new Unbound($dependencyIndex);
+            throw new Unbound($dependencyIndex); // @codeCoverageIgnore
         }
 
         return $file;

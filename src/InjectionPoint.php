@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Ray\Aop\ReflectionClass;
 use Ray\Aop\ReflectionMethod;
 use Ray\Di\InjectionPointInterface;
-use ReflectionClass;
 use ReflectionParameter;
 use RuntimeException;
 
@@ -44,15 +44,15 @@ final class InjectionPoint implements InjectionPointInterface
     /**
      * {@inheritdoc}
      */
-    public function getMethod(): \ReflectionMethod
+    public function getMethod(): ReflectionMethod
     {
         $this->parameter = $this->getParameter();
         $class = $this->parameter->getDeclaringClass();
-        assert($class instanceof ReflectionClass);
         $method = $this->parameter->getDeclaringFunction()->getShortName();
-        assert(class_exists($class->name));
+        assert($class instanceof \ReflectionClass);
+        assert(class_exists($class->getName()));
 
-        return new ReflectionMethod($class->name, $method);
+        return new ReflectionMethod($class->getName(), $method);
     }
 
     /**
@@ -61,9 +61,9 @@ final class InjectionPoint implements InjectionPointInterface
     public function getClass(): ReflectionClass
     {
         $class = $this->parameter->getDeclaringClass();
-        assert($class instanceof ReflectionClass);
+        assert($class instanceof \ReflectionClass);
 
-        return $class;
+        return new ReflectionClass($class->getName());
     }
 
     /**
@@ -86,7 +86,7 @@ final class InjectionPoint implements InjectionPointInterface
     public function getQualifier()
     {
         $class = $this->parameter->getDeclaringClass();
-        assert($class instanceof ReflectionClass);
+        assert($class instanceof \ReflectionClass);
 
         $qualifierFile = sprintf(
             ScriptInjector::QUALIFIER,

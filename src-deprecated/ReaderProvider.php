@@ -8,6 +8,10 @@ use Doctrine\Common\Annotations\Reader;
 use Ray\Di\ProviderInterface;
 use Ray\ServiceLocator\ServiceLocator;
 
+/**
+ * @deprecated
+ * @codeCoverageIgnore
+ */
 final class ReaderProvider implements ProviderInterface
 {
     public function get(): Reader
