@@ -4,6 +4,19 @@
     "static", "self", "parent",
     "array", "string", "int", "float", "bool", "iterable", "callable", "void", "object",
     "Attribute", "ReflectionAttribute",
-    "Ray\\Di\\*"
+    "Ray\\Di\\AbstractModule", "Ray\\Di\\Annotation\\ScriptDir",
+    "Ray\\Di\\Argument", "Ray\\Di\\Arguments",
+    "Ray\\Di\\AssistedModule", "Ray\\Di\\Bind",
+    "Ray\\Di\\Container", "Ray\\Di\\Dependency",
+    "Ray\\Di\\DependencyInterface","Ray\\Di\\DependencyProvider",
+    "Ray\\Di\\Di\\Qualifier", "Ray\\Di\\Exception\\NotFound",
+    "Ray\\Di\\Exception\\Unbound", "Ray\\Di\\InjectionPointInterface",
+    "Ray\\Di\\Injector", "Ray\\Di\\InjectorInterface", "Ray\\Di\\Instance",
+    "Ray\\Di\\MultiBinding\\Map", "Ray\\Di\\MultiBinding\\MapProvider",
+    "Ray\\Di\\Name", "Ray\\Di\\NullCache",
+    "Ray\\Di\\NullModule", "Ray\\Di\\NullObjectDependency",
+    "Ray\\Di\\ProviderInterface", "Ray\\Di\\ProviderSetModule",
+    "Ray\\Di\\SetContextInterface"
+
   ]
 }
