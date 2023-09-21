@@ -6,13 +6,8 @@ namespace Ray\Compiler\Deep;
 
 
 use Doctrine\Common\Cache\CacheProvider;
-use Doctrine\Common\Cache\FilesystemCache;
 use Ray\Compiler\AbstractInjectorContext;
-use Ray\Compiler\Annotation\Compile;
-use Ray\Compiler\DiCompileModule;
 use Ray\Di\AbstractModule;
-use Ray\Di\NullCache;
-use Ray\Di\Scope;
 
 final class FakeScriptInjectorContext extends AbstractInjectorContext
 {
@@ -23,6 +18,30 @@ final class FakeScriptInjectorContext extends AbstractInjectorContext
 
     public function getCache(): CacheProvider
     {
-       return new FilesystemCache('/tmp');
+       return new class() extends CacheProvider {
+           protected function doFetch($id)
+           {
+           }
+
+           protected function doContains($id)
+           {
+           }
+
+           protected function doSave($id, $data, $lifeTime = 0)
+           {
+           }
+
+           protected function doDelete($id)
+           {
+           }
+
+           protected function doFlush()
+           {
+           }
+
+           protected function doGetStats()
+           {
+           }
+       };
     }
 }
