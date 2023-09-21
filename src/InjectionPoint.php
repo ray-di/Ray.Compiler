@@ -15,8 +15,10 @@ use function class_exists;
 use function file_exists;
 use function file_get_contents;
 use function is_bool;
+use function preg_replace_callback;
 use function sprintf;
 use function str_replace;
+use function strlen;
 use function unserialize;
 
 final class InjectionPoint implements InjectionPointInterface
@@ -109,6 +111,12 @@ final class InjectionPoint implements InjectionPointInterface
 
         /** @var ?object $qualifier */
         $qualifier = unserialize($qualifierString, ['allowed_classes' => true]);
+        if ($qualifier === false) { // @phpstan-ignore-line
+            // work around for PHP 8.3 error - unserialize(): Extra data starting at offset 65 of 66 bytes
+            $qualifier = unserialize((string) preg_replace_callback('!s:(\d+):"([\s\S]*?)";!', static function ($m) {
+                return 's:' . strlen($m[2]) . ':"' . $m[2] . '";';
+            }, $qualifierString));
+        }
 
         return $qualifier;
     }
