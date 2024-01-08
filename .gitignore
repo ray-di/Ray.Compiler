@@ -7,3 +7,4 @@ build
 /.phpcs-cache
 .phpunit.result.cache
 /coverage.xml
+/tests/Fake/tmp

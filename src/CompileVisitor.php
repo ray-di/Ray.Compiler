@@ -1,0 +1,124 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Ray\Compiler;
+
+use Ray\Di\Argument;
+use Ray\Di\Arguments;
+use Ray\Di\Compiler\InstanceScript;
+use Ray\Di\Container;
+use Ray\Di\Dependency;
+use Ray\Di\Exception\Unbound;
+use Ray\Di\NewInstance;
+use Ray\Di\SetterMethod;
+use Ray\Di\SetterMethods;
+use Ray\Di\VisitorInterface;
+use RuntimeException;
+
+use function is_string;
+use function sprintf;
+use function str_replace;
+use function var_export;
+
+use const PHP_EOL;
+
+final class CompileVisitor implements VisitorInterface
+{
+    /** @var Container */
+    private $container;
+
+    /** @var InstanceScript */
+    private $script;
+
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
+        $this->script = new InstanceScript();
+    }
+
+    public function visitProvider(
+        Dependency $dependency,
+        string $context
+    ): string {
+        $script = $dependency->accept($this);
+        $providerScript = $context ? sprintf("\$instance->setContext('%s')", $context) : '';
+        $providerScript .= PHP_EOL . 'return $instance->get()';
+
+        return str_replace('return $instance', $providerScript, $script);
+    }
+
+    public function visitInstance($value): string
+    {
+        if (is_string($value)) {
+            return sprintf('return %s;', var_export($value, true));
+        }
+
+        throw new RuntimeException('Invalid instance value');
+    }
+
+    public function visitDependency(
+        NewInstance $newInstance,
+        ?string $postConstruct,
+        bool $isSingleton
+    ): string {
+        $newInstance->accept($this);
+
+        return $this->script->getScript($postConstruct, $isSingleton);
+    }
+
+    public function visitNewInstance(
+        string $class,
+        SetterMethods $setterMethods,
+        ?Arguments $arguments
+    ) {
+        $setterMethods->accept($this);
+        if ($arguments) {
+            $arguments->accept($this);
+        }
+
+        $this->script->pushClass($class);
+    }
+
+    /**
+     * @param SetterMethod[] $setterMethods
+     */
+    public function visitSetterMethods(
+        array $setterMethods
+    ) {
+        foreach ($setterMethods as $setterMethod) {
+            $setterMethod->accept($this);
+        }
+    }
+
+    public function visitSetterMethod(string $method, Arguments $arguments)
+    {
+        $arguments->accept($this);
+        $this->script->pushMethod($method);
+    }
+
+    /**
+     * @param Argument[] $arguments
+     */
+    public function visitArguments(
+        array $arguments
+    ) {
+        foreach ($arguments as $argument) {
+            $argument->accept($this);
+        }
+    }
+
+    public function visitArgument(
+        string $index,
+        bool $isDefaultAvailable,
+        $defaultValue
+    ): void {
+        try {
+            $this->script->addArgDependency($this->container->isSingleton($index), $index);
+        } catch (Unbound $e) {
+            if (! $isDefaultAvailable) {
+                throw new Unbound($index);
+            }
+        }
+    }
+}
