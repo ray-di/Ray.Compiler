@@ -9,6 +9,7 @@ use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Bind;
 use Ray\Di\Container;
+use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use ReflectionProperty;
@@ -94,8 +95,16 @@ final class DiCompiler implements InjectorInterface
         assert(is_resource($fp));
         ksort($container);
         foreach ($container as $dependencyIndex => $dependency) {
-            fwrite($fp, $dependencyIndex . PHP_EOL);
-            $code = $this->dependencyCompiler->getCode($dependency);
+            fwrite($fp, sprintf("Compiled: %s\n", $dependencyIndex));
+            try {
+                $code = $this->dependencyCompiler->getCode($dependency);
+            } catch (Unbound $e) {
+                $msg = sprintf("\nError: %s\nUnbound: %s", $dependencyIndex, $e->getMessage());
+                fwrite($fp, $msg . PHP_EOL);
+
+                throw $e;
+            }
+
             ($this->dependencySaver)($dependencyIndex, $code);
         }
 
