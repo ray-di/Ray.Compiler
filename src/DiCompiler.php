@@ -25,8 +25,6 @@ use function serialize;
 use function sprintf;
 use function sys_get_temp_dir;
 
-use const PHP_EOL;
-
 final class DiCompiler implements InjectorInterface
 {
     /** @var string */
