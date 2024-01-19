@@ -137,8 +137,8 @@ final class CompileInjector implements ScriptInjectorInterface
         /** @psalm-suppress UnresolvableInclude */
         $instance = require $this->getInstanceFile($dependencyIndex);
         /** @psalm-suppress UndefinedVariable */
-        $isSingleton = isset($isSingleton) && $isSingleton; // @phpstan-ignore-line
-        if ($isSingleton) { // @phpstan-ignore-line
+        $isSingleton = isset($isSingleton) && $isSingleton;
+        if ($isSingleton) {
             $this->singletons[$dependencyIndex] = $instance;
         }
 
