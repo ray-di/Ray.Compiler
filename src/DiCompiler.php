@@ -99,8 +99,7 @@ final class DiCompiler implements InjectorInterface
             try {
                 $code = $this->dependencyCompiler->getCode($dependency);
             } catch (Unbound $e) {
-                $msg = sprintf("\nError: %s\nUnbound: %s", $dependencyIndex, $e->getMessage());
-                fwrite($fp, $msg . PHP_EOL);
+                fwrite($fp, sprintf("\nError: %s\nUnbound: %s\n", $dependencyIndex, $e->getMessage()));
 
                 throw $e;
             }
