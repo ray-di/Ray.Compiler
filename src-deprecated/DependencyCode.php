@@ -51,6 +51,9 @@ final class DependencyCode implements SetContextInterface
     /** @var AopCode */
     private $aopCode;
 
+    /** @var Container */
+    private $container;
+
     public function __construct(Container $container, ?ScriptInjector $injector = null)
     {
         $this->factory = new BuilderFactory();
@@ -58,6 +61,7 @@ final class DependencyCode implements SetContextInterface
         $this->factoryCompiler = new FactoryCode($container, new Normalizer(), $this, $injector);
         $this->privateProperty = new PrivateProperty();
         $this->aopCode = new AopCode($this->privateProperty);
+        $this->container = $container;
     }
 
     /**
@@ -66,7 +70,7 @@ final class DependencyCode implements SetContextInterface
     public function getCode(DependencyInterface $dependency): Code
     {
         if ($dependency instanceof Dependency) {
-            return $this->getDependencyCode($dependency);
+            return $this->getDependencyCode($dependency,);
         }
 
         if ($dependency instanceof Instance) {
@@ -115,8 +119,10 @@ final class DependencyCode implements SetContextInterface
      */
     private function getDependencyCode(Dependency $dependency): Code
     {
-        $prop = $this->privateProperty;
-        $node = $this->getFactoryNode($dependency);
+        return new Code4Dependency($this->container, $dependency, $this->qualifier);
+
+//        $prop = $this->privateProperty;
+//        $node = $this->getFactoryNode($dependency);
         ($this->aopCode)($dependency, $node);
         /** @var bool $isSingleton */
         $isSingleton = $prop($dependency, 'isSingleton');
