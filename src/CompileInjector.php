@@ -134,7 +134,9 @@ final class CompileInjector implements ScriptInjectorInterface
         }
 
         if ($this->functions === null) {
+            // @codeCoverageIgnoreStart
             $this->__wakeup();
+            // @codeCoverageIgnoreEnd
         }
 
         [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
