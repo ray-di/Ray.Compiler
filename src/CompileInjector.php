@@ -133,6 +133,7 @@ final class CompileInjector implements ScriptInjectorInterface
             return $this->singletons[$dependencyIndex];
         }
 
+        /** @psalm-suppress DocblockTypeContradiction */
         if ($this->functions === null) {
             // @codeCoverageIgnoreStart
             $this->__wakeup();
