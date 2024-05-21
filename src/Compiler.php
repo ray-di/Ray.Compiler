@@ -17,10 +17,10 @@ final class Compiler
     {
         $scripts = new Scripts();
         $container = (new InstallBuiltinModule())($module)->getContainer();
-        // Weave aspects
-        $container->weaveAspects(new AopCompiler($scriptDir));
         // Compile NullObject
         (new CompileNullObject())($container, $scriptDir);
+        // Weave aspects
+        $container->weaveAspects(new AopCompiler($scriptDir));
         // Compile dependencies
         $compileVisitor = new CompileVisitor($container);$container->map(static function (DependencyInterface $dependency, string $key) use ($scripts, $compileVisitor): DependencyInterface {
             $script = $dependency->accept($compileVisitor);
