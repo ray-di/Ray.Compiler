@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
-use Ray\Compiler\Exception\Unbound;
 
 use function assert;
 use function is_object;
 use function serialize;
-use function spl_object_hash;
 use function unserialize;
 
 class CompileInjectorTest extends TestCase
@@ -62,7 +60,7 @@ class CompileInjectorTest extends TestCase
         $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
         assert(is_object($instance1));
         assert(is_object($instance2));
-        $this->assertSame(spl_object_hash($instance1), spl_object_hash($instance2));
+        $this->assertSame($instance1, $instance2);
     }
 
     public function testSerialize(): void

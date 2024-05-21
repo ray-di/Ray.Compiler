@@ -29,6 +29,6 @@ class FakeCarModule extends AbstractModule
         $this->bind(FakeRobot::class);
         $this->bind(FakeTyre::class);
         $this->bind(FakeOptional::class);
-        $this->bind(FakeRobotInterface::class)->to(FakeRobot::class);
+        $this->bind(FakeRobotInterface::class)->to(FakeRobot::class)->in(Scope::SINGLETON);
     }
 }

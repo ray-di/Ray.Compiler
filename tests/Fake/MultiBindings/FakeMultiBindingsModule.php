@@ -9,9 +9,13 @@ use Ray\Compiler\MultiBindings\FakeEngine;
 use Ray\Compiler\MultiBindings\FakeEngine2;
 use Ray\Compiler\MultiBindings\FakeEngine3;
 use Ray\Compiler\MultiBindings\FakeEngineInterface;
+use Ray\Compiler\MultiBindings\FakeMultiBindingAnnotation;
+use Ray\Compiler\MultiBindings\FakeMultiBindingConsumer;
 use Ray\Compiler\MultiBindings\FakeRobot;
 use Ray\Compiler\MultiBindings\FakeRobotInterface;
 use Ray\Compiler\MultiBindings\FakeRobotProvider;
+use Ray\Compiler\MultiBindings\FakeSetNotFoundWithMap;
+use Ray\Compiler\MultiBindings\FakeSetNotFoundWithProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\MultiBinder;
 
@@ -27,5 +31,16 @@ final class FakeMultiBindingsModule extends AbstractModule
         $robotBinder->addBinding('to')->to(FakeRobot::class);
         $robotBinder->addBinding('provider')->toProvider(FakeRobotProvider::class);
         $robotBinder->addBinding('instance')->toInstance(new FakeRobot());
+        $this->bind(FakeMultiBindingAnnotation::class);
+        $this->bind(FakeMultiBindingConsumer::class);
+
+        $this->bind(FakeEngine::class);
+        $this->bind(FakeEngine2::class);
+        $this->bind(FakeEngine3::class);
+        $this->bind(FakeRobot::class);
+        $this->bind(FakeRobotProvider::class);
+
+        $this->bind(FakeSetNotFoundWithMap::class);
+        $this->bind(FakeSetNotFoundWithProvider::class);
     }
 }

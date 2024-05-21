@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ray\Compiler;
 
 use DateTime;
@@ -9,6 +11,8 @@ use Ray\Compiler\CompileVisitor\FakeFooInterface;
 use Ray\Compiler\CompileVisitor\FakeFooProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\Scope;
+
+use function count;
 use function get_class;
 use function spl_object_hash;
 
@@ -17,7 +21,7 @@ class CompilerTest extends TestCase
     private $compiler;
     private $injector;
     private $scriptDir;
-    
+
     public function setUp(): void
     {
         $this->compiler = new Compiler();
@@ -27,7 +31,7 @@ class CompilerTest extends TestCase
 
     public function testCompile(): void
     {
-        $module = new class() extends AbstractModule{
+        $module = new class () extends AbstractModule{
             protected function configure()
             {
                 $this->bind(FakeFooInterface::class)->to(FakeFoo::class);
@@ -43,7 +47,7 @@ class CompilerTest extends TestCase
 
     public function testCompileSingleton(): void
     {
-        $module = new class() extends AbstractModule{
+        $module = new class () extends AbstractModule{
             protected function configure()
             {
                 $this->bind(FakeFooInterface::class)->to(FakeFoo::class)->in(Scope::SINGLETON);
@@ -58,7 +62,7 @@ class CompilerTest extends TestCase
 
     public function testToInstance(): void
     {
-        $module = new class() extends AbstractModule{
+        $module = new class () extends AbstractModule{
             protected function configure()
             {
                 $this->bind('')->annotatedWith('foo')->toInstance('foo_instance');
@@ -70,10 +74,9 @@ class CompilerTest extends TestCase
         $this->assertSame('foo_instance', $instance);
     }
 
-
     public function testCompileProvider(): void
     {
-        $module = new class() extends AbstractModule{
+        $module = new class () extends AbstractModule{
             protected function configure()
             {
                 $this->bind(FakeFooInterface::class)->toProvider(FakeFooProvider::class);
@@ -87,7 +90,7 @@ class CompilerTest extends TestCase
 
     public function testCompileComplex(): void
     {
-        $module = new class() extends AbstractModule{
+        $module = new class () extends AbstractModule{
             protected function configure()
             {
                 $this->bind(FakeCarInterface::class)->to(FakeCar::class); // dependent
@@ -107,7 +110,7 @@ class CompilerTest extends TestCase
 
     public function testCompileAop(): void
     {
-        $module = new class() extends AbstractModule{
+        $module = new class () extends AbstractModule{
             protected function configure()
             {
                 $this->bind(FakeAopInterface::class)->to(FakeAop::class);
@@ -127,7 +130,7 @@ class CompilerTest extends TestCase
 
     public function testCompileAopDubleInterceptor(): void
     {
-        $module = new class() extends AbstractModule{
+        $module = new class () extends AbstractModule{
             protected function configure()
             {
                 $this->bind(FakeAopInterface::class)->to(FakeAop::class);
@@ -147,7 +150,7 @@ class CompilerTest extends TestCase
 
     public function testCompileInstnce(): void
     {
-        $module = new class() extends AbstractModule{
+        $module = new class () extends AbstractModule{
             protected function configure()
             {
                 $this->bind()->annotatedWith('bool')->toInstance(true);
@@ -173,7 +176,7 @@ class CompilerTest extends TestCase
 
     public function testCompileNull(): void
     {
-        $module = new class() extends AbstractModule{
+        $module = new class () extends AbstractModule{
             protected function configure()
             {
                 $this->bind(FakeFooInterface::class)->toNull();

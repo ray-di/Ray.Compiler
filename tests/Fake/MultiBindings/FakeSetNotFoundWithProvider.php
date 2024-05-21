@@ -20,6 +20,6 @@ final class FakeSetNotFoundWithProvider
     public function __construct(
         ProviderInterface $engineProvider
     ){
-        $this->$engineProvider = $engineProvider;
+        $this->engineProvider = $engineProvider;
     }
 }

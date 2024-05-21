@@ -9,12 +9,10 @@ use Ray\Aop\WeavedInterface;
 use Ray\Di\AbstractModule;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
-use Ray\Di\NullModule;
 
 use function assert;
 use function count;
 use function glob;
-use function property_exists;
 use function serialize;
 use function spl_object_hash;
 use function unserialize;
