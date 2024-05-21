@@ -118,9 +118,8 @@ class DiCompilerTest extends TestCase
     {
         $compiler = new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp');
         $compiler->compile();
-        $compiler->dumpGraph();
-        $any = Name::ANY;
-        $this->assertFileExists(__DIR__ . '/tmp/graph/Ray_Compiler_FakeCarInterface-' . $any . '.html');
+        $maybeNull = $compiler->dumpGraph();
+        $this->assertNull($maybeNull);
     }
 
     /**

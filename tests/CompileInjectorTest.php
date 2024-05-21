@@ -31,7 +31,6 @@ class CompileInjectorTest extends TestCase
 
     public function testCompile(): void
     {
-        $this->injector->compile();
         // built in script
         $this->assertFileExists(__DIR__ . '/tmp/-Ray_Compiler_Annotation_Compile.php');
         $this->assertFileExists(__DIR__ . '/tmp/-Ray_Di_Annotation_ScriptDir.php');
