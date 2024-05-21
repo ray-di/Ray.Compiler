@@ -10,7 +10,6 @@ use Ray\Di\Arguments;
 use Ray\Di\AspectBind;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
-use Ray\Di\Exception\Unbound;
 use Ray\Di\NewInstance;
 use Ray\Di\SetterMethod;
 use Ray\Di\SetterMethods;
@@ -27,20 +26,14 @@ use function sprintf;
 use function str_replace;
 use function var_export;
 
-use const PHP_EOL;
-
 final class CompileVisitor implements VisitorInterface
 {
-    /** @var Container */
-    private $container;
-
     /** @var InstanceScript */
     private $script;
 
     public function __construct(Container $container)
     {
-        $this->container = $container;
-        $this->script = new InstanceScript();
+        $this->script = new InstanceScript($container);
     }
 
     public function visitAspectBind(Bind $aopBind)
@@ -50,13 +43,13 @@ final class CompileVisitor implements VisitorInterface
 
     public function visitProvider(
         Dependency $dependency,
-        string $context
+        string $context,
+        bool $isSingleton
     ): string {
+        $this->script->pushProviderContext($context, $isSingleton);
         $script = $dependency->accept($this);
-        $providerScript = $context ? sprintf("\$instance->setContext('%s')", $context) : '';
-        $providerScript .= PHP_EOL . 'return $instance->get()';
 
-        return str_replace('return $instance', $providerScript, $script);
+        return str_replace('return $instance', 'return $instance->get()', $script);
     }
 
     public function visitInstance($value): string
@@ -138,36 +131,6 @@ final class CompileVisitor implements VisitorInterface
         $defaultValue,
         ReflectionParameter $parameter
     ): void {
-        try {
-            if ($index === 'Ray\Di\InjectorInterface-') {
-                $this->script->addInstanceArg('$injector()');
-
-                return;
-            }
-
-            if ($index === 'Ray\Di\InjectionPointInterface-') {
-                $this->script->addInstanceArg('$injectionPoint()');
-
-                return;
-            }
-
-            if ($index === 'Ray\Di\MethodInvocationProvider-') {
-                $this->script->addInstanceArg('$singleton(\'Ray\Di\MethodInvocationProvider-\')');
-
-                return;
-            }
-
-            $this->script->addArgDependency($this->container->isSingleton($index), $index, $parameter);
-        } catch (Unbound $e) {
-            if ($index === 'Ray\Di\MultiBinding\MultiBindings-') {
-                return;
-            }
-
-            if (! $isDefaultAvailable) {
-                throw new Unbound($index);
-            }
-
-            $this->script->addInstanceArg(var_export($defaultValue, true));
-        }
+        $this->script->addArg($index, $isDefaultAvailable, $defaultValue, $parameter);
     }
 }

@@ -5,50 +5,123 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use Ray\Aop\Bind as AopBind;
+use Ray\Compiler\Exception\Unbound;
+use Ray\Di\Container;
+use Ray\Di\Dependency;
+use Ray\Di\DependencyInterface;
+use Ray\Di\DependencyProvider;
+use Ray\Di\Instance;
+use Ray\Di\SetContextInterface;
 use ReflectionParameter;
 
 use function array_unshift;
+use function assert;
 use function implode;
+use function is_a;
+use function is_object;
+use function serialize;
 use function sprintf;
 use function unserialize;
+use function var_export;
 
 use const PHP_EOL;
 
 final class InstanceScript
 {
     private $args = [];
-    private $aopBindings = '';
-    private $lines = [];
+    private $formerLines = []; // Constructor injection and AOP
+    private $laterLines = [];  // Setter injection and postConstruct
 
-    public function addArgDependency(bool $isSingleton, string $index, ReflectionParameter $parameter): void
+    /** @var string */
+    private $context;
+
+    /** @var bool */
+    private $implementsSetContext = false;
+
+    /** @var bool|null */
+    private $isSingleton = null;
+
+    /** @var array<DependencyInterface> */
+    private $container;
+
+    public function __construct(Container $container)
     {
-        if ($index === 'Ray\Di\InjectorInterface-') {
-            $this->args[] = '$injector()';
+        $container->sort();
+        $this->container = $container->getContainer();
+    }
+
+    public function addArg(string $index, bool $isDefaultAvailable, $defaultValue, ReflectionParameter $parameter)
+    {
+        if (! isset($this->container[$index])) {
+            if ($isDefaultAvailable) {
+                $this->addInstanceArg($defaultValue);
+
+                return;
+            }
+
+            if ($index === 'Ray\Di\InjectorInterface-') {
+                $this->args[] = '$injector()';
+
+                return;
+            }
+
+            if ($index === 'Ray\Di\InjectionPointInterface-') {
+                $this->args[] = '$injectionPoint()';
+
+                return;
+            }
+
+            throw new Unbound($index);
+        }
+
+        $dependency = $this->container[$index];
+        if ($dependency instanceof Dependency || $dependency instanceof DependencyProvider) {
+            $this->addDependencyArg($dependency->isSingleton(), $index, $parameter);
 
             return;
         }
 
+        assert($dependency instanceof Instance, 'Invalid instance value');
+        $this->addInstanceArg($dependency->value);
+    }
+
+    private function addDependencyArg(bool $isSingleton, string $index, ReflectionParameter $parameter): void
+    {
         $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->name, $parameter->getDeclaringFunction()->getName(), $parameter->name);
         $func = $isSingleton ? '$singleton' : '$prototype';
             $arg = sprintf("%s('%s', %s)", $func, $index, $ip);
         $this->args[] = $arg;
     }
 
-    public function addInstanceArg(string $default): void
+    public function addInstanceArg($default): void
     {
-        $this->args[] = $default;
+        if (is_object($default)) {
+            $this->args[] = sprintf('unserialize(\'%s\')', serialize($default));
+
+            return;
+        }
+
+        $this->args[] = var_export($default, true);
     }
 
     public function pushMethod(string $method): void
     {
-        $this->lines[] = sprintf('$instance->%s(%s);', $method, implode(', ', $this->args));
+        $this->laterLines[] = sprintf('$instance->%s(%s);', $method, implode(', ', $this->args));
         $this->args = [];
     }
 
     public function pushClass(string $class): void
     {
-        array_unshift($this->lines, sprintf('$instance = new \%s(%s);', $class, implode(', ', $this->args)));
+        $this->implementsSetContext = is_a($class, SetContextInterface::class, true);
+
+        array_unshift($this->formerLines, sprintf('$instance = new \%s(%s);', $class, implode(', ', $this->args)));
         $this->args = [];
+    }
+
+    public function pushProviderContext(string $context, bool $isSingleton): void
+    {
+        $this->context = $context;
+        $this->isSingleton = $isSingleton;
     }
 
     public function pushAspectBind(AopBind $aopBind): void
@@ -65,25 +138,27 @@ final class InstanceScript
             $interceptors[] =  sprintf('\'%s\' => [%s]', $method, implode(', ', $bindings));
         }
 
-        $this->aopBindings = sprintf('$instance->bindings = [%s];', implode(', ', $interceptors));
+        $this->formerLines[] = sprintf('$instance->bindings = [%s];', implode(', ', $interceptors));
     }
 
     public function getScript(?string $postConstruct, bool $isSingleton): string
     {
         if ($postConstruct) {
-            $this->lines[] = sprintf('$instance->%s();', $postConstruct);
+            $this->laterLines[] = sprintf('$instance->%s();', $postConstruct);
         }
 
-        if ($this->aopBindings) {
-            $this->lines[] = $this->aopBindings;
-            $this->aopBindings = '';
+        if ($this->implementsSetContext) {
+            $this->laterLines[] = sprintf('$instance->setContext(%s);', var_export($this->context, true));
         }
 
-        $this->lines[] = sprintf('$isSingleton = %s;', $isSingleton ? 'true' : 'false');
-        $this->lines[] = 'return $instance;';
+        $isSingleton = $this->isSingleton ?? $isSingleton;
+        $this->laterLines[] = sprintf('$isSingleton = %s;', $isSingleton ? 'true' : 'false');
+        $this->laterLines[] = 'return $instance;';
 
-        $script = implode(PHP_EOL, $this->lines);
-        $this->lines = [];
+        $script = implode(PHP_EOL, $this->formerLines) . PHP_EOL . implode(PHP_EOL, $this->laterLines);
+        $this->formerLines = [];
+        $this->laterLines = [];
+        $this->isSingleton = null;
 
         return $script;
     }
