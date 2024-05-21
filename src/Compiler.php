@@ -16,7 +16,7 @@ final class Compiler
     public function compile(AbstractModule $module, string $scriptDir): Scripts
     {
         $scripts = new Scripts();
-        $container = $module->getContainer();
+        $container = (new InstallBuiltinModule())($module)->getContainer();
         $container->weaveAspects(new AopCompiler($scriptDir));
         $compileVisitor = new CompileVisitor($container);
         $container->map(static function (DependencyInterface $dependency, string $key) use ($scripts, $compileVisitor) {

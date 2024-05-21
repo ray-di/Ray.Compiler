@@ -18,7 +18,7 @@ use Ray\Di\SetterMethods;
 use Ray\Di\VisitorInterface;
 use RuntimeException;
 
-use function is_string;
+use function is_scalar;
 use function sprintf;
 use function str_replace;
 use function var_export;
@@ -57,7 +57,7 @@ final class CompileVisitor implements VisitorInterface
 
     public function visitInstance($value): string
     {
-        if (is_string($value)) {
+        if (is_scalar($value)) {
             return sprintf('return %s;', var_export($value, true));
         }
 
@@ -126,6 +126,24 @@ final class CompileVisitor implements VisitorInterface
         $defaultValue
     ): void {
         try {
+            if ($index === 'Ray\Di\InjectorInterface-') {
+                $this->script->addInstanceArg('$injector()');
+
+                return;
+            }
+
+            if ($index === 'Ray\Di\InjectionPointInterface-') {
+                $this->script->addInstanceArg('$injectionPoint()');
+
+                return;
+            }
+
+            if ($index === 'Ray\Di\MethodInvocationProvider-') {
+                $this->script->addInstanceArg('$singleton(\'Ray\Di\MethodInvocationProvider-\')');
+
+                return;
+            }
+
             $this->script->addArgDependency($this->container->isSingleton($index), $index);
         } catch (Unbound $e) {
             if (! $isDefaultAvailable) {
