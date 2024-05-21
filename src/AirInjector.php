@@ -8,8 +8,10 @@ use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Name;
 use ReflectionParameter;
 
+use function assert;
 use function file_exists;
 use function in_array;
+use function is_callable;
 use function spl_autoload_register;
 use function sprintf;
 use function str_replace;
@@ -81,7 +83,8 @@ final class AirInjector implements ScriptInjectorInterface
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, array $ip = ['', '', '']) {
+                function (string $dependencyIndex, array $ip = ['', '', '']) use ($injectionPoint) {
+                    assert(is_callable($injectionPoint));
                     $this->ip = $ip; // @phpstan-ignore-line
 
                     return require $this->getInstanceFile($dependencyIndex);
@@ -92,7 +95,8 @@ final class AirInjector implements ScriptInjectorInterface
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, $ip = ['', '', '']) {
+                function (string $dependencyIndex, $ip = ['', '', ''])  use ($injectionPoint){
+                    assert(is_callable($injectionPoint));
                     if (isset($this->singletons[$dependencyIndex])) {
                         return $this->singletons[$dependencyIndex];
                     }
