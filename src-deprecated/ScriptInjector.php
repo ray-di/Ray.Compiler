@@ -6,13 +6,11 @@ namespace Ray\Compiler;
 
 use Ray\Di\Name;
 use Ray\Di\NullModule;
-
 use function glob;
 use function is_dir;
 use function rmdir;
 use function rtrim;
 use function unlink;
-
 use const DIRECTORY_SEPARATOR;
 
 /** @deprecated */

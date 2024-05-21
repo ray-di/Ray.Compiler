@@ -12,11 +12,11 @@ use Ray\Di\Bind;
 use Ray\Di\Dependency;
 use Ray\Di\Name;
 use Ray\Di\NewInstance;
-
 use function array_merge;
 use function array_splice;
 use function is_array;
 
+/** @deprecated  */
 final class AopCode
 {
     /** @var PrivateProperty */

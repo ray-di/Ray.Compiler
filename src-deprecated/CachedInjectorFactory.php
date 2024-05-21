@@ -8,11 +8,11 @@ use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\NullCache;
-
 use function assert;
 use function serialize;
 use function unserialize;
 
+/** @deprecated  */
 final class CachedInjectorFactory
 {
     /** @var array<string, string> */

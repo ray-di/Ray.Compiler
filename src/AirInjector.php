@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use Ray\Compiler\Exception\Unbound;
+use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use ReflectionParameter;
 
@@ -16,7 +17,7 @@ use function spl_autoload_register;
 use function sprintf;
 use function str_replace;
 
-final class AirInjector implements ScriptInjectorInterface
+final class AirInjector implements InjectorInterface
 {
     /** @var string */
     private $scriptDir;

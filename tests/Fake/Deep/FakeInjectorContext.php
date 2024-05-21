@@ -9,7 +9,6 @@ use Doctrine\Common\Cache\CacheProvider;
 use Ray\Compiler\AbstractInjectorContext;
 use Ray\Di\AbstractModule;
 use Ray\Di\NullCache;
-use Ray\Di\Scope;
 
 final class FakeInjectorContext extends AbstractInjectorContext
 {

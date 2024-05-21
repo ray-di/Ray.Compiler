@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
 
+/** @deprecated  */
 class ScriptinjectorModule extends AbstractModule
 {
     /** @var string */

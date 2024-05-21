@@ -14,6 +14,7 @@ use Ray\Di\Instance;
 use Ray\Di\Name;
 use Ray\Di\SetterMethod;
 
+/** @deprecated  */
 final class FactoryCode
 {
     /** @var Container */

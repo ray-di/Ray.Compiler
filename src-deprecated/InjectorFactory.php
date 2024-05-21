@@ -9,11 +9,11 @@ use Ray\Di\AbstractModule;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\Injector as RayInjector;
 use Ray\Di\InjectorInterface;
-
 use function is_dir;
 use function mkdir;
 
 /**
+ * @deprecated
  * @psalm-immutable
  */
 final class InjectorFactory

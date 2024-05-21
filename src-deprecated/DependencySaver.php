@@ -6,16 +6,15 @@ namespace Ray\Compiler;
 
 use LogicException;
 use ReflectionClass;
-
 use function file_exists;
 use function is_dir;
 use function mkdir;
 use function serialize;
 use function sprintf;
 use function str_replace;
-
 use const PHP_EOL;
 
+/** @deprecated  */
 final class DependencySaver
 {
     /** @var string */

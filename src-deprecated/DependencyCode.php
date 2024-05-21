@@ -21,10 +21,10 @@ use Ray\Di\NewInstance;
 use Ray\Di\SetContextInterface;
 use Ray\Di\SetterMethod;
 use Ray\Di\SetterMethods;
-
 use function get_class;
 use function is_a;
 
+/** @deprecated  */
 final class DependencyCode implements SetContextInterface
 {
     /** @var BuilderFactory */

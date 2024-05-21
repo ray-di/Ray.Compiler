@@ -7,7 +7,6 @@ namespace Ray\Compiler;
 use Koriym\Printo\Printo;
 use Ray\Di\Container;
 use Ray\Di\Name;
-
 use function assert;
 use function class_exists;
 use function explode;
@@ -16,9 +15,9 @@ use function file_put_contents;
 use function interface_exists;
 use function mkdir;
 use function str_replace;
-
 use const LOCK_EX;
 
+/** @deprecated  */
 final class GraphDumper
 {
     /** @var Container */

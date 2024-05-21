@@ -8,12 +8,15 @@ use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
+/** @deprecated  */
 final class DiCompiler implements InjectorInterface
 {
     /** @var AirInjector */
     private $injector;
+
     /** @var AbstractModule  */
     private $module;
+
     /** @var string  */
     private $scriptDir;
 
@@ -24,6 +27,7 @@ final class DiCompiler implements InjectorInterface
         $this->injector = new AirInjector($scriptDir);
         $injectorModule = new class ($this->injector) extends AbstractModule {
             private $injector;
+
             public function __construct(InjectorInterface $injector)
             {
                 $this->injector = $injector;
