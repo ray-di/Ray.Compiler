@@ -18,7 +18,11 @@ use Ray\Di\SetterMethods;
 use Ray\Di\VisitorInterface;
 use RuntimeException;
 
+use function is_array;
+use function is_null;
+use function is_object;
 use function is_scalar;
+use function serialize;
 use function sprintf;
 use function str_replace;
 use function var_export;
@@ -57,8 +61,16 @@ final class CompileVisitor implements VisitorInterface
 
     public function visitInstance($value): string
     {
-        if (is_scalar($value)) {
+        if (is_scalar($value) || is_array($value)) {
             return sprintf('return %s;', var_export($value, true));
+        }
+
+        if (is_null($value)) {
+            return 'return null;';
+        }
+
+        if (is_object($value)) {
+            return sprintf('return unserialize(\'%s\');', serialize($value));
         }
 
         throw new RuntimeException('Invalid instance value');

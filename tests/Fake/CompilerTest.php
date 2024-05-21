@@ -2,6 +2,7 @@
 
 namespace Ray\Compiler;
 
+use DateTime;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\CompileVisitor\FakeFoo;
 use Ray\Compiler\CompileVisitor\FakeFooInterface;
@@ -141,5 +142,30 @@ class CompilerTest extends TestCase
         $this->assertInstanceOf(FakeAop::class, $instance);
         $double = $instance->returnSame(2);
         $this->assertSame(8, $double);
+    }
+    public function testCompileInstnce(): void
+    {
+        $module = new class() extends AbstractModule{
+            protected function configure()
+            {
+                $this->bind()->annotatedWith('bool')->toInstance(true);
+                $this->bind()->annotatedWith('null')->toInstance(null);
+                $this->bind()->annotatedWith('int')->toInstance(1);
+                $this->bind()->annotatedWith('float')->toInstance(1.0);
+                $this->bind()->annotatedWith('string')->toInstance('ray');
+                $this->bind()->annotatedWith('no_index_array')->toInstance([1, 2]);
+                $this->bind()->annotatedWith('assoc')->toInstance(['a' => 1]);
+                $this->bind()->annotatedWith('object')->toInstance(new DateTime());
+            }
+        };
+        $this->compiler->compile($module, $this->scriptDir);
+        $this->assertSame(true, $this->injector->getInstance('', 'bool'));
+        $this->assertSame(null, $this->injector->getInstance('', 'null'));
+        $this->assertSame(1, $this->injector->getInstance('', 'int'));
+        $this->assertSame(1.0, $this->injector->getInstance('', 'float'));
+        $this->assertSame('ray', $this->injector->getInstance('', 'string'));
+        $this->assertSame([1, 2], $this->injector->getInstance('', 'no_index_array'));
+        $this->assertSame(['a' => 1], $this->injector->getInstance('', 'assoc'));
+        $this->assertInstanceOf(DateTime::class, $this->injector->getInstance('', 'object'));
     }
 }
