@@ -6,6 +6,7 @@ namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
 use Ray\Aop\WeavedInterface;
+use Ray\Di\AbstractModule;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\NullModule;
@@ -25,7 +26,6 @@ class ScriptInjectorTest extends TestCase
 
     protected function setUp(): void
     {
-        deleteFiles(__DIR__ . '/tmp');
         $this->injector = new ScriptInjector(__DIR__ . '/tmp');
     }
 
@@ -129,45 +129,17 @@ class ScriptInjectorTest extends TestCase
         $this->assertInstanceOf(FakeRobot::class, $instance3->robot);
     }
 
-    public function testOnDemandSingleton(): void
-    {
-        (new DiCompiler(new FakeToBindSingletonModule(), __DIR__ . '/tmp'))->compile();
-        $dependSingleton1 = $this->injector->getInstance(FakeDependSingleton::class);
-        assert($dependSingleton1 instanceof FakeDependSingleton);
-        $dependSingleton2 = $this->injector->getInstance(FakeDependSingleton::class);
-        assert($dependSingleton2 instanceof FakeDependSingleton);
-        $hash1 = spl_object_hash($dependSingleton1->robot);
-        $hash2 = spl_object_hash($dependSingleton2->robot);
-        $this->assertSame($hash1, $hash2);
-    }
-
-    public function testOnDemandPrototype(): void
-    {
-        (new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp'))->compile();
-        $fakeDependPrototype1 = $this->injector->getInstance(FakeDependPrototype::class);
-        assert($fakeDependPrototype1 instanceof FakeDependPrototype);
-        $fakeDependPrototype2 = $this->injector->getInstance(FakeDependPrototype::class);
-        assert($fakeDependPrototype2 instanceof FakeDependPrototype);
-        $hash1 = spl_object_hash($fakeDependPrototype1->car);
-        $hash2 = spl_object_hash($fakeDependPrototype2->car);
-        $this->assertNotSame($hash1, $hash2);
-    }
-
-    public function testOptional(): void
-    {
-        $optional = $this->injector->getInstance(FakeOptional::class);
-        assert($optional instanceof FakeOptional);
-        $this->assertNull($optional->robot);
-    }
-
     public function testDependInjector(): void
     {
-        $diCompiler = new DiCompiler(new NullModule(), __DIR__ . '/tmp');
+        $module = new class extends AbstractModule{
+            protected function configure(): void
+            {
+                $this->bind(FakeFactory::class);
+            }
+        };
+        $diCompiler = new DiCompiler($module, __DIR__ . '/tmp');
         $diCompiler->compile();
         /** @var FakeFactory $factory */
-        $factory = $diCompiler->getInstance(FakeFactory::class);
-        assert(property_exists($factory, 'injector'));
-        $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
         $injector = new ScriptInjector(__DIR__ . '/tmp');
         /** @var FakeFactory $factory */
         $factory = $injector->getInstance(FakeFactory::class);

@@ -77,14 +77,21 @@ final class AirInjector implements ScriptInjectorInterface
                 );
             };
 
+            $injector = function (): self {
+                return $this;
+            };
+
             $prototype =
                 /**
                  * @param array{0: string, 1: string, 2: string} $ip
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, array $ip = ['', '', '']) use ($injectionPoint) {
+                function (string $dependencyIndex, array $ip = ['', '', '']) use ($injectionPoint, &$prototype, $injector, &$singleton) {
                     assert(is_callable($injectionPoint));
+                    assert(is_callable($prototype));
+                    assert(is_callable($injector));
+                    assert(is_callable($singleton));
                     $this->ip = $ip; // @phpstan-ignore-line
 
                     return require $this->getInstanceFile($dependencyIndex);
@@ -95,8 +102,11 @@ final class AirInjector implements ScriptInjectorInterface
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, $ip = ['', '', ''])  use ($injectionPoint){
+                function (string $dependencyIndex, $ip = ['', '', '']) use ($injectionPoint, $prototype, $injector, &$singleton) {
                     assert(is_callable($injectionPoint));
+                    assert(is_callable($prototype));
+                    assert(is_callable($injector));
+                    assert(is_callable($singleton));
                     if (isset($this->singletons[$dependencyIndex])) {
                         return $this->singletons[$dependencyIndex];
                     }
@@ -109,9 +119,6 @@ final class AirInjector implements ScriptInjectorInterface
                     return $instance;
                 };
             $scriptDir = $this->scriptDir;
-            $injector = function (): self {
-                return $this;
-            };
         }
 
         $dependencyIndex = $interface . '-' . $name;

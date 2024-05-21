@@ -8,7 +8,6 @@ use Ray\Aop\Bind;
 use Ray\Di\Argument;
 use Ray\Di\Arguments;
 use Ray\Di\AspectBind;
-use Ray\Di\Compiler\InstanceScript;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\Exception\Unbound;

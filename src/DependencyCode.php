@@ -18,6 +18,7 @@ use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
 use Ray\Di\Instance;
 use Ray\Di\NewInstance;
+use Ray\Di\NullObjectDependency;
 use Ray\Di\SetContextInterface;
 use Ray\Di\SetterMethod;
 use Ray\Di\SetterMethods;

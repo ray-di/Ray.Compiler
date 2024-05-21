@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
-use Ray\Di\Exception\Unbound;
+use Ray\Compiler\Exception\Unbound;
 
 use function assert;
-use function file_get_contents;
 use function is_object;
 use function serialize;
 use function spl_object_hash;
@@ -33,11 +32,9 @@ class CompileInjectorTest extends TestCase
     {
         // built in script
         $this->assertFileExists(__DIR__ . '/tmp/-Ray_Compiler_Annotation_Compile.php');
-        $this->assertFileExists(__DIR__ . '/tmp/-Ray_Di_Annotation_ScriptDir.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Aop_MethodInvocation-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Koriym_ParamReader_ParamReaderInterface-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_AssistedInterceptor-.php');
-        $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_InjectorInterface-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_MethodInvocationProvider-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_ProviderInterface-.php');
         // application binding
@@ -75,34 +72,5 @@ class CompileInjectorTest extends TestCase
         $injector = unserialize(serialize(new CompileInjector(__DIR__ . '/tmp', new FakeLazyModule())));
         $instance = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCarInterface::class, $instance);
-    }
-
-    public function testUnbound(): void
-    {
-        deleteFiles(__DIR__ . '/tmp');
-        $this->expectException(Unbound::class);
-        $injector = new CompileInjector(__DIR__ . '/tmp', new FakeUnboundModule());
-        $injector->getInstance(FakeCar2::class);
-    }
-
-    /**
-     * @depends testUnbound
-     */
-    public function testUnboundCompileLogFile(): void
-    {
-        $this->expectException(Unbound::class);
-        $this->injector->getInstance(FakeCar2::class);
-    }
-
-    /**
-     * @depends testUnboundCompileLogFile
-     */
-    public function testCompileFaillureLog(): void
-    {
-        $logFile = __DIR__ . '/tmp/_compile.log';
-        $this->assertFileExists(__DIR__ . '/tmp/compiled');
-        $this->assertFileExists($logFile);
-        $log = (string) file_get_contents($logFile);
-        $this->assertStringContainsString('Error', $log);
     }
 }

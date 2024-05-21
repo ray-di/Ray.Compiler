@@ -14,6 +14,7 @@ class FakeAssistedConsumer
      *
      * @Assisted({"robot"})
      */
+    #[Assisted(["robot"])]
     public function assistOne($a, $b, ?FakeRobotInterface $robot = null)
     {
         unset($a, $b);
@@ -25,6 +26,7 @@ class FakeAssistedConsumer
      * @Assisted({"var1"})
      * @Named("var1=one")
      */
+    #[Assisted(['var1'])]
     public function assistWithName($a, $var1 = null)
     {
         unset($a);
@@ -39,6 +41,7 @@ class FakeAssistedConsumer
      * @Assisted({"var2", "robot"})
      * @Named("var2=one")
      */
+    #[Assisted(['var2', 'robot'])]
     public function assistAny($var2 = null, ?FakeRobotInterface $robot = null)
     {
         return [$var2, $robot];

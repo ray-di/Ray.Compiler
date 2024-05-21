@@ -4,19 +4,39 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
+use Ray\Di\Bind;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
+use function sprintf;
 
 final class DiCompiler implements InjectorInterface
 {
     /** @var AirInjector */
     private $injector;
 
+    private $module;
+    private $scriptDir;
+
     public function __construct(AbstractModule $module, string $scriptDir)
     {
-        (new Compiler())->compile($module, $scriptDir);
+        $this->module = $module;
+        $this->scriptDir = $scriptDir;
         $this->injector = new AirInjector($scriptDir);
+        $injectorModule = new class($this->injector) extends AbstractModule {
+            private $injector;
+            public  function __construct(InjectorInterface $injector)
+            {
+                $this->injector = $injector;
+            }
+            protected function configure()
+            {
+                $this->bind(InjectorInterface::class)->toInstance($this->injector);
+            }
+        };
+        $module->install($injectorModule);
+        (new Compiler())->compile($module, $scriptDir);
     }
 
     /**
