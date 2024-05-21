@@ -7,7 +7,6 @@ namespace Ray\Compiler;
 use Countable;
 
 use function count;
-use function file_put_contents;
 use function sprintf;
 use function str_replace;
 
@@ -32,10 +31,11 @@ final class Scripts implements Countable
 <?php
 %s
 EOL;
+        $filePutContents = new FilePutContents();
         foreach ($this->scripts as $index => $script) {
             $file = sprintf('%s/%s.php', $scriptDir, str_replace('\\', '_', $index));
             $script = sprintf($template, $script);
-            file_put_contents($file, $script);
+            $filePutContents($file, $script);
         }
     }
 }
