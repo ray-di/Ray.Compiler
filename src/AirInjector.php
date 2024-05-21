@@ -9,17 +9,10 @@ use Ray\Di\Name;
 use ReflectionParameter;
 
 use function file_exists;
-use function glob;
 use function in_array;
-use function is_dir;
-use function rmdir;
-use function rtrim;
 use function spl_autoload_register;
 use function sprintf;
 use function str_replace;
-use function unlink;
-
-use const DIRECTORY_SEPARATOR;
 
 final class AirInjector implements ScriptInjectorInterface
 {

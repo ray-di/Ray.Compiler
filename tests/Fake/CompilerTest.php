@@ -32,8 +32,7 @@ class CompilerTest extends TestCase
             }
         };
 
-        $scripts = $this->compiler->compile($module);
-        $scripts->save($this->scriptDir);
+        $scripts = $this->compiler->compile($module, $this->scriptDir);
         $this->assertInstanceOf(Scripts::class, $scripts);
         $this->assertEquals(1, count($scripts));
         $instance = $this->injector->getInstance(FakeFooInterface::class);
@@ -49,8 +48,7 @@ class CompilerTest extends TestCase
             }
         };
 
-        $scripts = $this->compiler->compile($module);
-        $scripts->save($this->scriptDir);
+        $this->compiler->compile($module, $this->scriptDir);
         $instance1 = $this->injector->getInstance(FakeFooInterface::class);
         $instance2 = $this->injector->getInstance(FakeFooInterface::class);
         $this->assertSame(spl_object_hash($instance1), spl_object_hash($instance2));
@@ -65,8 +63,7 @@ class CompilerTest extends TestCase
             }
         };
 
-        $scripts = $this->compiler->compile($module);
-        $scripts->save($this->scriptDir);
+        $this->compiler->compile($module, $this->scriptDir);
         $instance = $this->injector->getInstance('', 'foo');
         $this->assertSame('foo_instance', $instance);
     }
@@ -81,8 +78,7 @@ class CompilerTest extends TestCase
             }
         };
 
-        $scripts = $this->compiler->compile($module);
-        $scripts->save($this->scriptDir);
+        $this->compiler->compile($module, $this->scriptDir);
         $instance = $this->injector->getInstance(FakeFooInterface::class);
         $this->assertInstanceOf(FakeFoo::class, $instance);
     }
@@ -102,9 +98,48 @@ class CompilerTest extends TestCase
                 $this->bind(FakeHandleInterface::class)->toProvider(FakeHandleProvider::class);
             }
         };
-        $scripts = $this->compiler->compile($module);
-        $scripts->save($this->scriptDir);
+        $this->compiler->compile($module, $this->scriptDir);
         $instance = $this->injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $instance);
+    }
+
+    public function testCompileAop(): void
+    {
+        $module = new class() extends AbstractModule{
+            protected function configure()
+            {
+                $this->bind(FakeAopInterface::class)->to(FakeAop::class);
+                $this->bindInterceptor(
+                    $this->matcher->any(),
+                    $this->matcher->any(),
+                    [FakeDoubleInterceptor::class]
+                );
+            }
+        };
+        $this->compiler->compile($module, $this->scriptDir);
+        $instance = $this->injector->getInstance(FakeAopInterface::class);
+        $this->assertInstanceOf(FakeAop::class, $instance);
+        $double = $instance->returnSame(2);
+        $this->assertSame(4, $double);
+    }
+
+    public function testCompileAopDubleInterceptor(): void
+    {
+        $module = new class() extends AbstractModule{
+            protected function configure()
+            {
+                $this->bind(FakeAopInterface::class)->to(FakeAop::class);
+                $this->bindInterceptor(
+                    $this->matcher->any(),
+                    $this->matcher->any(),
+                    [FakeDoubleInterceptor::class, FakeDoubleInterceptor::class]
+                );
+            }
+        };
+        $this->compiler->compile($module, $this->scriptDir);
+        $instance = $this->injector->getInstance(FakeAopInterface::class);
+        $this->assertInstanceOf(FakeAop::class, $instance);
+        $double = $instance->returnSame(2);
+        $this->assertSame(8, $double);
     }
 }

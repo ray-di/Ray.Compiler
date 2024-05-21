@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Ray\Aop\Bind;
 use Ray\Di\Argument;
 use Ray\Di\Arguments;
+use Ray\Di\AspectBind;
 use Ray\Di\Compiler\InstanceScript;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
@@ -35,6 +37,11 @@ final class CompileVisitor implements VisitorInterface
     {
         $this->container = $container;
         $this->script = new InstanceScript();
+    }
+
+    public function visitAspectBind(Bind $aopBind)
+    {
+        $this->script->pushAspectBind($aopBind);
     }
 
     public function visitProvider(
@@ -70,11 +77,16 @@ final class CompileVisitor implements VisitorInterface
     public function visitNewInstance(
         string $class,
         SetterMethods $setterMethods,
-        ?Arguments $arguments
+        ?Arguments $arguments,
+        ?AspectBind $bind
     ) {
         $setterMethods->accept($this);
         if ($arguments) {
             $arguments->accept($this);
+        }
+
+        if ($bind) {
+            $bind->accept($this);
         }
 
         $this->script->pushClass($class);
