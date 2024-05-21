@@ -9,6 +9,7 @@ use Ray\Compiler\CompileVisitor\FakeFooInterface;
 use Ray\Compiler\CompileVisitor\FakeFooProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\Scope;
+use function get_class;
 use function spl_object_hash;
 
 class CompilerTest extends TestCase
@@ -143,6 +144,7 @@ class CompilerTest extends TestCase
         $double = $instance->returnSame(2);
         $this->assertSame(8, $double);
     }
+
     public function testCompileInstnce(): void
     {
         $module = new class() extends AbstractModule{
@@ -167,5 +169,19 @@ class CompilerTest extends TestCase
         $this->assertSame([1, 2], $this->injector->getInstance('', 'no_index_array'));
         $this->assertSame(['a' => 1], $this->injector->getInstance('', 'assoc'));
         $this->assertInstanceOf(DateTime::class, $this->injector->getInstance('', 'object'));
+    }
+
+    public function testCompileNull(): void
+    {
+        $module = new class() extends AbstractModule{
+            protected function configure()
+            {
+                $this->bind(FakeFooInterface::class)->toNull();
+            }
+        };
+        $this->compiler->compile($module, $this->scriptDir);
+        $nullInstance = $this->injector->getInstance(FakeFooInterface::class);
+        $this->assertInstanceOf(FakeFooInterface::class, $nullInstance);
+        $this->assertIsString(get_class($nullInstance));
     }
 }
