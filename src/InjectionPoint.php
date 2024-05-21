@@ -6,18 +6,13 @@ namespace Ray\Compiler;
 
 use Ray\Aop\ReflectionClass;
 use Ray\Aop\ReflectionMethod;
+use Ray\Di\Di\Qualifier;
 use Ray\Di\InjectionPointInterface;
+use Ray\ServiceLocator\ServiceLocator;
 use ReflectionParameter;
-use RuntimeException;
 
 use function assert;
 use function class_exists;
-use function file_exists;
-use function file_get_contents;
-use function is_bool;
-use function sprintf;
-use function str_replace;
-use function unserialize;
 
 final class InjectionPoint implements InjectionPointInterface
 {
@@ -86,30 +81,17 @@ final class InjectionPoint implements InjectionPointInterface
     public function getQualifier()
     {
         $class = $this->parameter->getDeclaringClass();
+        $method = $this->parameter->getDeclaringFunction();
         assert($class instanceof \ReflectionClass);
-
-        $qualifierFile = sprintf(
-            ScriptInjector::QUALIFIER,
-            $this->scriptDir,
-            str_replace('\\', '_', $class->name),
-            $this->parameter->getDeclaringFunction()->name,
-            $this->parameter->name
-        );
-        // @codeCoverageIgnoreStart
-        if (! file_exists($qualifierFile)) {
-            return null;
+        $reader = ServiceLocator::getReader();
+        $annotations = $reader->getMethodAnnotations($method);
+        foreach ($annotations as $annotation) {
+            $qualifier = $reader->getClassAnnotation(new \ReflectionClass($annotation), Qualifier::class);
+            if ($qualifier instanceof Qualifier) {
+                return $annotation;
+            }
         }
 
-        // @codeCoverageIgnoreEnd
-
-        $qualifierString = file_get_contents($qualifierFile);
-        if (is_bool($qualifierString)) {
-            throw new RuntimeException(); // @codeCoverageIgnore
-        }
-
-        /** @var ?object $qualifier */
-        $qualifier = unserialize($qualifierString, ['allowed_classes' => true]);
-
-        return $qualifier;
+        return null;
     }
 }
