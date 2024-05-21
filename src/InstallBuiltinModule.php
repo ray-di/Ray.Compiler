@@ -20,7 +20,7 @@ final class InstallBuiltinModule
         $module->install(new PramReaderModule());
         $hasMultiBindings = count($module->getContainer()->multiBindings);
         if ($hasMultiBindings) {
-            $module->install(new MapModule());
+            $module->override(new MapModule());
         }
 
         return $module;
