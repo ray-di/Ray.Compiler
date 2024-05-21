@@ -20,7 +20,7 @@ class CompilerTest extends TestCase
     {
         $this->compiler = new Compiler();
         $this->scriptDir = __DIR__ . '/tmp';
-        $this->injector = new VisitorInjector($this->scriptDir);
+        $this->injector = new AirInjector($this->scriptDir);
     }
 
     public function testCompile(): void

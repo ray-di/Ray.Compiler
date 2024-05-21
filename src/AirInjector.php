@@ -21,7 +21,7 @@ use function unlink;
 
 use const DIRECTORY_SEPARATOR;
 
-final class VisitorInjector implements ScriptInjectorInterface
+final class AirInjector implements ScriptInjectorInterface
 {
     /** @var string */
     private $scriptDir;
@@ -41,9 +41,6 @@ final class VisitorInjector implements ScriptInjectorInterface
      * @var array<object>
      */
     private $singletons = [];
-
-    /** @var array<callable> */
-    private $functions;
 
     /** @var array<string> */
     private static $scriptDirs = [];
