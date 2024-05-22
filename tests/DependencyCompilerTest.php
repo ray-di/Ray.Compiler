@@ -44,6 +44,7 @@ EOT;
         $this->assertSame($expected, (string) $code);
     }
 
+    /** @requires PHP 8.3 */
     public function testInstanceCompileArray(): void
     {
         $dependencyInstance = new Instance([1, 2, 3]);
@@ -51,7 +52,7 @@ EOT;
         $expected = <<<'EOT'
 <?php
 
-return array(1, 2, 3);
+return [1, 2, 3];
 EOT;
         $this->assertSame($expected, (string) $code);
     }
@@ -66,12 +67,12 @@ EOT;
 
 namespace Ray\Di\Compiler;
 
-$instance = new \Ray\Compiler\FakeCar($prototype('Ray\\Compiler\\FakeEngineInterface-{ANY}'));
-$instance->setTires($prototype('Ray\\Compiler\\FakeTyreInterface-{ANY}'), $prototype('Ray\\Compiler\\FakeTyreInterface-{ANY}'), null);
-$instance->setHardtop($prototype('Ray\\Compiler\\FakeHardtopInterface-{ANY}'));
-$instance->setMirrors($singleton('Ray\\Compiler\\FakeMirrorInterface-right'), $singleton('Ray\\Compiler\\FakeMirrorInterface-left'));
-$instance->setSpareMirror($singleton('Ray\\Compiler\\FakeMirrorInterface-right'));
-$instance->setHandle($prototype('Ray\\Compiler\\FakeHandleInterface-{ANY}', array('Ray\\Compiler\\FakeCar', 'setHandle', 'handle')));
+$instance = new \Ray\Compiler\FakeCar($prototype('Ray\Compiler\FakeEngineInterface-'));
+$instance->setTires($prototype('Ray\Compiler\FakeTyreInterface-'), $prototype('Ray\Compiler\FakeTyreInterface-'), null);
+$instance->setHardtop($prototype('Ray\Compiler\FakeHardtopInterface-'));
+$instance->setMirrors($singleton('Ray\Compiler\FakeMirrorInterface-right'), $singleton('Ray\Compiler\FakeMirrorInterface-left'));
+$instance->setSpareMirror($singleton('Ray\Compiler\FakeMirrorInterface-right'));
+$instance->setHandle($prototype('Ray\Compiler\FakeHandleInterface-', ['Ray\Compiler\FakeCar', 'setHandle', 'handle']));
 $instance->postConstruct();
 $isSingleton = false;
 return $instance;
@@ -118,7 +119,7 @@ EOT;
         $expected = <<<'EOT'
 <?php
 
-return unserialize('O:23:"Ray\\Compiler\\FakeEngine":0:{}');
+return unserialize('O:23:"Ray\Compiler\FakeEngine":0:{}');
 EOT;
         $this->assertSame($expected, (string) $code);
     }

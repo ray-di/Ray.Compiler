@@ -47,7 +47,7 @@ class CachedFactoryTest extends TestCase
 
         return CachedInjectorFactory::getInstance(
             'prod',
-            __DIR__ . '/tmp/prod',
+            __DIR__ . '/tmp/',
             static function (): AbstractModule {
                 $module = new FakeToBindSingletonModule();
                 $module->install(new DiCompileModule(true));

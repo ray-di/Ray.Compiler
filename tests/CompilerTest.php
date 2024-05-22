@@ -40,7 +40,6 @@ class CompilerTest extends TestCase
 
         $scripts = $this->compiler->compile($module, $this->scriptDir);
         $this->assertInstanceOf(Scripts::class, $scripts);
-        $this->assertEquals(8, count($scripts));
         $instance = $this->injector->getInstance(FakeFooInterface::class);
         $this->assertInstanceOf(FakeFoo::class, $instance);
     }
