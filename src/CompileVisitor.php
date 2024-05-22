@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use Ray\Aop\Bind;
-use Ray\Di\Argument;
 use Ray\Di\Arguments;
 use Ray\Di\AspectBind;
 use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\NewInstance;
-use Ray\Di\SetterMethod;
 use Ray\Di\SetterMethods;
 use Ray\Di\VisitorInterface;
 use ReflectionParameter;
@@ -35,6 +33,7 @@ final class CompileVisitor implements VisitorInterface
         $this->script = new InstanceScript($container);
     }
 
+    /** @inheritDoc */
     public function visitDependency(
         NewInstance $newInstance,
         ?string $postConstruct,
@@ -45,6 +44,7 @@ final class CompileVisitor implements VisitorInterface
         return $this->script->getScript($postConstruct, $isSingleton);
     }
 
+    /** @inheritDoc */
     public function visitProvider(
         Dependency $dependency,
         string $context,
@@ -53,10 +53,10 @@ final class CompileVisitor implements VisitorInterface
         $this->script->pushProviderContext($context, $isSingleton);
         $script = $dependency->accept($this);
 
-        return str_replace('return $instance', 'return $instance->get()', $script);
+        return str_replace('return $instance', 'return $instance->get()', (string) $script);
     }
 
-    /** @param mixed $value */
+    /** @inheritDoc */
     public function visitInstance($value): string
     {
         if (is_scalar($value) || is_array($value)) {
@@ -74,11 +74,13 @@ final class CompileVisitor implements VisitorInterface
         throw new RuntimeException('Invalid instance value');
     }
 
+    /** @inheritDoc */
     public function visitAspectBind(Bind $aopBind)
     {
         $this->script->pushAspectBind($aopBind);
     }
 
+    /** @inheritDoc */
     public function visitNewInstance(
         string $class,
         SetterMethods $setterMethods,
@@ -97,9 +99,7 @@ final class CompileVisitor implements VisitorInterface
         $this->script->pushClass($class);
     }
 
-    /**
-     * @param SetterMethod[] $setterMethods
-     */
+    /** @inheritDoc */
     public function visitSetterMethods(
         array $setterMethods
     ) {
@@ -108,15 +108,14 @@ final class CompileVisitor implements VisitorInterface
         }
     }
 
+    /** @inheritDoc */
     public function visitSetterMethod(string $method, Arguments $arguments)
     {
         $arguments->accept($this);
         $this->script->pushMethod($method);
     }
 
-    /**
-     * @param Argument[] $arguments
-     */
+    /** @inheritDoc */
     public function visitArguments(
         array $arguments
     ) {
@@ -125,7 +124,7 @@ final class CompileVisitor implements VisitorInterface
         }
     }
 
-    /** @param scalar $defaultValue */
+    /** @inheritDoc */
     public function visitArgument(
         string $index,
         bool $isDefaultAvailable,

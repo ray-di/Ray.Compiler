@@ -15,7 +15,7 @@ final class Scripts implements Countable
     /** @var array<string, string> */
     private $scripts = [];
 
-    public function add(string $index, string $script)
+    public function add(string $index, string $script): void
     {
         $this->scripts[$index] = $script;
     }

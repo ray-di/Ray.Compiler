@@ -59,6 +59,7 @@ final class AirInjector implements InjectorInterface
      * {@inheritdoc}
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @psalm-suppress UnresolvableInclude
      */
     public function getInstance($interface, $name = Name::ANY)
     {

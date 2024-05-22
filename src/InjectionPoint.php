@@ -81,8 +81,9 @@ final class InjectionPoint implements InjectionPointInterface
     public function getQualifier()
     {
         $class = $this->parameter->getDeclaringClass();
-        $method = $this->parameter->getDeclaringFunction();
+        $methodName = $this->parameter->getDeclaringFunction()->getName();
         assert($class instanceof \ReflectionClass);
+        $method = new \ReflectionMethod($class->getName(), $methodName);
         $reader = ServiceLocator::getReader();
         $annotations = $reader->getMethodAnnotations($method);
         foreach ($annotations as $annotation) {

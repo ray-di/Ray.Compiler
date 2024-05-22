@@ -6,7 +6,11 @@ namespace Ray\Compiler;
 
 use Ray\Aop\Compiler as AopCompiler;
 use Ray\Di\AbstractModule;
+use Ray\Di\AcceptInterface;
 use Ray\Di\DependencyInterface;
+
+use function assert;
+use function is_string;
 
 final class Compiler
 {
@@ -24,7 +28,9 @@ final class Compiler
         // Compile dependencies
         $compileVisitor = new CompileVisitor($container);
         $container->map(static function (DependencyInterface $dependency, string $key) use ($scripts, $compileVisitor): DependencyInterface {
+            assert($dependency instanceof AcceptInterface);
             $script = $dependency->accept($compileVisitor);
+            assert(is_string($script));
             $scripts->add($key, $script);
 
             return $dependency;

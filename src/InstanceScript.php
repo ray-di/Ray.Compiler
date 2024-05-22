@@ -38,7 +38,7 @@ final class InstanceScript
     private $laterLines = [];  // Setter injection and postConstruct
 
     /** @var string */
-    private $context;
+    private $context = '';
 
     /** @var bool */
     private $implementsSetContext = false;
@@ -56,9 +56,9 @@ final class InstanceScript
     }
 
     /**
-     * @param scalar $defaultValue
+     * @param mixed $defaultValue
      */
-    public function addArg(string $index, bool $isDefaultAvailable, $defaultValue, ReflectionParameter $parameter)
+    public function addArg(string $index, bool $isDefaultAvailable, $defaultValue, ReflectionParameter $parameter): void
     {
         if (! isset($this->container[$index])) {
             if ($isDefaultAvailable) {
@@ -95,7 +95,8 @@ final class InstanceScript
 
     private function addDependencyArg(bool $isSingleton, string $index, ReflectionParameter $parameter): void
     {
-        $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->name, $parameter->getDeclaringFunction()->getName(), $parameter->name);
+        /** @psalm-suppress PossiblyNullReference / The $parameter here can never be null */
+        $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->getName(), $parameter->getDeclaringFunction()->getName(), $parameter->name);
         $func = $isSingleton ? '$singleton' : '$prototype';
             $arg = sprintf("%s('%s', %s)", $func, $index, $ip);
         $this->args[] = $arg;
