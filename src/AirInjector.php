@@ -167,7 +167,7 @@ final class AirInjector implements InjectorInterface
                     foreach (self::$scriptDirs as $scriptDir) {
                         $file = sprintf('%s/%s.php', $scriptDir, str_replace('\\', '_', $class));
                         if (file_exists($file)) {
-                            require $file; // @codeCoverageIgnore
+                            require_once $file; // @codeCoverageIgnore
                         }
                     }
                 }
