@@ -16,6 +16,7 @@ use Ray\Di\NewInstance;
 use Ray\Di\SetterMethod;
 use Ray\Di\SetterMethods;
 use Ray\Di\VisitorInterface;
+use ReflectionParameter;
 use RuntimeException;
 
 use function is_array;
@@ -135,7 +136,8 @@ final class CompileVisitor implements VisitorInterface
     public function visitArgument(
         string $index,
         bool $isDefaultAvailable,
-        $defaultValue
+        $defaultValue,
+        ReflectionParameter $parameter
     ): void {
         try {
             if ($index === 'Ray\Di\InjectorInterface-') {
@@ -156,11 +158,17 @@ final class CompileVisitor implements VisitorInterface
                 return;
             }
 
-            $this->script->addArgDependency($this->container->isSingleton($index), $index);
+            $this->script->addArgDependency($this->container->isSingleton($index), $index, $parameter);
         } catch (Unbound $e) {
+            if ($index === 'Ray\Di\MultiBinding\MultiBindings-') {
+                return;
+            }
+
             if (! $isDefaultAvailable) {
                 throw new Unbound($index);
             }
+
+            $this->script->addInstanceArg(var_export($defaultValue, true));
         }
     }
 }

@@ -65,31 +65,39 @@ final class AirInjector implements ScriptInjectorInterface
         static $prototype;
         static $singleton;
         static $injector;
+        static $injectionPoint;
 
         if ($prototype === null) {
+            $injectionPoint = function (): InjectionPoint {
+                return new InjectionPoint(
+                    new ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2]),
+                    $this->scriptDir
+                );
+            };
+
             $prototype =
                 /**
-                 * @param array{0: string, 1: string, 2: string} $injectionPoint
+                 * @param array{0: string, 1: string, 2: string} $ip
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, array $injectionPoint = ['', '', '']) {
-                    $this->ip = $injectionPoint; // @phpstan-ignore-line
+                function (string $dependencyIndex, array $ip = ['', '', '']) {
+                    $this->ip = $ip; // @phpstan-ignore-line
 
                     return require $this->getInstanceFile($dependencyIndex);
                 };
             $singleton =
                 /**
-                 * @param array{0: string, 1: string, 2: string} $injectionPoint
+                 * @param array{0: string, 1: string, 2: string} $ip
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, $injectionPoint = ['', '', '']) {
+                function (string $dependencyIndex, $ip = ['', '', '']) {
                     if (isset($this->singletons[$dependencyIndex])) {
                         return $this->singletons[$dependencyIndex];
                     }
 
-                    $this->ip = $injectionPoint;
+                    $this->ip = $ip;
 
                     $instance = require $this->getInstanceFile($dependencyIndex);
                     $this->singletons[$dependencyIndex] = $instance;
@@ -97,12 +105,6 @@ final class AirInjector implements ScriptInjectorInterface
                     return $instance;
                 };
             $scriptDir = $this->scriptDir;
-            $injectionPoint = function (): InjectionPoint {
-                return new InjectionPoint(
-                    new ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2]),
-                    $this->scriptDir
-                );
-            };
             $injector = function (): self {
                 return $this;
             };
