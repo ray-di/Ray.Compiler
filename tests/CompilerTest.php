@@ -17,8 +17,13 @@ use function spl_object_hash;
 
 class CompilerTest extends TestCase
 {
+    /** @var Compiler */
     private $compiler;
+
+    /** @var AirInjector */
     private $injector;
+
+    /** @var string */
     private $scriptDir;
 
     public function setUp(): void

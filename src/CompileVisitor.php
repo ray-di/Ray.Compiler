@@ -18,7 +18,6 @@ use ReflectionParameter;
 use RuntimeException;
 
 use function is_array;
-use function is_null;
 use function is_object;
 use function is_scalar;
 use function serialize;
@@ -52,13 +51,14 @@ final class CompileVisitor implements VisitorInterface
         return str_replace('return $instance', 'return $instance->get()', $script);
     }
 
+    /** @param mixed $value */
     public function visitInstance($value): string
     {
         if (is_scalar($value) || is_array($value)) {
             return sprintf('return %s;', var_export($value, true));
         }
 
-        if (is_null($value)) {
+        if ($value === null) {
             return 'return null;';
         }
 
@@ -125,6 +125,7 @@ final class CompileVisitor implements VisitorInterface
         }
     }
 
+    /** @param scalar $defaultValue */
     public function visitArgument(
         string $index,
         bool $isDefaultAvailable,

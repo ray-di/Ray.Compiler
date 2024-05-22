@@ -8,6 +8,7 @@ use Ray\Di\Name;
 
 final class CompileInjector implements ScriptInjectorInterface
 {
+    /** @var AirInjector  */
     private $injector;
 
     public function __construct(string $scriptDir, LazyModuleInterface $lazy)

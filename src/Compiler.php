@@ -22,7 +22,8 @@ final class Compiler
         // Weave aspects
         $container->weaveAspects(new AopCompiler($scriptDir));
         // Compile dependencies
-        $compileVisitor = new CompileVisitor($container);$container->map(static function (DependencyInterface $dependency, string $key) use ($scripts, $compileVisitor): DependencyInterface {
+        $compileVisitor = new CompileVisitor($container);
+        $container->map(static function (DependencyInterface $dependency, string $key) use ($scripts, $compileVisitor): DependencyInterface {
             $script = $dependency->accept($compileVisitor);
             $scripts->add($key, $script);
 

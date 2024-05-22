@@ -28,8 +28,13 @@ use const PHP_EOL;
 
 final class InstanceScript
 {
+    /** @var array<mixed> */
     private $args = [];
+
+    /** @var array<string> */
     private $formerLines = []; // Constructor injection and AOP
+
+    /** @var array<string> */
     private $laterLines = [];  // Setter injection and postConstruct
 
     /** @var string */
@@ -50,6 +55,9 @@ final class InstanceScript
         $this->container = $container->getContainer();
     }
 
+    /**
+     * @param scalar $defaultValue
+     */
     public function addArg(string $index, bool $isDefaultAvailable, $defaultValue, ReflectionParameter $parameter)
     {
         if (! isset($this->container[$index])) {
@@ -93,6 +101,9 @@ final class InstanceScript
         $this->args[] = $arg;
     }
 
+    /**
+     * @param mixed $default
+     */
     public function addInstanceArg($default): void
     {
         if (is_object($default)) {

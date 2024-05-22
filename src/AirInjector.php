@@ -9,10 +9,8 @@ use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use ReflectionParameter;
 
-use function assert;
 use function file_exists;
 use function in_array;
-use function is_callable;
 use function spl_autoload_register;
 use function sprintf;
 use function str_replace;
@@ -42,8 +40,7 @@ final class AirInjector implements InjectorInterface
     private static $scriptDirs = [];
 
     /**
-     * @param string   $scriptDir  generated instance script folder path
-     * @param callable $lazyModule callable variable which return AbstractModule instance
+     * @param string $scriptDir generated instance script folder path
      *
      * @psalm-suppress UnresolvableInclude
      */
@@ -89,10 +86,6 @@ final class AirInjector implements InjectorInterface
                  * @return mixed
                  */
                 function (string $dependencyIndex, array $ip = ['', '', '']) use ($injectionPoint, &$prototype, $injector, &$singleton) {
-                    assert(is_callable($injectionPoint));
-                    assert(is_callable($prototype));
-                    assert(is_callable($injector));
-                    assert(is_callable($singleton));
                     $this->ip = $ip; // @phpstan-ignore-line
 
                     return require $this->getInstanceFile($dependencyIndex);
@@ -104,10 +97,6 @@ final class AirInjector implements InjectorInterface
                  * @return mixed
                  */
                 function (string $dependencyIndex, $ip = ['', '', '']) use ($injectionPoint, $prototype, $injector, &$singleton) {
-                    assert(is_callable($injectionPoint));
-                    assert(is_callable($prototype));
-                    assert(is_callable($injector));
-                    assert(is_callable($singleton));
                     if (isset($this->singletons[$dependencyIndex])) {
                         return $this->singletons[$dependencyIndex];
                     }
