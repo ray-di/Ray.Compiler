@@ -57,6 +57,7 @@ EOT;
         $this->assertSame($expected, (string) $code);
     }
 
+    /** @requires PHP 8.3 */
     public function testDependencyCompile(): void
     {
         $container = (new FakeCarModule())->getContainer();
@@ -111,6 +112,7 @@ EOT;
         $this->assertSame($expected, (string) $code);
     }
 
+    /** @requires PHP 8.3 */
     public function testDependencyObjectInstanceCompile(): void
     {
         $container = (new FakeCarModule())->getContainer();
