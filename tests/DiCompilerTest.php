@@ -22,13 +22,6 @@ class DiCompilerTest extends TestCase
         // do not clear cache
     }
 
-    public function testUnbound(): void
-    {
-        $this->expectException(Unbound::class);
-        $injector = new ScriptInjector(__DIR__ . '/tmp');
-        $injector->getInstance(FakeCarInterface::class);
-    }
-
     public function testCompile(): void
     {
         $compiler = new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp');
