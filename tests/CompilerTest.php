@@ -12,7 +12,6 @@ use Ray\Compiler\CompileVisitor\FakeFooProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\Scope;
 
-use function count;
 use function get_class;
 use function spl_object_hash;
 
