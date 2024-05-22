@@ -35,9 +35,14 @@ final class CompileVisitor implements VisitorInterface
         $this->script = new InstanceScript($container);
     }
 
-    public function visitAspectBind(Bind $aopBind)
-    {
-        $this->script->pushAspectBind($aopBind);
+    public function visitDependency(
+        NewInstance $newInstance,
+        ?string $postConstruct,
+        bool $isSingleton
+    ): string {
+        $newInstance->accept($this);
+
+        return $this->script->getScript($postConstruct, $isSingleton);
     }
 
     public function visitProvider(
@@ -69,14 +74,9 @@ final class CompileVisitor implements VisitorInterface
         throw new RuntimeException('Invalid instance value');
     }
 
-    public function visitDependency(
-        NewInstance $newInstance,
-        ?string $postConstruct,
-        bool $isSingleton
-    ): string {
-        $newInstance->accept($this);
-
-        return $this->script->getScript($postConstruct, $isSingleton);
+    public function visitAspectBind(Bind $aopBind)
+    {
+        $this->script->pushAspectBind($aopBind);
     }
 
     public function visitNewInstance(
