@@ -28,7 +28,6 @@ final class Compiler
         // Compile dependencies
         $compileVisitor = new CompileVisitor($container);
         $container->map(static function (DependencyInterface $dependency, string $key) use ($scripts, $compileVisitor): DependencyInterface {
-            assert($dependency instanceof AcceptInterface);
             $script = $dependency->accept($compileVisitor);
             assert(is_string($script));
             $scripts->add($key, $script);
