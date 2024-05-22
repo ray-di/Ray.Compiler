@@ -110,8 +110,8 @@ class DiCompilerTest extends TestCase
     {
         $compiler = new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp');
         $compiler->compile();
-        $maybeNull = $compiler->dumpGraph();
-        $this->assertNull($maybeNull);
+        $compiler->dumpGraph();
+        $this->assertTrue(true);
     }
 
     /**

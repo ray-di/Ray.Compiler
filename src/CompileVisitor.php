@@ -15,9 +15,11 @@ use Ray\Di\VisitorInterface;
 use ReflectionParameter;
 use RuntimeException;
 
+use function assert;
 use function is_array;
 use function is_object;
 use function is_scalar;
+use function is_string;
 use function serialize;
 use function sprintf;
 use function str_replace;
@@ -52,8 +54,9 @@ final class CompileVisitor implements VisitorInterface
     ): string {
         $this->script->pushProviderContext($context, $isSingleton);
         $script = $dependency->accept($this);
+        assert(is_string($script));
 
-        return str_replace('return $instance', 'return $instance->get()', (string) $script);
+        return str_replace('return $instance', 'return $instance->get()', $script);
     }
 
     /** @inheritDoc */

@@ -71,8 +71,7 @@ final class AirInjector implements InjectorInterface
         if ($prototype === null) {
             $injectionPoint = function (): InjectionPoint {
                 return new InjectionPoint(
-                    new ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2]),
-                    $this->scriptDir
+                    new ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2])
                 );
             };
 
@@ -86,7 +85,7 @@ final class AirInjector implements InjectorInterface
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, array $ip = ['', '', '']) use ($injectionPoint, &$prototype, $injector, &$singleton) {
+                function (string $dependencyIndex, array $ip = ['', '', '']) use ($injectionPoint, &$prototype, $injector, &$singleton) { // @phpstan-ignore-line
                     $this->ip = $ip; // @phpstan-ignore-line
 
                     return require $this->getInstanceFile($dependencyIndex);
@@ -97,7 +96,7 @@ final class AirInjector implements InjectorInterface
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, $ip = ['', '', '']) use ($injectionPoint, $prototype, $injector, &$singleton) {
+                function (string $dependencyIndex, $ip = ['', '', '']) use ($injectionPoint, $prototype, $injector, &$singleton) { // @phpstan-ignore-line
                     if (isset($this->singletons[$dependencyIndex])) {
                         return $this->singletons[$dependencyIndex];
                     }

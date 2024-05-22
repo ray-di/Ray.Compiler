@@ -137,7 +137,6 @@ class ScriptInjectorTest extends TestCase
         };
         $diCompiler = new DiCompiler($module, __DIR__ . '/tmp');
         $diCompiler->compile();
-        /** @var FakeFactory $factory */
         $injector = new ScriptInjector(__DIR__ . '/tmp');
         /** @var FakeFactory $factory */
         $factory = $injector->getInstance(FakeFactory::class);

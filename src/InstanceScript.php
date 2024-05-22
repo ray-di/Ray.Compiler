@@ -18,6 +18,7 @@ use function array_unshift;
 use function assert;
 use function implode;
 use function is_a;
+use function is_iterable;
 use function is_object;
 use function serialize;
 use function sprintf;
@@ -96,7 +97,7 @@ final class InstanceScript
     private function addDependencyArg(bool $isSingleton, string $index, ReflectionParameter $parameter): void
     {
         /** @psalm-suppress PossiblyNullReference / The $parameter here can never be null */
-        $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->getName(), $parameter->getDeclaringFunction()->getName(), $parameter->name);
+        $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->getName(), $parameter->getDeclaringFunction()->getName(), $parameter->name); //@phpstan-ignore-line
         $func = $isSingleton ? '$singleton' : '$prototype';
             $arg = sprintf("%s('%s', %s)", $func, $index, $ip);
         $this->args[] = $arg;
@@ -139,7 +140,8 @@ final class InstanceScript
     public function pushAspectBind(AopBind $aopBind): void
     {
         $aopBindings = unserialize((string) ($aopBind));
-        foreach ($aopBindings as $method => &$bindings) {
+        assert(is_iterable($aopBindings));
+        foreach ($aopBindings as &$bindings) {
             foreach ($bindings as &$binding) {
                 $binding = sprintf('$singleton(\'%s-\')', $binding);
             }

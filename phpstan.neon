@@ -6,5 +6,4 @@ parameters:
   excludePaths:
     - tests/tmp/*
     - tests/Fake/*
-  checkGenericClassInNonGenericObjectType: false
 

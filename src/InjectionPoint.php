@@ -19,13 +19,9 @@ final class InjectionPoint implements InjectionPointInterface
     /** @var ReflectionParameter */
     private $parameter;
 
-    /** @var string */
-    private $scriptDir;
-
-    public function __construct(ReflectionParameter $parameter, string $scriptDir)
+    public function __construct(ReflectionParameter $parameter)
     {
         $this->parameter = $parameter;
-        $this->scriptDir = $scriptDir;
     }
 
     /**
