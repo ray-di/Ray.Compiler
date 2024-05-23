@@ -119,7 +119,8 @@ final class CompileVisitor implements VisitorInterface
     }
 
     /** @inheritDoc */
-    public function visitArguments(array $arguments): void {
+    public function visitArguments(array $arguments): void
+    {
         foreach ($arguments as $argument) {
             $argument->accept($this);
         }

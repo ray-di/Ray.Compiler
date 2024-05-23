@@ -29,7 +29,7 @@ final class Compiler
     {
         // Lock
         $fp = fopen($scriptDir . '/compile.lock', 'a+');
-        if ($fp === false || !flock($fp, LOCK_EX)) {
+        if ($fp === false || ! flock($fp, LOCK_EX)) {
             // @CoverageIgnoreStart
             throw new CompileLockFailed($scriptDir);
             // @CoverageIgnoreEnd
