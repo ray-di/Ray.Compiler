@@ -23,6 +23,7 @@ final class Compiler
 {
     /**
      * Compiles a given module into Scripts
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function compile(AbstractModule $module, string $scriptDir): Scripts
