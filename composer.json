@@ -53,7 +53,7 @@
         "clean": ["phpstan clear-result-cache", "psalm --clear-cache", "rm -rf tests/tmp/*.php"],
         "sa": ["psalm -c psalm.compiler.xml --show-info=false", "phpstan analyse -c phpstan.neon --no-progress"],
         "metrics": ["@test", "phpmetrics --report-html=build/metrics --exclude=Exception --log-junit=build/junit.xml --junit=build/junit.xml src"],
-        "phpmd": ["phpmd src/di text ./phpmd.xml"],
+        "phpmd": ["phpmd src text ./phpmd.xml"],
         "build": ["@cs", "@sa", "@pcov", "@metrics"]
     },
     "extra": {
