@@ -13,9 +13,9 @@ use Ray\Di\NewInstance;
 use Ray\Di\SetterMethods;
 use Ray\Di\VisitorInterface;
 use ReflectionParameter;
-use RuntimeException;
 
 use function assert;
+use function gettype;
 use function is_array;
 use function is_object;
 use function is_scalar;
@@ -70,11 +70,9 @@ final class CompileVisitor implements VisitorInterface
             return 'return null;';
         }
 
-        if (is_object($value)) {
-            return sprintf('return unserialize(\'%s\');', serialize($value));
-        }
+        assert(! is_object($value), 'Invalid instance type:' . gettype($value));
 
-        throw new RuntimeException('Invalid instance value');
+        return sprintf('return unserialize(\'%s\');', serialize($value));
     }
 
     /** @inheritDoc */
