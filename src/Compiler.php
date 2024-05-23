@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Ray\Aop\Compiler as AopCompiler;
 use Ray\Compiler\Exception\CompileLockFailed;
 use Ray\Di\AbstractModule;
 use Ray\Di\AcceptInterface;
+use Ray\Di\ContainerFactory;
 use Ray\Di\DependencyInterface;
 
 use function assert;
@@ -37,11 +37,8 @@ final class Compiler
         }
 
         $scripts = new Scripts();
-        $container = (new InstallBuiltinModule())($module)->getContainer();
-        // Compile null objects
-        (new CompileNullObject())($container, $scriptDir);
-        // Compile aspects
-        $container->weaveAspects(new AopCompiler($scriptDir));
+        $module->install(new DiCompileModule(true));
+        $container = (new ContainerFactory())($module, $scriptDir);
         // Compile dependencies
         $compileVisitor = new CompileVisitor($container);
         $container->map(static function (DependencyInterface $dependency, string $key) use ($scripts, $compileVisitor): DependencyInterface {
