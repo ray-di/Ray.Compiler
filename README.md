@@ -9,15 +9,6 @@
 
 Ray.Compiler compiles Ray.Di bindings into PHP code, providing a performance boost that makes Dependency Injection couldn't be any faster.
 
-##  Script Injector
-
-`ScriptInjector` has the same interface as Ray.Di Injector; whereas Ray.Di Injector resolves dependencies based on memory bindings, ScriptInjector executes pre-compiled PHP code and is faster.
-
-Ray.Di injector
-```php
-$injector = new Injector(new CarModule); // Ray.Di injector
-```
-
 Ray.Compiler injector
 ```php
 $injector = new ScriptInjector($tmpDir, fn => new CarModule);
