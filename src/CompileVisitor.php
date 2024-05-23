@@ -78,7 +78,7 @@ final class CompileVisitor implements VisitorInterface
     }
 
     /** @inheritDoc */
-    public function visitAspectBind(Bind $aopBind)
+    public function visitAspectBind(Bind $aopBind): void
     {
         $this->script->pushAspectBind($aopBind);
     }
@@ -89,7 +89,7 @@ final class CompileVisitor implements VisitorInterface
         SetterMethods $setterMethods,
         ?Arguments $arguments,
         ?AspectBind $bind
-    ) {
+    ): void {
         $setterMethods->accept($this);
         if ($arguments) {
             $arguments->accept($this);
@@ -112,16 +112,14 @@ final class CompileVisitor implements VisitorInterface
     }
 
     /** @inheritDoc */
-    public function visitSetterMethod(string $method, Arguments $arguments)
+    public function visitSetterMethod(string $method, Arguments $arguments): void
     {
         $arguments->accept($this);
         $this->script->pushMethod($method);
     }
 
     /** @inheritDoc */
-    public function visitArguments(
-        array $arguments
-    ) {
+    public function visitArguments(array $arguments): void {
         foreach ($arguments as $argument) {
             $argument->accept($this);
         }
