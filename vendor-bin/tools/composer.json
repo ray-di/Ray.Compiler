@@ -6,7 +6,8 @@
         "phpstan/phpstan": "^1.0",
         "psalm/plugin-phpunit": "^0.13",
         "squizlabs/php_codesniffer": "^3.5",
-        "vimeo/psalm": "^4.2"
+        "vimeo/psalm": "^4.2",
+        "maglnet/composer-require-checker": "^4.11"
     },
     "config": {
         "allow-plugins": {
