@@ -9,14 +9,11 @@ use PHPUnit\Framework\TestCase;
 use Ray\Compiler\CompileVisitor\FakeFoo;
 use Ray\Compiler\CompileVisitor\FakeFooInterface;
 use Ray\Compiler\CompileVisitor\FakeFooProvider;
-use Ray\Compiler\Exception\CompileLockFailed;
 use Ray\Di\AbstractModule;
 use Ray\Di\Scope;
 
-use function exec;
 use function get_class;
 use function spl_object_hash;
-use function sprintf;
 
 class CompilerTest extends TestCase
 {
@@ -34,6 +31,7 @@ class CompilerTest extends TestCase
         $this->compiler = new Compiler();
         $this->scriptDir = __DIR__ . '/tmp';
         $this->injector = new AirInjector($this->scriptDir);
+        deleteFiles($this->scriptDir);
     }
 
     public function testCompile(): void
