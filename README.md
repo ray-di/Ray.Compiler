@@ -9,6 +9,10 @@
 
 Ray.Compiler compiles Ray.Di bindings into PHP code, providing a performance boost that makes Dependency Injection couldn't be any faster.
 
+## Compile Injector
+
+`CompileInjector` is designed to enhance performance by utilizing `Compiler` to compile modules and initializing `AirInjector` for managing dependencies. This approach ensures efficient dependency management and faster execution.
+
 ```php
 $injector = new CompileInjector($tmpDir, fn => new CarModule);
 $car = $injector->getInstance(CarInterface::class);
