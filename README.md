@@ -9,51 +9,16 @@
 
 Ray.Compiler compiles Ray.Di bindings into PHP code, providing a performance boost that makes Dependency Injection couldn't be any faster.
 
-Ray.Compiler injector
 ```php
-$injector = new ScriptInjector($tmpDir, fn => new CarModule);
+$injector = new CompileInjector($tmpDir, fn => new CarModule);
+$car = $injector->getInstance(CarInterface::class);
 ```
 
 ## Precompile
 
-You will want to compile all dependencies into code before deploying the production. The `DiCompiler` will compile all bindings into PHP code.
+You will want to compile all dependencies into code before deploying the production.
 
 ```php
-$compiler = new DiCompiler(new CarModule, $tmpDir);
+$compiler = new Compiler($tmpDir, new CarModule);
 $compiler->compile();
 ```
-
-## Object graph visualization
-
-Object graph can be visualized with `dumpGraph()`.
-Graph HTML files will be output at `graph` folder under `$tmpDir`.
-
-```php
-$compiler = new DiCompiler(new Module, $tmpDir);
-$compiler->compile();
-$compiler->dumpGraph();
-```
-
-```
-open tmp/graph/Ray_Compiler_FakeCarInterface-.html
-```
-
-## CompileInjector
-
-The `CompileInjector` gives you the best performance in both development (x2) and production (x10) by switching two injector.
-
-Get the injector by specifying the binding and cache, depending on the execution context of the application.
-
-```php
-$injector = new CompileInjector($tmpDir, $injectorContext);
-```
-
-`$injectorContext` example: 
-
- * [dev](docs/exmaple/DevInjectorContext.php)
- * [prod](docs/exmaple/ProdInjectorContext.php)
-
-The `__invoke()` method prepares the modules needed in that context.
-The `getCache()` method specifies the cache of the injector itself.
-
-Install `DiCompileModule` in the context for production. The injector is more optimized and dependency errors are reported at compile-time instead of run-time.
