@@ -7,10 +7,7 @@ namespace Ray\Compiler;
 use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
 
-/**
- * @deprecated
- * @psalm-immutable
- */
+/** @deprecated */
 abstract class AbstractInjectorContext implements LazyModuleInterface
 {
     /**
