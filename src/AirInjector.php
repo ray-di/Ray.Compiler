@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Ray\Compiler\Exception\InjectionPointUnbound;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
@@ -70,6 +71,10 @@ final class AirInjector implements InjectorInterface
 
         if ($prototype === null) {
             $injectionPoint = function (): InjectionPoint {
+                if ($this->ip[0] === '') {
+                    throw new InjectionPointUnbound();
+                }
+
                 return new InjectionPoint(
                     new ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2])
                 );
@@ -96,7 +101,7 @@ final class AirInjector implements InjectorInterface
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, $ip = ['', '', '']) use ($injectionPoint, $prototype, $injector, &$singleton) { // @phpstan-ignore-line
+                function (string $dependencyIndex, $ip) use ($injectionPoint, $prototype, $injector, &$singleton) { // @phpstan-ignore-line
                     if (isset($this->singletons[$dependencyIndex])) {
                         return $this->singletons[$dependencyIndex];
                     }

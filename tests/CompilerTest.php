@@ -6,9 +6,14 @@ namespace Ray\Compiler;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
+use Ray\Compiler\CompileVisitor\FakeBar;
+use Ray\Compiler\CompileVisitor\FakeBaz;
+use Ray\Compiler\CompileVisitor\FakeBazInterface;
+use Ray\Compiler\CompileVisitor\FakeBazProvider;
 use Ray\Compiler\CompileVisitor\FakeFoo;
 use Ray\Compiler\CompileVisitor\FakeFooInterface;
-use Ray\Compiler\CompileVisitor\FakeFooProvider;
+use Ray\Compiler\Exception\InjectionPointUnbound;
+use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\Scope;
 
@@ -190,5 +195,18 @@ class CompilerTest extends TestCase
         $nullInstance = $this->injector->getInstance(FakeFooInterface::class);
         $this->assertInstanceOf(FakeFooInterface::class, $nullInstance);
         $this->assertIsString(get_class($nullInstance));
+    }
+
+    public function testNoInjectionPointInVeryFirstInject()
+    {
+        $this->expectException(InjectionPointUnbound::class);
+        $module = new class () extends AbstractModule {
+            protected function configure()
+            {
+                $this->bind(FakeBazInterface::class)->toProvider(FakeBazProvider::class);
+            }
+        };
+        $this->compiler->compile($module, $this->scriptDir);
+        $this->injector->getInstance(FakeBazInterface::class);
     }
 }
