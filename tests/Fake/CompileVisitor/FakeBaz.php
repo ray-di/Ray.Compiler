@@ -4,10 +4,10 @@ namespace Ray\Compiler\CompileVisitor;
 
 class FakeBaz implements FakeBazInterface
 {
-    public $qualifers;
+    public $qualifiers;
 
-    public function __construct(?array $qualifers)
+    public function __construct(?array $qualifiers)
     {
-        $this->qualifers = $qualifers;
+        $this->qualifiers = $qualifiers;
     }
 }

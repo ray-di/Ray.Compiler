@@ -31,9 +31,9 @@ final class Compiler
         // Lock
         $fp = fopen($scriptDir . '/compile.lock', 'a+');
         if ($fp === false || ! flock($fp, LOCK_EX)) {
-            // @CoverageIgnoreStart
+            // @codeCoverageIgnoreStart
             throw new CompileLockFailed($scriptDir);
-            // @CoverageIgnoreEnd
+            // @codeCoverageIgnoreEnd
         }
 
         $scripts = new Scripts();

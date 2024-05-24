@@ -99,7 +99,7 @@ final class InstanceScript
         /** @psalm-suppress PossiblyNullReference / The $parameter here can never be null */
         $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->getName(), $parameter->getDeclaringFunction()->getName(), $parameter->name); //@phpstan-ignore-line
         $func = $isSingleton ? '$singleton' : '$prototype';
-            $arg = sprintf("%s('%s', %s)", $func, $index, $ip);
+        $arg = sprintf("%s('%s', %s)", $func, $index, $ip);
         $this->args[] = $arg;
     }
 

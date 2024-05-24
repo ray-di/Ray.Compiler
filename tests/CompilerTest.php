@@ -12,9 +12,10 @@ use Ray\Compiler\CompileVisitor\FakeBazInterface;
 use Ray\Compiler\CompileVisitor\FakeBazProvider;
 use Ray\Compiler\CompileVisitor\FakeFoo;
 use Ray\Compiler\CompileVisitor\FakeFooInterface;
+use Ray\Compiler\CompileVisitor\FakeQux;
 use Ray\Compiler\Exception\InjectionPointUnbound;
-use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
+use Ray\Di\Exception\Unbound;
 use Ray\Di\Scope;
 
 use function get_class;
@@ -88,13 +89,13 @@ class CompilerTest extends TestCase
         $module = new class () extends AbstractModule{
             protected function configure()
             {
-                $this->bind(FakeFooInterface::class)->toProvider(FakeFooProvider::class);
+                $this->bind(FakeBazInterface::class)->toProvider(FakeBazProvider::class);
             }
         };
 
         $this->compiler->compile($module, $this->scriptDir);
-        $instance = $this->injector->getInstance(FakeFooInterface::class);
-        $this->assertInstanceOf(FakeFoo::class, $instance);
+        $instance = $this->injector->getInstance(FakeBazInterface::class);
+        $this->assertInstanceOf(FakeBaz::class, $instance);
     }
 
     public function testCompileComplex(): void
@@ -197,7 +198,19 @@ class CompilerTest extends TestCase
         $this->assertIsString(get_class($nullInstance));
     }
 
-    public function testNoInjectionPointInVeryFirstInject()
+    public function testUnbound(): void
+    {
+        $this->expectException(Unbound::class);
+        $module = new class () extends AbstractModule{
+            protected function configure()
+            {
+                $this->bind(FakeBar::class);
+            }
+        };
+        $this->compiler->compile($module, $this->scriptDir);
+    }
+
+    public function testNoInjectionPointInVeryFirstInject(): void
     {
         $this->expectException(InjectionPointUnbound::class);
         $module = new class () extends AbstractModule {
@@ -208,5 +221,22 @@ class CompilerTest extends TestCase
         };
         $this->compiler->compile($module, $this->scriptDir);
         $this->injector->getInstance(FakeBazInterface::class);
+    }
+
+    public function testNullQualifer(): void
+    {
+        $module = new class () extends AbstractModule{
+            protected function configure()
+            {
+                $this->bind(FakeQux::class);
+                $this->bind(FakeBazInterface::class)->toProvider(FakeBazProvider::class)->in(Scope::SINGLETON);
+            }
+        };
+        $this->compiler->compile($module, $this->scriptDir);
+        $qux = $this->injector->getInstance(FakeQux::class);
+        $this->assertInstanceOf(FakeQux::class, $qux);
+        $this->assertSame([null], $qux->baz->qualifiers);
+        $this->assertInstanceOf(AirInjector::class, $qux->injector);
+        $this->assertInstanceOf(FakeBazInterface::class, $this->injector->getInstance(FakeBazInterface::class));
     }
 }

@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Countable;
-
-use function count;
 use function sprintf;
 use function str_replace;
 
-final class Scripts implements Countable
+final class Scripts
 {
     /** @var array<string, string> */
     private $scripts = [];
@@ -18,11 +15,6 @@ final class Scripts implements Countable
     public function add(string $index, string $script): void
     {
         $this->scripts[$index] = $script;
-    }
-
-    public function count(): int
-    {
-        return count($this->scripts);
     }
 
     public function save(string $scriptDir): void
