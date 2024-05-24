@@ -101,7 +101,7 @@ final class AirInjector implements InjectorInterface
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, $ip) use ($injectionPoint, $prototype, $injector, &$singleton) { // @phpstan-ignore-line
+                function (string $dependencyIndex, $ip = ['', '', '']) use ($injectionPoint, $prototype, $injector, &$singleton) { // @phpstan-ignore-line
                     if (isset($this->singletons[$dependencyIndex])) {
                         return $this->singletons[$dependencyIndex];
                     }
