@@ -62,12 +62,8 @@ final class CompileVisitor implements VisitorInterface
     /** @inheritDoc */
     public function visitInstance($value): string
     {
-        if (is_scalar($value) || is_array($value)) {
+        if ($value === null || is_scalar($value) || is_array($value)) {
             return sprintf('return %s;', var_export($value, true));
-        }
-
-        if ($value === null) {
-            return 'return null;';
         }
 
         assert(is_object($value), 'Invalid instance type:' . gettype($value));
