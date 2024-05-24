@@ -6,7 +6,6 @@ namespace Ray\Compiler;
 
 use Ray\Di\AbstractModule;
 
-/** @deprecated  */
 class OverrideLazyModule implements LazyModuleInterface
 {
     /** @var callable(): AbstractModule */

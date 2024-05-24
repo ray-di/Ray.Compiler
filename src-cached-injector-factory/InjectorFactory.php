@@ -12,10 +12,7 @@ use Ray\Di\InjectorInterface;
 use function is_dir;
 use function mkdir;
 
-/**
- * @deprecated
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class InjectorFactory
 {
     /**

@@ -6,10 +6,10 @@ namespace Ray\Compiler;
 
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
+
 use function get_class;
 
 /**
- * @deprecated
  * @psalm-immutable
  */
 final class ContextInjector

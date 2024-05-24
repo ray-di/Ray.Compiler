@@ -12,7 +12,6 @@ use function assert;
 use function serialize;
 use function unserialize;
 
-/** @deprecated  */
 final class CachedInjectorFactory
 {
     /** @var array<string, string> */

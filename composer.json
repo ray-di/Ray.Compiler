@@ -31,7 +31,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Ray\\Compiler\\": ["src", "src-deprecated"]
+            "Ray\\Compiler\\": ["src", "src-cached-injector-factory", "src-deprecated"]
         }
     },
     "autoload-dev": {
