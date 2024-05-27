@@ -7,7 +7,6 @@ namespace Ray\Compiler;
 use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
-use Ray\Di\NullCache;
 use function assert;
 use function class_exists;
 use function serialize;
