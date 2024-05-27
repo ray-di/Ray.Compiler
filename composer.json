@@ -16,7 +16,7 @@
         "koriym/null-object": "^1.0",
         "koriym/param-reader": "^1.0",
         "ray/aop": "^2.15",
-        "ray/di": "dev-visitor as 2.17"
+        "ray/di": "^2.17"
     },
     "require-dev": {
         "ext-pdo": "*",
