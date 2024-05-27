@@ -9,11 +9,18 @@ use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\NullCache;
 use function assert;
+use function class_exists;
 use function serialize;
 use function unserialize;
 
 final class CachedInjectorFactory
 {
+    public function __construct()
+    {
+        if (! class_exists(CacheProvider::class)) {
+            throw new \RuntimeException('CachedInjectorFactory requires doctrine/cache');
+        }
+    }
     /** @var array<string, string> */
     private static $injectors = [];
 

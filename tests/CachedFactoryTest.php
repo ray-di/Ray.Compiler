@@ -7,7 +7,6 @@ namespace Ray\Compiler;
 use PHPUnit\Framework\TestCase;
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
-use Ray\Di\NullCache;
 
 use function spl_object_hash;
 
