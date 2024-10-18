@@ -168,7 +168,7 @@ final class CompileInjector implements ScriptInjectorInterface
 
         $checkFile = sprintf(self::COMPILE_CHECK, $this->scriptDir);
         if (file_exists($checkFile)) {
-            throw new Unbound(sprintf('See compile log %s', $this->scriptDir . '/_compile.log'));
+            throw new Unbound(sprintf('[%s] See compile log %s', $dependencyIndex, $this->scriptDir . '/_compile.log'));
         }
 
         touch($checkFile);
