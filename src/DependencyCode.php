@@ -150,6 +150,7 @@ final class DependencyCode implements SetContextInterface
         $isSingleton = $prop($provider, 'isSingleton');
         $node[] = $this->getIsSingletonCode($isSingleton);
         $node[] = new Stmt\Return_(new MethodCall(new Expr\Variable('instance'), 'get'));
+        /** @psalm-suppress InvalidArgument */
         $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
         $qualifer = $this->qualifier;
         $this->qualifier = null;
