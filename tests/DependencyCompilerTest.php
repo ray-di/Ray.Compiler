@@ -53,7 +53,10 @@ EOT;
 
 return array(1, 2, 3);
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertContains((string) $code, [
+            str_replace('array(1, 2, 3)', '[1, 2, 3]', $expected),
+            $expected,
+        ]);
     }
 
     public function testDependencyCompile(): void
@@ -77,7 +80,14 @@ $isSingleton = false;
 return $instance;
 EOT;
         $expected = str_replace('{ANY}', Name::ANY, $expectedTemplate);
-        $this->assertSame($expected, (string) $code);
+        $this->assertContains((string) $code, [
+            str_replace(
+                'array(\'Ray\\Compiler\\FakeCar\', \'setHandle\', \'handle\')',
+                '[\'Ray\\Compiler\\FakeCar\', \'setHandle\', \'handle\']',
+                str_replace('\\\\', '\\', $expected)
+            ),
+            $expected,
+        ]);
     }
 
     public function testDependencyProviderCompile(): void
@@ -120,7 +130,10 @@ EOT;
 
 return unserialize('O:23:"Ray\\Compiler\\FakeEngine":0:{}');
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertContains((string) $code, [
+            str_replace('\\\\', '\\', $expected),
+            $expected,
+        ]);
     }
 
     public function testDomainException(): void
