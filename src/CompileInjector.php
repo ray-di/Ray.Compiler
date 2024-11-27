@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Bind;
+use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use ReflectionParameter;
 
@@ -29,8 +30,14 @@ use function touch;
  * @psalm-type ScriptDir = non-empty-string
  * @psalm-type Ip = array{0: string, 1: string, 2: string}
  * @psalm-type Singletons = array<string, object>
+ * @psalm-type Prottype = callable(string, Ip): mixed
+ * @psalm-type Singleton = callable(string, Ip): mixed
+ * @psalm-type InjectionPoint = callable(): InjectionPoint
+ * @psalm-type Injector = callable(): InjectorInterface
+ * @psalm-type InstanceFunctions = array{0: Prottype, 1: Singleton, 2: InjectionPoint, 3: Injector}
+ * @psalm-type ScriptDirs = list<ScriptDir>
  */
-final class CompileInjector implements ScriptInjectorInterface
+final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignore-line
 {
     public const INSTANCE = '%s/%s.php';
     public const COMPILE_CHECK = '%s/compiled';
@@ -54,13 +61,13 @@ final class CompileInjector implements ScriptInjectorInterface
      */
     private $singletons = [];
 
-    /** @var array<callable> */
-    private $functions;
+    /** @var InstanceFunctions */
+    private $functions; // @phpstan-ignore-line
 
     /** @var LazyModuleInterface */
     private $lazyModule;
 
-    /** @var array<string> */
+    /** @var ScriptDirs */
     private static $scriptDirs = [];
 
     /**
