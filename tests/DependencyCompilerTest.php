@@ -7,9 +7,11 @@ namespace Ray\Compiler;
 use DomainException;
 use PHPUnit\Framework\TestCase;
 use Ray\Di\Container;
+use Ray\Di\DependencyInterface;
 use Ray\Di\Instance;
 use Ray\Di\Name;
 
+use function class_exists;
 use function str_replace;
 
 class DependencyCompilerTest extends TestCase
@@ -139,7 +141,10 @@ EOT;
     public function testDomainException(): void
     {
         $this->expectException(DomainException::class);
-        (new DependencyCode(new Container()))->getCode(new FakeInvalidDependency());
+        assert(class_exists(FakeInvalidDependency::class));
+        $fake = new FakeInvalidDependency();
+        assert($fake instanceof DependencyInterface);
+        (new DependencyCode(new Container()))->getCode($fake);
     }
 
     public function testContextualProviderCompile(): void
