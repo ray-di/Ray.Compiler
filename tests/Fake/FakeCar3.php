@@ -10,6 +10,5 @@ class FakeCar3
 {
     public function __construct(DateTimeImmutable $dateTime)
     {
-        unset($dateTime);
     }
 }
