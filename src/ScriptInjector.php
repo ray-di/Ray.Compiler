@@ -98,6 +98,12 @@ final class ScriptInjector implements ScriptInjectorInterface
      */
     public function __construct($scriptDir, ?callable $lazyModule = null)
     {
+        $this->init($scriptDir, $lazyModule);
+    }
+
+    /** @param ScriptDir $scriptDir */
+    private function init(string $scriptDir, ?callable $lazyModule): void
+    {
         $this->scriptDir = $scriptDir;
         $this->lazyModule = is_callable($lazyModule) ? $lazyModule : static /** @return NullModule */function (): NullModule {
             return new NullModule();
@@ -113,7 +119,10 @@ final class ScriptInjector implements ScriptInjectorInterface
                 $this->ip = $injectionPoint; // @phpstan-ignore-line
                 [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
 
-                return require $this->getInstanceFile($dependencyIndex);
+                $instanceFile = $this->getInstanceFile($dependencyIndex);
+                assert(file_exists($instanceFile), "File not found: {$instanceFile}");
+
+                return require $instanceFile;
             };
         $singleton =
             /**
@@ -128,8 +137,10 @@ final class ScriptInjector implements ScriptInjectorInterface
 
                 $this->ip = $injectionPoint;
                 [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
+                $instanceFile = $this->getInstanceFile($dependencyIndex);
+                assert(file_exists($instanceFile), "File not found: {$instanceFile}");
 
-                $instance = require $this->getInstanceFile($dependencyIndex);
+                $instance = require $instanceFile;
                 $this->singletons[$dependencyIndex] = $instance;
 
                 return $instance;
@@ -156,7 +167,7 @@ final class ScriptInjector implements ScriptInjectorInterface
 
     public function __wakeup()
     {
-        new self($this->scriptDir, function () {
+        $this->init($this->scriptDir, function () {
             return $this->getModule();
         });
     }
@@ -174,6 +185,8 @@ final class ScriptInjector implements ScriptInjectorInterface
         }
 
         [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
+        /** @psalm-suppress RedundantConditionGivenDocblockType */ // assert for serialization
+        assert(is_callable($prototype), 'prototype is not callable'); // @phpstan-ignore-line
         /** @psalm-suppress UnresolvableInclude */
         $instance = require $this->getInstanceFile($dependencyIndex);
         /** @psalm-suppress UndefinedVariable */
