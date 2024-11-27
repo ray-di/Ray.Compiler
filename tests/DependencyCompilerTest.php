@@ -143,9 +143,10 @@ EOT;
     public function testDomainException(): void
     {
         $this->expectException(DomainException::class);
-        assert(class_exists(FakeInvalidDependency::class));
+        assert(class_exists(FakeInvalidDependency::class)); // to suppress phpstan false-positive
         $fake = new FakeInvalidDependency();
         assert($fake instanceof DependencyInterface); // @phpstan-ignore-line
+        // FakeInvalidDependency is not a valid dependency, so the DomainException is thrown.
         (new DependencyCode(new Container()))->getCode($fake);
     }
 
