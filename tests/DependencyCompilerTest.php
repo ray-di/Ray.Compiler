@@ -33,7 +33,7 @@ class DependencyCompilerTest extends TestCase
 
 return 'bear';
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertSame($this->normalizeLineEndings($expected), (string) $code);
     }
 
     public function testInstanceCompileInt(): void
@@ -45,7 +45,7 @@ EOT;
 
 return 1;
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertSame($this->normalizeLineEndings($expected), (string) $code);
     }
 
     public function testInstanceCompileArray(): void
@@ -58,8 +58,8 @@ EOT;
 return array(1, 2, 3);
 EOT;
         $this->assertContains((string) $code, [
-            str_replace('array(1, 2, 3)', '[1, 2, 3]', $expected),
-            $expected,
+            str_replace('array(1, 2, 3)', '[1, 2, 3]', $this->normalizeLineEndings($expected)),
+            $this->normalizeLineEndings($expected),
         ]);
     }
 
@@ -88,9 +88,9 @@ EOT;
             str_replace(
                 'array(\'Ray\\Compiler\\FakeCar\', \'setHandle\', \'handle\')',
                 '[\'Ray\\Compiler\\FakeCar\', \'setHandle\', \'handle\']',
-                str_replace('\\\\', '\\', $expected)
+                str_replace('\\\\', '\\', $this->normalizeLineEndings($expected))
             ),
-            $expected,
+            $this->normalizeLineEndings($expected),
         ]);
     }
 
@@ -108,7 +108,7 @@ $instance = new \Ray\Compiler\FakeHandleProvider('momo');
 $isSingleton = false;
 return $instance->get();
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertSame($this->normalizeLineEndings($expected), (string) $code);
     }
 
     public function testDependencyInstanceCompile(): void
@@ -121,7 +121,7 @@ EOT;
 
 return 'momo';
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertSame($this->normalizeLineEndings($expected), (string) $code);
     }
 
     public function testDependencyObjectInstanceCompile(): void
@@ -135,8 +135,8 @@ EOT;
 return unserialize('O:23:"Ray\\Compiler\\FakeEngine":0:{}');
 EOT;
         $this->assertContains((string) $code, [
-            str_replace('\\\\', '\\', $expected),
-            $expected,
+            str_replace('\\\\', '\\', $this->normalizeLineEndings($expected)),
+            $this->normalizeLineEndings($expected),
         ]);
     }
 
@@ -165,6 +165,12 @@ $instance->setContext('context');
 $isSingleton = false;
 return $instance->get();
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertSame($this->normalizeLineEndings($expected), (string) $code);
+    }
+
+    private function normalizeLineEndings($content): string
+    {
+        // Convert Windows (CRLF: \r\n) and old Mac (CR: \r) to Unix (LF: \n)
+        return str_replace(["\r\n", "\r"], "\n", $content);
     }
 }
