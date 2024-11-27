@@ -10,6 +10,7 @@ use Ray\Di\Bind;
 use Ray\Di\Name;
 use ReflectionParameter;
 
+use function assert;
 use function file_exists;
 use function in_array;
 use function rtrim;
@@ -19,8 +20,15 @@ use function str_replace;
 use function touch;
 
 /**
+ * Compile Injector
+ *
+ * This injector will compile all bindings into PHP's low-code if they have not already been compiled.
+ * Once compiled, unknown concrete classes will not be compiled at runtime like ScriptInjector.
+ * All bindings must be explicitly pre-compiled.
+ *
  * @psalm-type ScriptDir = non-empty-string
  * @psalm-type Ip = array{0: string, 1: string, 2: string}
+ * @psalm-type Singletons = array<string, object>
  */
 final class CompileInjector implements ScriptInjectorInterface
 {
@@ -42,7 +50,7 @@ final class CompileInjector implements ScriptInjectorInterface
     /**
      * Singleton instance container
      *
-     * @var array<object>
+     * @var Singletons
      */
     private $singletons = [];
 
@@ -61,7 +69,13 @@ final class CompileInjector implements ScriptInjectorInterface
      *
      * @psalm-suppress UnresolvableInclude
      */
-    public function __construct($scriptDir, LazyModuleInterface $lazyModule)
+    public function __construct(string $scriptDir, LazyModuleInterface $lazyModule)
+    {
+        $this->init($scriptDir, $lazyModule);
+    }
+
+    /** @param ScriptDir $scriptDir */
+    public function init(string $scriptDir, LazyModuleInterface $lazyModule): void
     {
         /** @var ScriptDir $scriptDir */
         $scriptDir = rtrim($scriptDir, '/');
@@ -77,8 +91,10 @@ final class CompileInjector implements ScriptInjectorInterface
             function (string $dependencyIndex, array $injectionPoint = ['', '', '']) {
                 $this->ip = $injectionPoint; // @phpstan-ignore-line
                 [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
+                $instancFile = $this->getInstanceFile($dependencyIndex);
+                assert(file_exists($instancFile), new Unbound($dependencyIndex));
 
-                return require $this->getInstanceFile($dependencyIndex);
+                return require $instancFile;
             };
         $singleton =
             /**
@@ -94,8 +110,10 @@ final class CompileInjector implements ScriptInjectorInterface
                 $this->ip = $injectionPoint; // @phpstan-ignore-line
                 [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
 
+                $instanceFile = $this->getInstanceFile($dependencyIndex);
+                assert(file_exists($instanceFile), new Unbound($dependencyIndex));
                 /** @var object $instance */
-                $instance = require $this->getInstanceFile($dependencyIndex);
+                $instance = require $instanceFile;
                 $this->singletons[$dependencyIndex] = $instance;
 
                 return $instance;
@@ -120,7 +138,7 @@ final class CompileInjector implements ScriptInjectorInterface
 
     public function __wakeup()
     {
-        new self($this->scriptDir, $this->lazyModule);
+        $this->init($this->scriptDir, $this->lazyModule);
     }
 
     /**
