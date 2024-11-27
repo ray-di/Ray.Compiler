@@ -22,7 +22,7 @@ class FakeInvalidDependency implements DependencyInterface
 
     public function setScope($scope)
     {
-        unset($scope)
+        unset($scope);
     }
 
     public function __toString()
