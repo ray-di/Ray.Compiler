@@ -103,6 +103,7 @@ class MultiBindingTest extends TestCase
     public function testOffsetUnset(Map $map): void
     {
         $this->expectException(LogicException::class);
+        unset($map['one']);
     }
 
     public function testAnotherBinder(): void
