@@ -11,6 +11,7 @@ use Ray\Di\DependencyInterface;
 use Ray\Di\Instance;
 use Ray\Di\Name;
 
+use function assert;
 use function class_exists;
 use function str_replace;
 
