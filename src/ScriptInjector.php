@@ -61,7 +61,7 @@ final class ScriptInjector implements ScriptInjectorInterface
      *
      * [$class, $method, $parameter]
      *
-     * @var array{0: string, 1: string, 2: string}
+     * @var Ip
      */
     private $ip = ['', '', ''];
 
@@ -111,7 +111,7 @@ final class ScriptInjector implements ScriptInjectorInterface
         $this->registerLoader();
         $prototype =
             /**
-             * @param array{0: string, 1: string, 2: string} $injectionPoint
+             * @param Ip $injectionPoint
              *
              * @return mixed
              */
