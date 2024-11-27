@@ -18,12 +18,16 @@ use function sprintf;
 use function str_replace;
 use function touch;
 
+/**
+ * @psalm-type ScriptDir = non-empty-string
+ * @psalm-type Ip = array{0: string, 1: string, 2: string}
+ */
 final class CompileInjector implements ScriptInjectorInterface
 {
     public const INSTANCE = '%s/%s.php';
     public const COMPILE_CHECK = '%s/compiled';
 
-    /** @var string */
+    /** @var ScriptDir */
     private $scriptDir;
 
     /**
@@ -31,7 +35,7 @@ final class CompileInjector implements ScriptInjectorInterface
      *
      * [$class, $method, $parameter]
      *
-     * @var array{0: string, 1: string, 2: string}
+     * @var Ip
      */
     private $ip = ['', '', ''];
 
@@ -52,19 +56,21 @@ final class CompileInjector implements ScriptInjectorInterface
     private static $scriptDirs = [];
 
     /**
-     * @param string              $scriptDir  generated instance script folder path
+     * @param ScriptDir           $scriptDir  generated instance script folder path
      * @param LazyModuleInterface $lazyModule callable variable which return AbstractModule instance
      *
      * @psalm-suppress UnresolvableInclude
      */
     public function __construct($scriptDir, LazyModuleInterface $lazyModule)
     {
-        $this->scriptDir = rtrim($scriptDir, '/');
+        /** @var ScriptDir $scriptDir */
+        $scriptDir = rtrim($scriptDir, '/');
+        $this->scriptDir = $scriptDir;
         $this->lazyModule = $lazyModule;
         $this->registerLoader();
         $prototype =
             /**
-             * @param array{0: string, 1: string, 2: string} $injectionPoint
+             * @param Ip $injectionPoint
              *
              * @return mixed
              */
@@ -76,18 +82,19 @@ final class CompileInjector implements ScriptInjectorInterface
             };
         $singleton =
             /**
-             * @param array{0: string, 1: string, 2: string} $injectionPoint
+             * @param Ip $injectionPoint
              *
              * @return mixed
              */
-            function (string $dependencyIndex, $injectionPoint = ['', '', '']) {
+            function (string $dependencyIndex, array $injectionPoint = ['', '', '']) {
                 if (isset($this->singletons[$dependencyIndex])) {
                     return $this->singletons[$dependencyIndex];
                 }
 
-                $this->ip = $injectionPoint;
+                $this->ip = $injectionPoint; // @phpstan-ignore-line
                 [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
 
+                /** @var object $instance */
                 $instance = require $this->getInstanceFile($dependencyIndex);
                 $this->singletons[$dependencyIndex] = $instance;
 
@@ -124,7 +131,7 @@ final class CompileInjector implements ScriptInjectorInterface
     /**
      * {@inheritdoc}
      *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      */
     public function getInstance($interface, $name = Name::ANY)
     {
@@ -146,6 +153,7 @@ final class CompileInjector implements ScriptInjectorInterface
         /** @psalm-suppress UndefinedVariable */
         $isSingleton = isset($isSingleton) && $isSingleton;
         if ($isSingleton) {
+            /** @var object $instance */
             $this->singletons[$dependencyIndex] = $instance;
         }
 

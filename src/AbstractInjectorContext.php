@@ -6,15 +6,22 @@ namespace Ray\Compiler;
 
 use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
+use Ray\Di\Annotation\ScriptDir;
 
+/**
+ * @psalm-import-type ScriptDir from CompileInjector
+ */
 abstract class AbstractInjectorContext implements LazyModuleInterface
 {
     /**
-     * @var string
+     * @var ScriptDir
      * @readonly
      */
     public $tmpDir;
 
+    /**
+     * @param ScriptDir $tmpDir
+     */
     public function __construct(string $tmpDir)
     {
         $this->tmpDir = $tmpDir;

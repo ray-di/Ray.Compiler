@@ -114,7 +114,7 @@ final class FunctionCode
                 Qualifier::class
             );
             if ($qualifier instanceof Qualifier) {
-                $this->compiler->setQaulifier(new IpQualifier($param, $annotation));
+                $this->compiler->setQualifier(new IpQualifier($param, $annotation));
             }
         }
     }

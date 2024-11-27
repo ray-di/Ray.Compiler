@@ -38,6 +38,10 @@ use function unserialize;
 use const DIRECTORY_SEPARATOR;
 use const E_NOTICE;
 
+/**
+ * @psalm-import-type ScriptDir from CompileInjector
+ * @psalm-import-type Ip from CompileInjector
+ */
 final class ScriptInjector implements ScriptInjectorInterface
 {
     public const MODULE = '/_module.txt';
@@ -46,9 +50,9 @@ final class ScriptInjector implements ScriptInjectorInterface
 
     public const INSTANCE = '%s/%s.php';
 
-    public const QUALIFIER = '%s/qualifer/%s-%s-%s';
+    public const QUALIFIER = '%s/qualifier/%s-%s-%s';
 
-    /** @var string */
+    /** @var non-empty-string */
     private $scriptDir;
 
     /**
@@ -86,8 +90,8 @@ final class ScriptInjector implements ScriptInjectorInterface
     private static $scriptDirs = [];
 
     /**
-     * @param string   $scriptDir  generated instance script folder path
-     * @param callable $lazyModule callable variable which return AbstractModule instance
+     * @param ScriptDir $scriptDir  generated instance script folder path
+     * @param callable  $lazyModule callable variable which return AbstractModule instance
      *
      * @psalm-suppress UnresolvableInclude
      */
@@ -112,7 +116,7 @@ final class ScriptInjector implements ScriptInjectorInterface
             };
         $singleton =
             /**
-             * @param array{0: string, 1: string, 2: string} $injectionPoint
+             * @param Ip $injectionPoint
              *
              * @return mixed
              */
@@ -164,7 +168,7 @@ final class ScriptInjector implements ScriptInjectorInterface
     /**
      * {@inheritdoc}
      *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      */
     public function getInstance($interface, $name = Name::ANY)
     {

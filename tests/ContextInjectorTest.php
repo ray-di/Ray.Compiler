@@ -13,8 +13,6 @@ use Ray\Di\AbstractModule;
 use Ray\Di\Injector;
 use Ray\Di\InjectorInterface;
 
-use function assert;
-
 class ContextInjectorTest extends TestCase
 {
     public function testGetRayInjector(): InjectorInterface
@@ -53,14 +51,11 @@ class ContextInjectorTest extends TestCase
     {
         $injector = ContextInjector::getInstance($context);
         $deep = $injector->getInstance(FakeDeep::class);
-        assert($deep instanceof FakeDeep);
         $deep->dep->changed = true;
-        $deep1 = $injector->getInstance(FakeDeep::class);
-        assert($deep1 instanceof FakeDeep);
+        $injector->getInstance(FakeDeep::class);
         $this->assertTrue($deep->dep->changed);
         $injector = ContextInjector::getInstance($context);
         $deep2 = $injector->getInstance(FakeDeep::class);
-        assert($deep2 instanceof FakeDeep);
         $this->assertFalse($deep2->dep->changed);
         $demand = $injector->getInstance(FakeDemand::class);
         $this->assertInstanceOf(FakeDemand::class, $demand);

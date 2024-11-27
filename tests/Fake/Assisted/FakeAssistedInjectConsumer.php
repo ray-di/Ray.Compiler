@@ -34,7 +34,7 @@ class FakeAssistedInjectConsumer
         return [$var2, $robot];
     }
 
-    public function assistCustomeAssistedInject(#[FakeInjectOne] int $one = 0): int
+    public function assistCustomAssistedInject(#[FakeInjectOne] int $one = 0): int
     {
         return $one;
     }

@@ -13,7 +13,6 @@ use Ray\Di\Name;
 use ReflectionParameter;
 
 use function assert;
-use function property_exists;
 
 class DiCompilerTest extends TestCase
 {
@@ -98,7 +97,6 @@ class DiCompilerTest extends TestCase
         $injector = new ScriptInjector(__DIR__ . '/tmp');
         /** @var FakeLoggerConsumer $loggerConsumer */
         $loggerConsumer = $injector->getInstance(FakeLoggerConsumer::class);
-        assert(property_exists($loggerConsumer, 'logger'));
         assert($loggerConsumer->logger instanceof FakeLogger);
         $this->assertSame(FakeLoggerConsumer::class, $loggerConsumer->logger->name);
         $this->assertSame('MEMORY', $loggerConsumer->logger->type);
@@ -108,7 +106,6 @@ class DiCompilerTest extends TestCase
         $this->assertInstanceOf(ReflectionMethod::class, $ip->getMethod());
         $this->assertSame('setLogger', $ip->getMethod()->name);
         $method = $ip->getMethod();
-        assert($method instanceof ReflectionMethod);
         $this->assertInstanceOf(FakeLoggerInject::class, $method->getAnnotations()[0]);
         $this->assertInstanceOf(ReflectionParameter::class, $ip->getParameter());
         $this->assertSame('logger', $ip->getParameter()->name);

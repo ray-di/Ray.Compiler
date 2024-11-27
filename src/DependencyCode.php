@@ -88,9 +88,9 @@ final class DependencyCode implements SetContextInterface
         $this->context = $context;
     }
 
-    public function setQaulifier(IpQualifier $qualifer): void
+    public function setQualifier(IpQualifier $qualifier): void
     {
-        $this->qualifier = $qualifer;
+        $this->qualifier = $qualifier;
     }
 
     public function getIsSingletonCode(bool $isSingleton): Expr\Assign
@@ -123,10 +123,10 @@ final class DependencyCode implements SetContextInterface
         $node[] = $this->getIsSingletonCode($isSingleton);
         $node[] = new Node\Stmt\Return_(new Node\Expr\Variable('instance'));
         $namespace = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
-        $qualifer = $this->qualifier;
+        $qualifier = $this->qualifier;
         $this->qualifier = null;
 
-        return new Code($namespace, $isSingleton, $qualifer);
+        return new Code($namespace, $isSingleton, $qualifier);
     }
 
     /**
@@ -151,11 +151,11 @@ final class DependencyCode implements SetContextInterface
         $node[] = $this->getIsSingletonCode($isSingleton);
         $node[] = new Stmt\Return_(new MethodCall(new Expr\Variable('instance'), 'get'));
         /** @psalm-suppress InvalidArgument */
-        $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
-        $qualifer = $this->qualifier;
+        $node = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode(); // @phpstan-ignore-line
+        $qualifier = $this->qualifier;
         $this->qualifier = null;
 
-        return new Code($node, $isSingleton, $qualifer);
+        return new Code($node, $isSingleton, $qualifier);
     }
 
     private function getSetContextCode(string $context): MethodCall

@@ -37,8 +37,8 @@ class AssistedTest extends TestCase
         $consumer = $this->injector->getInstance(FakeAssistedConsumer::class);
         /** @var FakeAssistedConsumer $consumer */
         $assistedDependency = $consumer->assistOne('a', 'b');
-        $expecetd = FakeRobot::class;
-        $this->assertInstanceOf($expecetd, $assistedDependency);
+        $expected = FakeRobot::class;
+        $this->assertInstanceOf($expected, $assistedDependency);
     }
 
     public function testAssistedWithName(): void
@@ -47,8 +47,8 @@ class AssistedTest extends TestCase
         $consumer = $this->injector->getInstance(FakeAssistedConsumer::class);
         /** @var FakeAssistedConsumer $consumer */
         $assistedDependency = $consumer->assistWithName('a7');
-        $expecetd = 1;
-        $this->assertSame($expecetd, $assistedDependency);
+        $expected = 1;
+        $this->assertSame($expected, $assistedDependency);
     }
 
     public function testAssistedAnyWithName(): void
@@ -80,7 +80,7 @@ class AssistedTest extends TestCase
         $assistedDbProvider->get();
     }
 
-    public function testAssistedCustomeInject(): void
+    public function testAssistedCustomInject(): void
     {
         $assistedConsumer = (new Injector(new FakeAssistedDbModule(), __DIR__ . '/tmp'))->getInstance(FakeAssistedParamsConsumer::class);
         /** @var FakeAssistedParamsConsumer $assistedConsumer */

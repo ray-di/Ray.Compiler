@@ -16,14 +16,20 @@ use function str_replace;
 
 use const PHP_EOL;
 
+/**
+ * @psalm-import-type ScriptDir from CompileInjector
+ */
 final class DependencySaver
 {
-    /** @var string */
+    /** @var ScriptDir */
     private $scriptDir;
 
     /** @var FilePutContents */
     private $filePutContents;
 
+    /**
+     * @param ScriptDir $scriptDir
+     */
     public function __construct(string $scriptDir)
     {
         $this->scriptDir = $scriptDir;

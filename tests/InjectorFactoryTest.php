@@ -27,10 +27,10 @@ class InjectorFactoryTest extends TestCase
     {
         $injector = InjectorFactory::getInstance(
             static function (): AbstractModule {
-                $modue = new FakeToBindPrototypeModule();
-                $modue->install(new FakeProdModule());
+                $module = new FakeToBindPrototypeModule();
+                $module->install(new FakeProdModule());
 
-                return $modue;
+                return $module;
             },
             __DIR__ . '/tmp/base'
         );

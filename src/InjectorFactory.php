@@ -6,6 +6,7 @@ namespace Ray\Compiler;
 
 use Ray\Compiler\Annotation\Compile;
 use Ray\Di\AbstractModule;
+use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\Injector as RayInjector;
 use Ray\Di\InjectorInterface;
@@ -15,11 +16,13 @@ use function mkdir;
 
 /**
  * @psalm-immutable
+ * @psalm-import-type ScriptDir from CompileInjector
  */
 final class InjectorFactory
 {
     /**
      * @param callable(): AbstractModule $modules
+     * @param ScriptDir                  $scriptDir
      */
     public static function getInstance(callable $modules, string $scriptDir): InjectorInterface
     {
@@ -43,13 +46,17 @@ final class InjectorFactory
         return self::getScriptInjector($scriptDir, $module);
     }
 
+    /**
+     * @param ScriptDir $scriptDir
+     */
     private static function getScriptInjector(string $scriptDir, AbstractModule $module): ScriptInjector
     {
         return new ScriptInjector($scriptDir, static function () use ($scriptDir, $module) {
-            return new ScriptinjectorModule($scriptDir, $module);
+            return new ScriptInjectorModule($scriptDir, $module);
         });
     }
 
+    /** @param ScriptDir $scriptDIr */
     private static function getCompileInjector(string $scriptDIr, LazyModuleInterface $module): CompileInjector
     {
         return new CompileInjector($scriptDIr, $module);

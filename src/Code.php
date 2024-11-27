@@ -19,7 +19,7 @@ final class Code
     private $node;
 
     /**
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag) // @phpstan-ignore-line
      */
     public function __construct(Node $node, bool $isSingleton = false, ?IpQualifier $qualifier = null)
     {

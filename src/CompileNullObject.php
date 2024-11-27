@@ -10,11 +10,13 @@ use Ray\Di\NullObjectDependency;
 
 /**
  * Convert NullObjectDependency to Dependency
+ *
+ * @psalm-import-type ScriptDir from CompileInjector
  */
 final class CompileNullObject
 {
     /**
-     * @retrun void
+     * @param ScriptDir $scriptDir
      */
     public function __invoke(Container $container, string $scriptDir): void
     {

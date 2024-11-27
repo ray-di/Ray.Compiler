@@ -42,6 +42,9 @@ class MultiBindingTest extends TestCase
         });
     }
 
+    /**
+     * @return Map<FakeEngineInterface>
+     */
     public function testInjectMap(): Map
     {
         /** @var FakeMultiBindingConsumer $consumer */
@@ -52,6 +55,8 @@ class MultiBindingTest extends TestCase
     }
 
     /**
+     * @param Map<FakeEngineInterface> $map
+     *
      * @depends testInjectMap
      */
     public function testMapInstance(Map $map): void
@@ -61,6 +66,8 @@ class MultiBindingTest extends TestCase
     }
 
     /**
+     * @param Map<FakeEngineInterface> $map
+     *
      * @depends testInjectMap
      */
     public function testMapIteration(Map $map): void
@@ -71,6 +78,8 @@ class MultiBindingTest extends TestCase
     }
 
     /**
+     * @param Map<FakeEngineInterface> $map
+     *
      * @depends testInjectMap
      */
     public function testIsSet(Map $map): void
@@ -80,6 +89,8 @@ class MultiBindingTest extends TestCase
     }
 
     /**
+     * @param Map<FakeEngineInterface> $map
+     *
      * @depends testInjectMap
      */
     public function testOffsetSet(Map $map): void
@@ -89,6 +100,8 @@ class MultiBindingTest extends TestCase
     }
 
     /**
+     * @param Map<FakeEngineInterface> $map
+     *
      * @depends testInjectMap
      */
     public function testOffsetUnset(Map $map): void
@@ -106,7 +119,7 @@ class MultiBindingTest extends TestCase
         $this->assertSame(3, count($consumer->robots));
     }
 
-    public function testMultipileModule(): void
+    public function testMultipleModule(): void
     {
         $module = new NullModule();
         $binder = MultiBinder::newInstance($module, FakeEngineInterface::class);

@@ -25,6 +25,7 @@ final class FakeScriptInjectorContext extends AbstractInjectorContext
 
            protected function doContains($id)
            {
+               unset($id);
            }
 
            protected function doSave($id, $data, $lifeTime = 0)
