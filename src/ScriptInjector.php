@@ -145,9 +145,7 @@ final class ScriptInjector implements ScriptInjectorInterface
         $this->functions = [$prototype, $singleton, $injectionPoint, $injector];
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     public function __sleep()
     {
         $this->saveModule();
@@ -166,7 +164,7 @@ final class ScriptInjector implements ScriptInjectorInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      */

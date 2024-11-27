@@ -39,9 +39,7 @@ class ScriptInjectorTest extends TestCase
         return $car;
     }
 
-    /**
-     * @depends testGetInstance
-     */
+    /** @depends testGetInstance */
     public function testDefaultValueInjected(FakeCar $car): void
     {
         $this->assertNull($car->null);

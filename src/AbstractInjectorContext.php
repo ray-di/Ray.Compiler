@@ -8,9 +8,7 @@ use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 
-/**
- * @psalm-import-type ScriptDir from CompileInjector
- */
+/** @psalm-import-type ScriptDir from CompileInjector */
 abstract class AbstractInjectorContext implements LazyModuleInterface
 {
     /**
@@ -19,9 +17,7 @@ abstract class AbstractInjectorContext implements LazyModuleInterface
      */
     public $tmpDir;
 
-    /**
-     * @param ScriptDir $tmpDir
-     */
+    /** @param ScriptDir $tmpDir */
     public function __construct(string $tmpDir)
     {
         $this->tmpDir = $tmpDir;

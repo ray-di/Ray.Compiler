@@ -26,9 +26,7 @@ use Ray\Di\NullModule;
 
 use function count;
 
-/**
- * @requires PHP 8.0
- */
+/** @requires PHP 8.0 */
 class MultiBindingTest extends TestCase
 {
     /** @var InjectorInterface */
@@ -42,9 +40,7 @@ class MultiBindingTest extends TestCase
         });
     }
 
-    /**
-     * @return Map<FakeEngineInterface>
-     */
+    /** @return Map<FakeEngineInterface> */
     public function testInjectMap(): Map
     {
         /** @var FakeMultiBindingConsumer $consumer */

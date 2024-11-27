@@ -20,9 +20,7 @@ use function sprintf;
 use function str_replace;
 use function unserialize;
 
-/**
- * @psalm-import-type ScriptDir from CompileInjector
- */
+/** @psalm-import-type ScriptDir from CompileInjector */
 final class InjectionPoint implements InjectionPointInterface
 {
     /** @var ReflectionParameter */
@@ -31,9 +29,7 @@ final class InjectionPoint implements InjectionPointInterface
     /** @var ScriptDir */
     private $scriptDir;
 
-    /**
-     * @param ScriptDir $scriptDir
-     */
+    /** @param ScriptDir $scriptDir */
     public function __construct(ReflectionParameter $parameter, string $scriptDir)
     {
         $this->parameter = $parameter;
@@ -41,7 +37,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getParameter(): ReflectionParameter
     {
@@ -49,7 +45,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getMethod(): ReflectionMethod
     {
@@ -63,7 +59,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getClass(): ReflectionClass
     {
@@ -74,7 +70,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return array<(object|null)>
      *
@@ -86,7 +82,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return object|null
      */

@@ -43,9 +43,7 @@ class CompileInjectorTest extends TestCase
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Compiler_FakeCar-.php');
     }
 
-    /**
-     * @depends testCompile
-     */
+    /** @depends testCompile */
     public function testGetInstance(): void
     {
         $instance = $this->injector->getInstance(FakeCarInterface::class);
@@ -82,18 +80,14 @@ class CompileInjectorTest extends TestCase
         $injector->getInstance(FakeCar2::class);
     }
 
-    /**
-     * @depends testUnbound
-     */
+    /** @depends testUnbound */
     public function testUnboundCompileLogFile(): void
     {
         $this->expectException(Unbound::class);
         $this->injector->getInstance(FakeCar2::class);
     }
 
-    /**
-     * @depends testUnboundCompileLogFile
-     */
+    /** @depends testUnboundCompileLogFile */
     public function testCompileFailureLog(): void
     {
         $logFile = __DIR__ . '/tmp/_compile.log';

@@ -75,9 +75,7 @@ class DiCompilerTest extends TestCase
         $this->testAopCompileFile();
     }
 
-    /**
-     * @depends testAopCompile
-     */
+    /** @depends testAopCompile */
     public function testAopCompileFile(): void
     {
         $script = new ScriptInjector(__DIR__ . '/tmp');
@@ -120,9 +118,7 @@ class DiCompilerTest extends TestCase
         $this->assertFileExists(__DIR__ . '/tmp/graph/Ray_Compiler_FakeCarInterface-' . $any . '.html');
     }
 
-    /**
-     * @return array<int, array<int, (array<(int|string), int>|float|int|string|true|null)>>
-     */
+    /** @return array<int, array<int, (array<(int|string), int>|float|int|string|true|null)>> */
     public function instanceProvider(): array
     {
         return [

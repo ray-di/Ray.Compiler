@@ -41,9 +41,7 @@ final class OnDemandCompiler
     /** @var CompileNullObject */
     private $compiler;
 
-    /**
-     * @param ScriptDir $scriptDir
-     */
+    /** @param ScriptDir $scriptDir */
     public function __construct(ScriptInjector $injector, string $scriptDir, AbstractModule $module)
     {
         $this->scriptDir = $scriptDir;
@@ -83,9 +81,7 @@ final class OnDemandCompiler
         (new DependencySaver($this->scriptDir))($dependencyIndex, $code);
     }
 
-    /**
-     * @return Pointcuts
-     */
+    /** @return Pointcuts */
     private function loadPointcuts(): array
     {
         $pointcutsPath = $this->scriptDir . ScriptInjector::AOP;

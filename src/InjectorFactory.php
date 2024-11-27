@@ -46,9 +46,7 @@ final class InjectorFactory
         return self::getScriptInjector($scriptDir, $module);
     }
 
-    /**
-     * @param ScriptDir $scriptDir
-     */
+    /** @param ScriptDir $scriptDir */
     private static function getScriptInjector(string $scriptDir, AbstractModule $module): ScriptInjector
     {
         return new ScriptInjector($scriptDir, static function () use ($scriptDir, $module) {

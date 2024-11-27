@@ -25,9 +25,7 @@ use function serialize;
 use function sprintf;
 use function sys_get_temp_dir;
 
-/**
- * @psalm-import-type ScriptDir from CompileInjector
- */
+/** @psalm-import-type ScriptDir from CompileInjector */
 final class DiCompiler implements InjectorInterface
 {
     /** @var ScriptDir */
@@ -48,9 +46,7 @@ final class DiCompiler implements InjectorInterface
     /** @var FilePutContents */
     private $filePutContents;
 
-    /**
-     * @param ScriptDir $scriptDir
-     */
+    /** @param ScriptDir $scriptDir */
     public function __construct(AbstractModule $module, string $scriptDir)
     {
         /** @var ScriptDir $scriptDir */
@@ -70,7 +66,7 @@ final class DiCompiler implements InjectorInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getInstance($interface, $name = Name::ANY)
     {

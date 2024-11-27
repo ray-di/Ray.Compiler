@@ -20,6 +20,7 @@ class DependencyCompilerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         deleteFiles(__DIR__ . '/tmp');
     }
 

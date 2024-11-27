@@ -11,7 +11,7 @@ use Ray\Di\MultiBinding\MapProvider;
 class MapModule extends AbstractModule
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function configure(): void
     {

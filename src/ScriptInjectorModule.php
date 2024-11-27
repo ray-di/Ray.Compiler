@@ -7,25 +7,22 @@ namespace Ray\Compiler;
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
 
-/**
- * @psalm-import-type ScriptDir from CompileInjector
- */
+/** @psalm-import-type ScriptDir from CompileInjector */
 class ScriptInjectorModule extends AbstractModule
 {
     /** @var ScriptDir */
     private $scriptDir;
 
-    /**
-     * @param ScriptDir $scriptDir
-     */
+    /** @param ScriptDir $scriptDir */
     public function __construct(string $scriptDir, ?AbstractModule $module = null)
     {
         $this->scriptDir = $scriptDir;
+
         parent::__construct($module);
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function configure(): void
     {

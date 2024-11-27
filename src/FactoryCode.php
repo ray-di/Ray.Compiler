@@ -90,9 +90,7 @@ final class FactoryCode
         return ($this->functionCompiler)($argument, $dependency);
     }
 
-    /**
-     * @param array<Argument> $arguments
-     */
+    /** @param array<Argument> $arguments */
     private function getConstructorInjection(string $class, array $arguments = []): Expr\New_
     {
         $args = [];

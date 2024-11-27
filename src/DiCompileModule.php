@@ -15,11 +15,12 @@ class DiCompileModule extends AbstractModule
     public function __construct(bool $doCompile, ?AbstractModule $module = null)
     {
         $this->doCompile = $doCompile;
+
         parent::__construct($module);
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function configure(): void
     {

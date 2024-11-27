@@ -112,9 +112,7 @@ final class CompileInjector implements ScriptInjectorInterface
         $this->functions = [$prototype, $singleton, $injectionPoint, $injector];
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     public function __sleep()
     {
         return ['scriptDir', 'singletons', 'lazyModule'];
@@ -129,7 +127,7 @@ final class CompileInjector implements ScriptInjectorInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      */

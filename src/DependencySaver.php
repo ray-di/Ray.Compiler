@@ -16,9 +16,7 @@ use function str_replace;
 
 use const PHP_EOL;
 
-/**
- * @psalm-import-type ScriptDir from CompileInjector
- */
+/** @psalm-import-type ScriptDir from CompileInjector */
 final class DependencySaver
 {
     /** @var ScriptDir */
@@ -27,9 +25,7 @@ final class DependencySaver
     /** @var FilePutContents */
     private $filePutContents;
 
-    /**
-     * @param ScriptDir $scriptDir
-     */
+    /** @param ScriptDir $scriptDir */
     public function __construct(string $scriptDir)
     {
         $this->scriptDir = $scriptDir;

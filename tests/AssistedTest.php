@@ -17,9 +17,7 @@ use Ray\Di\FakeToBindModule;
 use Ray\Di\Injector;
 use Ray\Di\InjectorInterface;
 
-/**
- * @requires PHP 8.0
- */
+/** @requires PHP 8.0 */
 class AssistedTest extends TestCase
 {
     /** @var InjectorInterface */

@@ -19,9 +19,7 @@ use function str_replace;
 
 use const LOCK_EX;
 
-/**
- * @psalm-import-type ScriptDir from CompileInjector
- */
+/** @psalm-import-type ScriptDir from CompileInjector */
 final class GraphDumper
 {
     /** @var Container */
@@ -30,18 +28,14 @@ final class GraphDumper
     /** @var ScriptDir */
     private $scriptDir;
 
-    /**
-     * @param ScriptDir $scriptDir
-     */
+    /** @param ScriptDir $scriptDir */
     public function __construct(Container $container, string $scriptDir)
     {
         $this->container = $container;
         $this->scriptDir = $scriptDir;
     }
 
-    /**
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
-     */
+    /** @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line */
     public function __invoke(): void
     {
         $container = $this->container->getContainer();

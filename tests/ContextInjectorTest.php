@@ -33,9 +33,7 @@ class ContextInjectorTest extends TestCase
         $this->assertInstanceOf(FakeRobotInterface::class, $robot);
     }
 
-    /**
-     * @return array<array<AbstractInjectorContext>>
-     */
+    /** @return array<array<AbstractInjectorContext>> */
     public function contextProvider(): array
     {
         return [
@@ -44,9 +42,7 @@ class ContextInjectorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider contextProvider
-     */
+    /** @dataProvider contextProvider */
     public function testContainerIsResetWhenTheInjectorIsRetrieved(AbstractInjectorContext $context): void
     {
         $injector = ContextInjector::getInstance($context);

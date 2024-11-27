@@ -81,7 +81,7 @@ final class DependencyCode implements SetContextInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function setContext($context)
     {

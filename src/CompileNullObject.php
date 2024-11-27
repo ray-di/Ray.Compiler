@@ -15,9 +15,7 @@ use Ray\Di\NullObjectDependency;
  */
 final class CompileNullObject
 {
-    /**
-     * @param ScriptDir $scriptDir
-     */
+    /** @param ScriptDir $scriptDir */
     public function __invoke(Container $container, string $scriptDir): void
     {
         $container->map(static function (DependencyInterface $dependency) use ($scriptDir) {
