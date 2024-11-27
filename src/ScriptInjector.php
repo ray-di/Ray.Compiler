@@ -203,7 +203,7 @@ final class ScriptInjector implements ScriptInjectorInterface
 
     public function isSingleton(string $dependencyIndex): bool
     {
-        if ($this->container !== null) {
+        if ($this->container === null) {
             $module = $this->getModule();
             /** @var AbstractModule $module */
             $this->container = $module->getContainer()->getContainer();
