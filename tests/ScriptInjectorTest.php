@@ -183,7 +183,7 @@ class ScriptInjectorTest extends TestCase
             }
         );
         $car = $injector->getInstance(FakeCar::class);
-        $this->assertTrue($car instanceof FakeCar); // @phpstan-ignore-line
+        $this->assertInstanceOf(FakeCar::class, $car);
     }
 
     public function testCompileOnDemandAop(): void
