@@ -144,7 +144,7 @@ EOT;
         $this->expectException(DomainException::class);
         assert(class_exists(FakeInvalidDependency::class));
         $fake = new FakeInvalidDependency();
-        assert($fake instanceof DependencyInterface);
+        assert($fake instanceof DependencyInterface); // @phpstan-ignore-line
         (new DependencyCode(new Container()))->getCode($fake);
     }
 
