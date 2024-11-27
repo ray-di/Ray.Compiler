@@ -10,15 +10,20 @@ use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use ReflectionParameter;
 
+use function assert;
 use function file_exists;
 use function in_array;
 use function spl_autoload_register;
 use function sprintf;
 use function str_replace;
 
+/**
+ * @psalm-import-type ScriptDir from CompileInjector
+ * @psalm-import-type Ip from CompileInjector
+ */
 final class AirInjector implements InjectorInterface
 {
-    /** @var string */
+    /** @var ScriptDir */
     private $scriptDir;
 
     /**
@@ -26,7 +31,7 @@ final class AirInjector implements InjectorInterface
      *
      * [$class, $method, $parameter]
      *
-     * @var array{0: string, 1: string, 2: string}
+     * @var Ip
      */
     private $ip = ['', '', ''];
 
@@ -41,7 +46,7 @@ final class AirInjector implements InjectorInterface
     private static $scriptDirs = [];
 
     /**
-     * @param string $scriptDir generated instance script folder path
+     * @param ScriptDir $scriptDir generated instance script folder path
      *
      * @psalm-suppress UnresolvableInclude
      */
@@ -57,9 +62,9 @@ final class AirInjector implements InjectorInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      * @psalm-suppress UnresolvableInclude
      */
     public function getInstance($interface, $name = Name::ANY)
@@ -76,7 +81,11 @@ final class AirInjector implements InjectorInterface
                 }
 
                 return new InjectionPoint(
-                    new ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2])
+                    new ReflectionParameter(
+                        [$this->ip[0], $this->ip[1]],
+                        $this->ip[2]
+                    ),
+                    $this->scriptDir
                 );
             };
 
@@ -90,7 +99,8 @@ final class AirInjector implements InjectorInterface
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, array $ip = ['', '', '']) use ($injectionPoint, &$prototype, $injector, &$singleton) { // @phpstan-ignore-line
+                function (string $dependencyIndex, array $ip = ['', '', '']) {
+ // @phpstan-ignore-line
                     $this->ip = $ip; // @phpstan-ignore-line
 
                     return require $this->getInstanceFile($dependencyIndex);
@@ -101,13 +111,15 @@ final class AirInjector implements InjectorInterface
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, $ip = ['', '', '']) use ($injectionPoint, $prototype, $injector, &$singleton) { // @phpstan-ignore-line
+                function (string $dependencyIndex, $ip = ['', '', '']) {
+ // @phpstan-ignore-line
                     if (isset($this->singletons[$dependencyIndex])) {
                         return $this->singletons[$dependencyIndex];
                     }
 
                     $this->ip = $ip;
 
+                    /** @var object $instance */
                     $instance = require $this->getInstanceFile($dependencyIndex);
                     $this->singletons[$dependencyIndex] = $instance;
 
@@ -121,11 +133,14 @@ final class AirInjector implements InjectorInterface
             return $this->singletons[$dependencyIndex];
         }
 
-        /** @psalm-suppress UnresolvableInclude */
-        $instance = require $this->getInstanceFile($dependencyIndex);
+        $scriptFile = $this->getInstanceFile($dependencyIndex);
+        assert(file_exists($scriptFile), new Unbound($dependencyIndex));
+        /** @var mixed $instance */
+        $instance = require $scriptFile;
         /** @psalm-suppress UndefinedVariable */
         $isSingleton = isset($isSingleton) && $isSingleton;
         if ($isSingleton) {
+            /** @var object $instance */
             $this->singletons[$dependencyIndex] = $instance;
         }
 

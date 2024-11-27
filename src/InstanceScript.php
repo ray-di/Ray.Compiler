@@ -20,6 +20,7 @@ use function implode;
 use function is_a;
 use function is_iterable;
 use function is_object;
+use function is_string;
 use function serialize;
 use function sprintf;
 use function unserialize;
@@ -56,9 +57,7 @@ final class InstanceScript
         $this->container = $container->getContainer();
     }
 
-    /**
-     * @param mixed $defaultValue
-     */
+    /** @param mixed $defaultValue */
     public function addArg(string $index, bool $isDefaultAvailable, $defaultValue, ReflectionParameter $parameter): void
     {
         if (! isset($this->container[$index])) {
@@ -103,9 +102,7 @@ final class InstanceScript
         $this->args[] = $arg;
     }
 
-    /**
-     * @param mixed $default
-     */
+    /** @param mixed $default */
     public function addInstanceArg($default): void
     {
         if (is_object($default)) {
@@ -148,8 +145,8 @@ final class InstanceScript
         }
 
         $interceptors = [];
-        foreach ($aopBindings as $method => $bindings) {
-            $interceptors[] =  sprintf('\'%s\' => [%s]', $method, implode(', ', $bindings));
+        foreach ($aopBindings as $method => $aopBinding) {
+            $interceptors[] =  sprintf('\'%s\' => [%s]', $method, implode(', ', $aopBinding));
         }
 
         $this->formerLines[] = sprintf('$instance->bindings = [%s];', implode(', ', $interceptors));
@@ -157,7 +154,7 @@ final class InstanceScript
 
     public function getScript(?string $postConstruct, bool $isSingleton): string
     {
-        if ($postConstruct) {
+        if (is_string($postConstruct)) {
             $this->laterLines[] = sprintf('$instance->%s();', $postConstruct);
         }
 

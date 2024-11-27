@@ -24,7 +24,7 @@ final class Compiler
     /**
      * Compiles a given module into Scripts
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) // @phpstan-ignore-line
      */
     public function compile(AbstractModule $module, string $scriptDir): Scripts
     {
