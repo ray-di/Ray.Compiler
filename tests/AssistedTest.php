@@ -82,8 +82,7 @@ class AssistedTest extends TestCase
     {
         $assistedConsumer = (new Injector(new FakeAssistedDbModule(), __DIR__ . '/tmp'))->getInstance(FakeAssistedParamsConsumer::class);
         /** @var FakeAssistedParamsConsumer $assistedConsumer */
-        [$id, $db] = $assistedConsumer->getUser(1);
-        /** @var FakeAbstractDb $db */
+        [$id] = $assistedConsumer->getUser(1);
         $this->assertSame(1, $id);
     }
 }

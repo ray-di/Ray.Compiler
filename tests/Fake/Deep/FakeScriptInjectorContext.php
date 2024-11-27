@@ -30,10 +30,12 @@ final class FakeScriptInjectorContext extends AbstractInjectorContext
 
            protected function doSave($id, $data, $lifeTime = 0)
            {
+               unset($id, $data,$lifeTime);
            }
 
            protected function doDelete($id)
            {
+               unset($id);
            }
 
            protected function doFlush()

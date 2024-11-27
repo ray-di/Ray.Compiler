@@ -35,7 +35,7 @@ final class InjectorFactory
         } catch (Unbound $e) {
         }
 
-        if (! $isProd) {
+        if ($isProd === false) {
             return $rayInjector;
         }
 

@@ -120,10 +120,7 @@ final class CompileInjector implements ScriptInjectorInterface
 
     public function __wakeup()
     {
-        $this->__construct(
-            $this->scriptDir,
-            $this->lazyModule
-        );
+        new self($this->scriptDir, $this->lazyModule);
     }
 
     /**

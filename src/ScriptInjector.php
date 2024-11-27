@@ -25,6 +25,7 @@ use function file_get_contents;
 use function glob;
 use function in_array;
 use function is_bool;
+use function is_callable;
 use function is_dir;
 use function rmdir;
 use function rtrim;
@@ -98,7 +99,7 @@ final class ScriptInjector implements ScriptInjectorInterface
     public function __construct($scriptDir, ?callable $lazyModule = null)
     {
         $this->scriptDir = $scriptDir;
-        $this->lazyModule = $lazyModule ?: static function (): NullModule {
+        $this->lazyModule = is_callable($lazyModule) ? $lazyModule : static /** @return NullModule */function (): NullModule {
             return new NullModule();
         };
         $this->registerLoader();
@@ -155,12 +156,9 @@ final class ScriptInjector implements ScriptInjectorInterface
 
     public function __wakeup()
     {
-        $this->__construct(
-            $this->scriptDir,
-            function () {
-                return $this->getModule();
-            }
-        );
+        new self($this->scriptDir, function () {
+            return $this->getModule();
+        });
     }
 
     /**
@@ -205,7 +203,7 @@ final class ScriptInjector implements ScriptInjectorInterface
 
     public function isSingleton(string $dependencyIndex): bool
     {
-        if (! $this->container) {
+        if ($this->container !== null) {
             $module = $this->getModule();
             /** @var AbstractModule $module */
             $this->container = $module->getContainer()->getContainer();
