@@ -19,23 +19,23 @@ use function str_replace;
 
 use const LOCK_EX;
 
+/** @psalm-import-type ScriptDir from CompileInjector */
 final class GraphDumper
 {
     /** @var Container */
     private $container;
 
-    /** @var string */
+    /** @var ScriptDir */
     private $scriptDir;
 
+    /** @param ScriptDir $scriptDir */
     public function __construct(Container $container, string $scriptDir)
     {
         $this->container = $container;
         $this->scriptDir = $scriptDir;
     }
 
-    /**
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
-     */
+    /** @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line */
     public function __invoke(): void
     {
         $container = $this->container->getContainer();

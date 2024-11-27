@@ -7,9 +7,12 @@ namespace Ray\Compiler;
 use DomainException;
 use PHPUnit\Framework\TestCase;
 use Ray\Di\Container;
+use Ray\Di\DependencyInterface;
 use Ray\Di\Instance;
 use Ray\Di\Name;
 
+use function assert;
+use function class_exists;
 use function str_replace;
 
 class DependencyCompilerTest extends TestCase
@@ -17,6 +20,7 @@ class DependencyCompilerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         deleteFiles(__DIR__ . '/tmp');
     }
 
@@ -29,7 +33,10 @@ class DependencyCompilerTest extends TestCase
 
 return 'bear';
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertSame(
+            $this->normalizeLineEndings($expected),
+            $this->normalizeLineEndings((string) $code)
+        );
     }
 
     public function testInstanceCompileInt(): void
@@ -41,7 +48,10 @@ EOT;
 
 return 1;
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertSame(
+            $this->normalizeLineEndings($expected),
+            $this->normalizeLineEndings((string) $code)
+        );
     }
 
     public function testInstanceCompileArray(): void
@@ -53,9 +63,10 @@ EOT;
 
 return array(1, 2, 3);
 EOT;
-        $this->assertContains((string) $code, [
-            str_replace('array(1, 2, 3)', '[1, 2, 3]', $expected),
-            $expected,
+        $normalizedCode = $this->normalizeLineEndings((string) $code);
+        $this->assertContains($normalizedCode, [
+            $this->normalizeLineEndings(str_replace('array(1, 2, 3)', '[1, 2, 3]', $expected)),
+            $this->normalizeLineEndings($expected),
         ]);
     }
 
@@ -80,13 +91,14 @@ $isSingleton = false;
 return $instance;
 EOT;
         $expected = str_replace('{ANY}', Name::ANY, $expectedTemplate);
-        $this->assertContains((string) $code, [
-            str_replace(
+        $normalizedCode = $this->normalizeLineEndings((string) $code);
+        $this->assertContains($normalizedCode, [
+            $this->normalizeLineEndings(str_replace(
                 'array(\'Ray\\Compiler\\FakeCar\', \'setHandle\', \'handle\')',
                 '[\'Ray\\Compiler\\FakeCar\', \'setHandle\', \'handle\']',
                 str_replace('\\\\', '\\', $expected)
-            ),
-            $expected,
+            )),
+            $this->normalizeLineEndings($expected),
         ]);
     }
 
@@ -104,7 +116,10 @@ $instance = new \Ray\Compiler\FakeHandleProvider('momo');
 $isSingleton = false;
 return $instance->get();
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertSame(
+            $this->normalizeLineEndings($expected),
+            $this->normalizeLineEndings((string) $code)
+        );
     }
 
     public function testDependencyInstanceCompile(): void
@@ -117,7 +132,10 @@ EOT;
 
 return 'momo';
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertSame(
+            $this->normalizeLineEndings($expected),
+            $this->normalizeLineEndings((string) $code)
+        );
     }
 
     public function testDependencyObjectInstanceCompile(): void
@@ -130,16 +148,21 @@ EOT;
 
 return unserialize('O:23:"Ray\\Compiler\\FakeEngine":0:{}');
 EOT;
-        $this->assertContains((string) $code, [
-            str_replace('\\\\', '\\', $expected),
-            $expected,
+        $normalizedCode = $this->normalizeLineEndings((string) $code);
+        $this->assertContains($normalizedCode, [
+            $this->normalizeLineEndings(str_replace('\\\\', '\\', $expected)),
+            $this->normalizeLineEndings($expected),
         ]);
     }
 
     public function testDomainException(): void
     {
         $this->expectException(DomainException::class);
-        (new DependencyCode(new Container()))->getCode(new FakeInvalidDependency());
+        assert(class_exists(FakeInvalidDependency::class)); // to suppress phpstan false-positive
+        $fake = new FakeInvalidDependency();
+        assert($fake instanceof DependencyInterface); // @phpstan-ignore-line
+        // FakeInvalidDependency is not a valid dependency, so the DomainException is thrown.
+        (new DependencyCode(new Container()))->getCode($fake);
     }
 
     public function testContextualProviderCompile(): void
@@ -157,6 +180,15 @@ $instance->setContext('context');
 $isSingleton = false;
 return $instance->get();
 EOT;
-        $this->assertSame($expected, (string) $code);
+        $this->assertSame(
+            $this->normalizeLineEndings($expected),
+            $this->normalizeLineEndings((string) $code)
+        );
+    }
+
+    private function normalizeLineEndings(string $content): string
+    {
+        // Convert Windows (CRLF: \r\n) and old Mac (CR: \r) to Unix (LF: \n)
+        return str_replace(["\r\n", "\r"], "\n", $content);
     }
 }

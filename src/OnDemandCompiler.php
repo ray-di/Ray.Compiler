@@ -8,6 +8,7 @@ use Ray\Aop\Compiler;
 use Ray\Aop\Pointcut;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
+use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Bind;
 use Ray\Di\Dependency;
 use Ray\Di\Exception\NotFound;
@@ -17,15 +18,18 @@ use function error_reporting;
 use function explode;
 use function file_exists;
 use function file_get_contents;
-use function is_array;
 use function is_bool;
 use function unserialize;
 
 use const E_NOTICE;
 
+/**
+ * @psalm-import-type ScriptDir from CompileInjector
+ * @psalm-type Pointcuts = list<Pointcut>
+ */
 final class OnDemandCompiler
 {
-    /** @var string */
+    /** @var ScriptDir */
     private $scriptDir;
 
     /** @var ScriptInjector */
@@ -37,6 +41,7 @@ final class OnDemandCompiler
     /** @var CompileNullObject */
     private $compiler;
 
+    /** @param ScriptDir $scriptDir */
     public function __construct(ScriptInjector $injector, string $scriptDir, AbstractModule $module)
     {
         $this->scriptDir = $scriptDir;
@@ -65,8 +70,9 @@ final class OnDemandCompiler
 
         ($this->compiler)($containerObject, $this->scriptDir);
         $dependency = $containerArray[$dependencyIndex];
+        /** @var Pointcuts $pointCuts */
         $pointCuts = $this->loadPointcuts();
-        $isWeaverable = $dependency instanceof Dependency && is_array($pointCuts);
+        $isWeaverable = $dependency instanceof Dependency && ! empty($pointCuts);
         if ($isWeaverable) {
             $dependency->weaveAspects(new Compiler($this->scriptDir), $pointCuts);
         }
@@ -75,20 +81,18 @@ final class OnDemandCompiler
         (new DependencySaver($this->scriptDir))($dependencyIndex, $code);
     }
 
-    /**
-     * @return array<Pointcut>|false
-     */
-    private function loadPointcuts()
+    /** @return Pointcuts */
+    private function loadPointcuts(): array
     {
         $pointcutsPath = $this->scriptDir . ScriptInjector::AOP;
         if (! file_exists($pointcutsPath)) {
-            return false; // @codeCoverageIgnore
+            return []; // @codeCoverageIgnore
         }
 
         $serialized = file_get_contents($pointcutsPath);
         assert(! is_bool($serialized));
         $er = error_reporting(error_reporting() ^ E_NOTICE);
-        /** @var array<Pointcut> $pointcuts */
+        /** @var Pointcuts $pointcuts */
         $pointcuts = unserialize($serialized, ['allowed_classes' => true]);
         error_reporting($er);
 

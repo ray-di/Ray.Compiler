@@ -11,6 +11,7 @@ use Ray\Di\NullCache;
 
 use function spl_object_hash;
 
+/** @psalm-type Context = 'dev'|'prod' */
 class CachedFactoryTest extends TestCase
 {
     public function testInstanceCachedInStaticMemory(): void
@@ -30,9 +31,7 @@ class CachedFactoryTest extends TestCase
         $injector2->getInstance(FakeRobotInterface::class);
     }
 
-    /**
-     * @param 'dev'|'prod' $context
-     */
+    /** @param Context $context */
     private function getInjector(string $context): InjectorInterface
     {
         if ($context === 'dev') {

@@ -7,9 +7,11 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Bind;
+use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use ReflectionParameter;
 
+use function assert;
 use function file_exists;
 use function in_array;
 use function rtrim;
@@ -18,12 +20,29 @@ use function sprintf;
 use function str_replace;
 use function touch;
 
-final class CompileInjector implements ScriptInjectorInterface
+/**
+ * Compile Injector
+ *
+ * This injector will compile all bindings into PHP's low-code if they have not already been compiled.
+ * Once compiled, unknown concrete classes will not be compiled at runtime like ScriptInjector.
+ * All bindings must be explicitly pre-compiled.
+ *
+ * @psalm-type ScriptDir = non-empty-string
+ * @psalm-type Ip = array{0: string, 1: string, 2: string}
+ * @psalm-type Singletons = array<string, object>
+ * @psalm-type Prottype = callable(string, Ip): mixed
+ * @psalm-type Singleton = callable(string, Ip): mixed
+ * @psalm-type InjectionPoint = callable(): InjectionPoint
+ * @psalm-type Injector = callable(): InjectorInterface
+ * @psalm-type InstanceFunctions = array{0: Prottype, 1: Singleton, 2: InjectionPoint, 3: Injector}
+ * @psalm-type ScriptDirs = list<ScriptDir>
+ */
+final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignore-line
 {
     public const INSTANCE = '%s/%s.php';
     public const COMPILE_CHECK = '%s/compiled';
 
-    /** @var string */
+    /** @var ScriptDir */
     private $scriptDir;
 
     /**
@@ -31,64 +50,77 @@ final class CompileInjector implements ScriptInjectorInterface
      *
      * [$class, $method, $parameter]
      *
-     * @var array{0: string, 1: string, 2: string}
+     * @var Ip
      */
     private $ip = ['', '', ''];
 
     /**
      * Singleton instance container
      *
-     * @var array<object>
+     * @var Singletons
      */
     private $singletons = [];
 
-    /** @var array<callable> */
-    private $functions;
+    /** @var InstanceFunctions */
+    private $functions; // @phpstan-ignore-line
 
     /** @var LazyModuleInterface */
     private $lazyModule;
 
-    /** @var array<string> */
+    /** @var ScriptDirs */
     private static $scriptDirs = [];
 
     /**
-     * @param string              $scriptDir  generated instance script folder path
+     * @param ScriptDir           $scriptDir  generated instance script folder path
      * @param LazyModuleInterface $lazyModule callable variable which return AbstractModule instance
      *
      * @psalm-suppress UnresolvableInclude
      */
-    public function __construct($scriptDir, LazyModuleInterface $lazyModule)
+    public function __construct(string $scriptDir, LazyModuleInterface $lazyModule)
     {
-        $this->scriptDir = rtrim($scriptDir, '/');
+        $this->init($scriptDir, $lazyModule);
+    }
+
+    /** @param ScriptDir $scriptDir */
+    public function init(string $scriptDir, LazyModuleInterface $lazyModule): void
+    {
+        /** @var ScriptDir $scriptDir */
+        $scriptDir = rtrim($scriptDir, '/');
+        $this->scriptDir = $scriptDir;
         $this->lazyModule = $lazyModule;
         $this->registerLoader();
         $prototype =
             /**
-             * @param array{0: string, 1: string, 2: string} $injectionPoint
+             * @param Ip $injectionPoint
              *
              * @return mixed
              */
             function (string $dependencyIndex, array $injectionPoint = ['', '', '']) {
                 $this->ip = $injectionPoint; // @phpstan-ignore-line
                 [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
+                $instancFile = $this->getInstanceFile($dependencyIndex);
+                assert(file_exists($instancFile), new Unbound($dependencyIndex));
 
-                return require $this->getInstanceFile($dependencyIndex);
+                return require $instancFile;
             };
         $singleton =
             /**
-             * @param array{0: string, 1: string, 2: string} $injectionPoint
+             * @param Ip $injectionPoint
              *
              * @return mixed
              */
-            function (string $dependencyIndex, $injectionPoint = ['', '', '']) {
+            function (string $dependencyIndex, array $injectionPoint = ['', '', '']) {
                 if (isset($this->singletons[$dependencyIndex])) {
                     return $this->singletons[$dependencyIndex];
                 }
 
-                $this->ip = $injectionPoint;
+                $this->ip = $injectionPoint; // @phpstan-ignore-line
                 [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
 
-                $instance = require $this->getInstanceFile($dependencyIndex);
+                $instanceFile = $this->getInstanceFile($dependencyIndex);
+                assert(file_exists($instanceFile), new Unbound($dependencyIndex));
+                /** @var object $instance */
+                $instance = require $instanceFile;
                 $this->singletons[$dependencyIndex] = $instance;
 
                 return $instance;
@@ -105,9 +137,7 @@ final class CompileInjector implements ScriptInjectorInterface
         $this->functions = [$prototype, $singleton, $injectionPoint, $injector];
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     public function __sleep()
     {
         return ['scriptDir', 'singletons', 'lazyModule'];
@@ -115,16 +145,13 @@ final class CompileInjector implements ScriptInjectorInterface
 
     public function __wakeup()
     {
-        $this->__construct(
-            $this->scriptDir,
-            $this->lazyModule
-        );
+        $this->init($this->scriptDir, $this->lazyModule);
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      */
     public function getInstance($interface, $name = Name::ANY)
     {
@@ -146,6 +173,7 @@ final class CompileInjector implements ScriptInjectorInterface
         /** @psalm-suppress UndefinedVariable */
         $isSingleton = isset($isSingleton) && $isSingleton;
         if ($isSingleton) {
+            /** @var object $instance */
             $this->singletons[$dependencyIndex] = $instance;
         }
 

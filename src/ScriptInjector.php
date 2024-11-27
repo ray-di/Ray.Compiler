@@ -25,6 +25,7 @@ use function file_get_contents;
 use function glob;
 use function in_array;
 use function is_bool;
+use function is_callable;
 use function is_dir;
 use function rmdir;
 use function rtrim;
@@ -38,6 +39,10 @@ use function unserialize;
 use const DIRECTORY_SEPARATOR;
 use const E_NOTICE;
 
+/**
+ * @psalm-import-type ScriptDir from CompileInjector
+ * @psalm-import-type Ip from CompileInjector
+ */
 final class ScriptInjector implements ScriptInjectorInterface
 {
     public const MODULE = '/_module.txt';
@@ -46,9 +51,9 @@ final class ScriptInjector implements ScriptInjectorInterface
 
     public const INSTANCE = '%s/%s.php';
 
-    public const QUALIFIER = '%s/qualifer/%s-%s-%s';
+    public const QUALIFIER = '%s/qualifier/%s-%s-%s';
 
-    /** @var string */
+    /** @var non-empty-string */
     private $scriptDir;
 
     /**
@@ -56,7 +61,7 @@ final class ScriptInjector implements ScriptInjectorInterface
      *
      * [$class, $method, $parameter]
      *
-     * @var array{0: string, 1: string, 2: string}
+     * @var Ip
      */
     private $ip = ['', '', ''];
 
@@ -86,21 +91,27 @@ final class ScriptInjector implements ScriptInjectorInterface
     private static $scriptDirs = [];
 
     /**
-     * @param string   $scriptDir  generated instance script folder path
-     * @param callable $lazyModule callable variable which return AbstractModule instance
+     * @param ScriptDir $scriptDir  generated instance script folder path
+     * @param callable  $lazyModule callable variable which return AbstractModule instance
      *
      * @psalm-suppress UnresolvableInclude
      */
     public function __construct($scriptDir, ?callable $lazyModule = null)
     {
+        $this->init($scriptDir, $lazyModule);
+    }
+
+    /** @param ScriptDir $scriptDir */
+    private function init(string $scriptDir, ?callable $lazyModule): void
+    {
         $this->scriptDir = $scriptDir;
-        $this->lazyModule = $lazyModule ?: static function (): NullModule {
+        $this->lazyModule = is_callable($lazyModule) ? $lazyModule : static /** @return NullModule */function (): NullModule {
             return new NullModule();
         };
         $this->registerLoader();
         $prototype =
             /**
-             * @param array{0: string, 1: string, 2: string} $injectionPoint
+             * @param Ip $injectionPoint
              *
              * @return mixed
              */
@@ -108,11 +119,14 @@ final class ScriptInjector implements ScriptInjectorInterface
                 $this->ip = $injectionPoint; // @phpstan-ignore-line
                 [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
 
-                return require $this->getInstanceFile($dependencyIndex);
+                $instanceFile = $this->getInstanceFile($dependencyIndex);
+                assert(file_exists($instanceFile), "File not found: {$instanceFile}");
+
+                return require $instanceFile;
             };
         $singleton =
             /**
-             * @param array{0: string, 1: string, 2: string} $injectionPoint
+             * @param Ip $injectionPoint
              *
              * @return mixed
              */
@@ -123,8 +137,10 @@ final class ScriptInjector implements ScriptInjectorInterface
 
                 $this->ip = $injectionPoint;
                 [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
+                $instanceFile = $this->getInstanceFile($dependencyIndex);
+                assert(file_exists($instanceFile), "File not found: {$instanceFile}");
 
-                $instance = require $this->getInstanceFile($dependencyIndex);
+                $instance = require $instanceFile;
                 $this->singletons[$dependencyIndex] = $instance;
 
                 return $instance;
@@ -141,9 +157,7 @@ final class ScriptInjector implements ScriptInjectorInterface
         $this->functions = [$prototype, $singleton, $injectionPoint, $injector];
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     public function __sleep()
     {
         $this->saveModule();
@@ -153,18 +167,15 @@ final class ScriptInjector implements ScriptInjectorInterface
 
     public function __wakeup()
     {
-        $this->__construct(
-            $this->scriptDir,
-            function () {
-                return $this->getModule();
-            }
-        );
+        $this->init($this->scriptDir, function () {
+            return $this->getModule();
+        });
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      */
     public function getInstance($interface, $name = Name::ANY)
     {
@@ -174,6 +185,8 @@ final class ScriptInjector implements ScriptInjectorInterface
         }
 
         [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
+        /** @psalm-suppress RedundantConditionGivenDocblockType */ // assert for serialization
+        assert(is_callable($prototype), 'prototype is not callable'); // @phpstan-ignore-line
         /** @psalm-suppress UnresolvableInclude */
         $instance = require $this->getInstanceFile($dependencyIndex);
         /** @psalm-suppress UndefinedVariable */
@@ -203,7 +216,7 @@ final class ScriptInjector implements ScriptInjectorInterface
 
     public function isSingleton(string $dependencyIndex): bool
     {
-        if (! $this->container) {
+        if ($this->container === null) {
             $module = $this->getModule();
             /** @var AbstractModule $module */
             $this->container = $module->getContainer()->getContainer();

@@ -9,9 +9,7 @@ use Ray\Di\InjectorInterface;
 
 use function get_class;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class ContextInjector
 {
     public static function getInstance(AbstractInjectorContext $injectorContext): InjectorInterface

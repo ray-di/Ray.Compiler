@@ -13,15 +13,11 @@ class FakeAssistedInjectConsumer
 {
     public function assistOne($a, $b, #[Assisted] ?\Ray\Compiler\FakeRobotInterface $robot = null): ?\Ray\Compiler\FakeRobotInterface
     {
-        unset($a, $b);
-
         return $robot;
     }
 
     public function assistWithName($a, #[Assisted, Named('one')] $var1 = null)
     {
-        unset($a);
-
         return $var1;
     }
 
@@ -34,7 +30,7 @@ class FakeAssistedInjectConsumer
         return [$var2, $robot];
     }
 
-    public function assistCustomeAssistedInject(#[FakeInjectOne] int $one = 0): int
+    public function assistCustomAssistedInject(#[FakeInjectOne] int $one = 0): int
     {
         return $one;
     }

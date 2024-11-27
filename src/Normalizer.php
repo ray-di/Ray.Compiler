@@ -76,13 +76,14 @@ final class Normalizer
     /**
      * Return array or object node
      *
-     * @param array<mixed>|mixed|object $value
+     * @param array<int, mixed>|mixed|object $value
      *
      * @return Expr\Array_|Expr\FuncCall
      */
     private function getValueNodeNonAtomic($value): Expr
     {
         if (is_array($value)) {
+            /** @var array<int, mixed> $value */
             return $this->arrayValue($value);
         }
 

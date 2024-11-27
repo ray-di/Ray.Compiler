@@ -65,17 +65,13 @@ class DevCache extends CacheProvider
         return $this->cache->delete($id);
     }
 
-    /**
-     * @return ?array<string>
-     */
+    /** @return ?array<string> */
     public function doGetStats()
     {
-        return $this->cache->getStats(); // @phpstan-ignore-line
+        return $this->cache->getStats();
     }
 
-    /**
-     * @return bool
-     */
+    /** @return bool */
     public function doFlush()
     {
         return true;

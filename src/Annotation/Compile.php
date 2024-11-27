@@ -6,9 +6,7 @@ namespace Ray\Compiler\Annotation;
 
 use Ray\Di\Di\Qualifier;
 
-/**
- * @Qualifier
- */
+/** @Qualifier */
 final class Compile
 {
 }

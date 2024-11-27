@@ -6,6 +6,7 @@ namespace Ray\Compiler;
 
 use Ray\Aop\ReflectionClass;
 use Ray\Aop\ReflectionMethod;
+use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\InjectionPointInterface;
 use ReflectionParameter;
 use RuntimeException;
@@ -19,14 +20,16 @@ use function sprintf;
 use function str_replace;
 use function unserialize;
 
+/** @psalm-import-type ScriptDir from CompileInjector */
 final class InjectionPoint implements InjectionPointInterface
 {
     /** @var ReflectionParameter */
     private $parameter;
 
-    /** @var string */
+    /** @var ScriptDir */
     private $scriptDir;
 
+    /** @param ScriptDir $scriptDir */
     public function __construct(ReflectionParameter $parameter, string $scriptDir)
     {
         $this->parameter = $parameter;
@@ -34,7 +37,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getParameter(): ReflectionParameter
     {
@@ -42,7 +45,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getMethod(): ReflectionMethod
     {
@@ -56,7 +59,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getClass(): ReflectionClass
     {
@@ -67,7 +70,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return array<(object|null)>
      *
@@ -79,7 +82,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return object|null
      */

@@ -6,6 +6,7 @@ namespace Ray\Compiler;
 
 use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
+use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\InjectorInterface;
 use Ray\Di\NullCache;
 
@@ -13,6 +14,7 @@ use function assert;
 use function serialize;
 use function unserialize;
 
+/** @psalm-import-type ScriptDir from CompileInjector */
 final class CachedInjectorFactory
 {
     /** @var array<string, string> */
@@ -21,6 +23,7 @@ final class CachedInjectorFactory
     /**
      * @param callable(): AbstractModule $modules
      * @param array<class-string>        $savedSingletons
+     * @param ScriptDir                  $scriptDir
      */
     public static function getInstance(string $injectorId, string $scriptDir, callable $modules, ?CacheProvider $cache = null, array $savedSingletons = []): InjectorInterface
     {
@@ -53,6 +56,7 @@ final class CachedInjectorFactory
     /**
      * @param callable(): AbstractModule $modules
      * @param array<class-string>        $savedSingletons
+     *                                                   @param ScriptDir                  $scriptDir
      */
     public static function getOverrideInstance(
         string $scriptDir,
@@ -66,6 +70,7 @@ final class CachedInjectorFactory
     /**
      * @param callable(): AbstractModule $modules
      * @param array<class-string>        $savedSingletons
+     * @param ScriptDir                  $scriptDir
      */
     private static function getInjector(callable $modules, string $scriptDir, array $savedSingletons, ?AbstractModule $module = null): InjectorInterface
     {

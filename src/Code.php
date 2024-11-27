@@ -18,9 +18,7 @@ final class Code
     /** @var Node */
     private $node;
 
-    /**
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     */
+    /** @SuppressWarnings(PHPMD.BooleanArgumentFlag) // @phpstan-ignore-line */
     public function __construct(Node $node, bool $isSingleton = false, ?IpQualifier $qualifier = null)
     {
         $this->node = $node;

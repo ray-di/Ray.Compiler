@@ -7,9 +7,7 @@ namespace Ray\Compiler;
 use PHPUnit\Framework\TestCase;
 use Ray\Di\Exception\Unbound;
 
-use function assert;
 use function file_get_contents;
-use function is_object;
 use function serialize;
 use function spl_object_hash;
 use function unserialize;
@@ -45,16 +43,14 @@ class CompileInjectorTest extends TestCase
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Compiler_FakeCar-.php');
     }
 
-    /**
-     * @depends testCompile
-     */
+    /** @depends testCompile */
     public function testGetInstance(): void
     {
         $instance = $this->injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCarInterface::class, $instance);
     }
 
-    public function testInjectopnPoint(): void
+    public function testInjectionPoint(): void
     {
         $instance = $this->injector->getInstance(FakeLoggerConsumer::class);
         $this->assertInstanceOf(FakeLoggerConsumer::class, $instance);
@@ -64,8 +60,6 @@ class CompileInjectorTest extends TestCase
     {
         $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
         $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
-        assert(is_object($instance1));
-        assert(is_object($instance2));
         $this->assertSame(spl_object_hash($instance1), spl_object_hash($instance2));
     }
 
@@ -86,19 +80,15 @@ class CompileInjectorTest extends TestCase
         $injector->getInstance(FakeCar2::class);
     }
 
-    /**
-     * @depends testUnbound
-     */
+    /** @depends testUnbound */
     public function testUnboundCompileLogFile(): void
     {
         $this->expectException(Unbound::class);
         $this->injector->getInstance(FakeCar2::class);
     }
 
-    /**
-     * @depends testUnboundCompileLogFile
-     */
-    public function testCompileFaillureLog(): void
+    /** @depends testUnboundCompileLogFile */
+    public function testCompileFailureLog(): void
     {
         $logFile = __DIR__ . '/tmp/_compile.log';
         $this->assertFileExists(__DIR__ . '/tmp/compiled');

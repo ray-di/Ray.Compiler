@@ -13,7 +13,6 @@ use Ray\Di\NullModule;
 use function assert;
 use function count;
 use function glob;
-use function property_exists;
 use function serialize;
 use function spl_object_hash;
 use function unserialize;
@@ -40,9 +39,7 @@ class ScriptInjectorTest extends TestCase
         return $car;
     }
 
-    /**
-     * @depends testGetInstance
-     */
+    /** @depends testGetInstance */
     public function testDefaultValueInjected(FakeCar $car): void
     {
         $this->assertNull($car->null);
@@ -122,7 +119,6 @@ class ScriptInjectorTest extends TestCase
         $instance1 = $injector->getInstance(FakeCarInterface::class);
         $instance2 = $injector->getInstance(FakeCar::class);
         $instance3 = $injector->getInstance(FakeCar2::class);
-        assert($instance3 instanceof FakeCar2);
         $this->assertInstanceOf(WeavedInterface::class, $instance1);
         $this->assertInstanceOf(WeavedInterface::class, $instance2);
         $this->assertInstanceOf(WeavedInterface::class, $instance3);
@@ -133,9 +129,7 @@ class ScriptInjectorTest extends TestCase
     {
         (new DiCompiler(new FakeToBindSingletonModule(), __DIR__ . '/tmp'))->compile();
         $dependSingleton1 = $this->injector->getInstance(FakeDependSingleton::class);
-        assert($dependSingleton1 instanceof FakeDependSingleton);
         $dependSingleton2 = $this->injector->getInstance(FakeDependSingleton::class);
-        assert($dependSingleton2 instanceof FakeDependSingleton);
         $hash1 = spl_object_hash($dependSingleton1->robot);
         $hash2 = spl_object_hash($dependSingleton2->robot);
         $this->assertSame($hash1, $hash2);
@@ -145,9 +139,7 @@ class ScriptInjectorTest extends TestCase
     {
         (new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp'))->compile();
         $fakeDependPrototype1 = $this->injector->getInstance(FakeDependPrototype::class);
-        assert($fakeDependPrototype1 instanceof FakeDependPrototype);
         $fakeDependPrototype2 = $this->injector->getInstance(FakeDependPrototype::class);
-        assert($fakeDependPrototype2 instanceof FakeDependPrototype);
         $hash1 = spl_object_hash($fakeDependPrototype1->car);
         $hash2 = spl_object_hash($fakeDependPrototype2->car);
         $this->assertNotSame($hash1, $hash2);
@@ -156,7 +148,6 @@ class ScriptInjectorTest extends TestCase
     public function testOptional(): void
     {
         $optional = $this->injector->getInstance(FakeOptional::class);
-        assert($optional instanceof FakeOptional);
         $this->assertNull($optional->robot);
     }
 
@@ -166,7 +157,6 @@ class ScriptInjectorTest extends TestCase
         $diCompiler->compile();
         /** @var FakeFactory $factory */
         $factory = $diCompiler->getInstance(FakeFactory::class);
-        assert(property_exists($factory, 'injector'));
         $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
         $injector = new ScriptInjector(__DIR__ . '/tmp');
         /** @var FakeFactory $factory */
@@ -177,9 +167,9 @@ class ScriptInjectorTest extends TestCase
     public function testUnbound(): void
     {
         $this->expectException(Unbound::class);
-        $this->expectExceptionMessage('NOCLASS-NONAME');
+        $this->expectExceptionMessage('NO-CLASS-NO-NAME');
         $injector = new ScriptInjector(__DIR__ . '/tmp');
-        $injector->getInstance('NOCLASS', 'NONAME'); // @phpstan-ignore-line
+        $injector->getInstance('NO-CLASS', 'NO-NAME'); // @phpstan-ignore-line
     }
 
     public function testCompileOnDemand(): void
@@ -191,7 +181,7 @@ class ScriptInjectorTest extends TestCase
             }
         );
         $car = $injector->getInstance(FakeCar::class);
-        $this->assertTrue($car instanceof FakeCar);
+        $this->assertInstanceOf(FakeCar::class, $car);
     }
 
     public function testCompileOnDemandAop(): void
@@ -203,7 +193,6 @@ class ScriptInjectorTest extends TestCase
             }
         );
         $aop = $injector->getInstance(FakeAopInterface::class);
-        assert($aop instanceof FakeAopInterface);
         $result = $aop->returnSame(1);
         $this->assertSame(2, $result);
     }
@@ -219,7 +208,7 @@ class ScriptInjectorTest extends TestCase
         $injector = unserialize($serialize);
         assert($injector instanceof InjectorInterface);
         $car = $injector->getInstance(FakeCar::class);
-        $this->assertTrue($car instanceof FakeCar);
+        $this->assertTrue($car instanceof FakeCar); // @phpstan-ignore-line
     }
 
     public function testCompileOnDemandAopSerialize(): void
