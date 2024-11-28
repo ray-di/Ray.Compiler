@@ -7,18 +7,13 @@ namespace Ray\Compiler;
 use Ray\Aop\ReflectionClass;
 use Ray\Aop\ReflectionMethod;
 use Ray\Di\Annotation\ScriptDir;
+use Ray\Di\Di\Qualifier;
 use Ray\Di\InjectionPointInterface;
+use Ray\ServiceLocator\ServiceLocator;
 use ReflectionParameter;
-use RuntimeException;
 
 use function assert;
 use function class_exists;
-use function file_exists;
-use function file_get_contents;
-use function is_bool;
-use function sprintf;
-use function str_replace;
-use function unserialize;
 
 /** @psalm-import-type ScriptDir from CompileInjector */
 final class InjectionPoint implements InjectionPointInterface
@@ -88,31 +83,17 @@ final class InjectionPoint implements InjectionPointInterface
      */
     public function getQualifier()
     {
-        $class = $this->parameter->getDeclaringClass();
-        assert($class instanceof \ReflectionClass);
-
-        $qualifierFile = sprintf(
-            ScriptInjector::QUALIFIER,
-            $this->scriptDir,
-            str_replace('\\', '_', $class->name),
-            $this->parameter->getDeclaringFunction()->name,
-            $this->parameter->name
-        );
-        // @codeCoverageIgnoreStart
-        if (! file_exists($qualifierFile)) {
-            return null;
+        $reader = ServiceLocator::getReader();
+        $annotations = $reader->getMethodAnnotations($this->getMethod());
+        foreach ($annotations as $annotation) {
+            $maybeQualifers = $reader->getClassAnnotations(new \ReflectionClass($annotation));
+            foreach ($maybeQualifers as $maybeQualifer) {
+                if ($maybeQualifer instanceof Qualifier) {
+                    return $annotation;
+                }
+            }
         }
 
-        // @codeCoverageIgnoreEnd
-
-        $qualifierString = file_get_contents($qualifierFile);
-        if (is_bool($qualifierString)) {
-            throw new RuntimeException(); // @codeCoverageIgnore
-        }
-
-        /** @var ?object $qualifier */
-        $qualifier = unserialize($qualifierString, ['allowed_classes' => true]);
-
-        return $qualifier;
+        return null;
     }
 }

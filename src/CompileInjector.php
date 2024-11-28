@@ -235,6 +235,7 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
         $module = (new InstallBuiltinModule())(($this->lazyModule)());
         (new FilePutContents())(sprintf('%s/_bindings.log', $this->scriptDir), (string) $module);
         (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
-        (new DiCompiler($module, $this->scriptDir))->compileContainer();
+        (new Bind($module->getContainer(), InjectorInterface::class))->toInstance(new AirInjector($this->scriptDir));
+        (new Compiler())->compile($module, $this->scriptDir);
     }
 }

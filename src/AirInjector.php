@@ -20,6 +20,11 @@ use function str_replace;
 /**
  * @psalm-import-type ScriptDir from CompileInjector
  * @psalm-import-type Ip from CompileInjector
+ * @psalm-import-type Singleton from CompileInjector
+ * @psalm-import-type Prottype from CompileInjector
+ * @psalm-import-type InjectionPoint from CompileInjector
+ * @psalm-import-type Injector from CompileInjector
+ * @psalm-type Injector = callable(): InjectorInterface
  */
 final class AirInjector implements InjectorInterface
 {
@@ -69,12 +74,13 @@ final class AirInjector implements InjectorInterface
      */
     public function getInstance($interface, $name = Name::ANY)
     {
+        static $injectionPoint;
+        static $injector;
         static $prototype;
         static $singleton;
-        static $injector;
-        static $injectionPoint;
 
         if ($prototype === null) {
+            /** @var InjectionPoint $injectionPoint */ // @phpstan-ignore-next-line
             $injectionPoint = function (): InjectionPoint {
                 if ($this->ip[0] === '') {
                     throw new InjectionPointUnbound();
@@ -89,30 +95,33 @@ final class AirInjector implements InjectorInterface
                 );
             };
 
+            /** @var Injector $injector */
+            // @phpstan-ignore-next-line
             $injector = function (): self {
                 return $this;
             };
 
-            $prototype =
+            /** @var Prottype $prototype */
+            $prototype = // @phpstan-ignore-line
                 /**
-                 * @param array{0: string, 1: string, 2: string} $ip
+                 * @param Ip $ip
                  *
                  * @return mixed
                  */
                 function (string $dependencyIndex, array $ip = ['', '', '']) {
- // @phpstan-ignore-line
                     $this->ip = $ip; // @phpstan-ignore-line
 
                     return require $this->getInstanceFile($dependencyIndex);
                 };
-            $singleton =
+
+            /** @var Singleton $singleton */
+            $singleton = // @phpstan-ignore-line
                 /**
-                 * @param array{0: string, 1: string, 2: string} $ip
+                 * @param Ip $ip
                  *
                  * @return mixed
                  */
                 function (string $dependencyIndex, $ip = ['', '', '']) {
- // @phpstan-ignore-line
                     if (isset($this->singletons[$dependencyIndex])) {
                         return $this->singletons[$dependencyIndex];
                     }
