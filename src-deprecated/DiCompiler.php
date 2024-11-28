@@ -13,7 +13,6 @@ use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use ReflectionProperty;
-
 use function assert;
 use function fclose;
 use function fopen;
