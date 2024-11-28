@@ -145,10 +145,7 @@ final class ScriptInjector implements ScriptInjectorInterface
                 return $instance;
             };
         $injectionPoint = function () use ($scriptDir): InjectionPoint {
-            return new InjectionPoint(
-                new ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2]),
-                $scriptDir
-            );
+            return new InjectionPoint(new ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2]));
         };
         $injector = function (): self {
             return $this;

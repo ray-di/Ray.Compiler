@@ -125,10 +125,9 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
 
                 return $instance;
             };
-        $injectionPoint = function () use ($scriptDir): InjectionPoint {
+        $injectionPoint = function (): InjectionPoint {
             return new InjectionPoint(
-                new ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2]),
-                $scriptDir
+                new ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2])
             );
         };
         $injector = function (): self {
@@ -168,8 +167,10 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
         }
 
         [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
-        /** @psalm-suppress UnresolvableInclude */
-        $instance = require $this->getInstanceFile($dependencyIndex);
+        $script = $this->getInstanceFile($dependencyIndex);
+        assert(file_exists($script), new Unbound($dependencyIndex));
+        /** @var mixed $instance */
+        $instance = require $script;
         /** @psalm-suppress UndefinedVariable */
         $isSingleton = isset($isSingleton) && $isSingleton;
         if ($isSingleton) {

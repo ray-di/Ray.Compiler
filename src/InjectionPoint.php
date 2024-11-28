@@ -6,7 +6,6 @@ namespace Ray\Compiler;
 
 use Ray\Aop\ReflectionClass;
 use Ray\Aop\ReflectionMethod;
-use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Di\Qualifier;
 use Ray\Di\InjectionPointInterface;
 use Ray\ServiceLocator\ServiceLocator;
@@ -21,14 +20,9 @@ final class InjectionPoint implements InjectionPointInterface
     /** @var ReflectionParameter */
     private $parameter;
 
-    /** @var ScriptDir */
-    private $scriptDir;
-
-    /** @param ScriptDir $scriptDir */
-    public function __construct(ReflectionParameter $parameter, string $scriptDir)
+    public function __construct(ReflectionParameter $parameter)
     {
         $this->parameter = $parameter;
-        $this->scriptDir = $scriptDir;
     }
 
     /**

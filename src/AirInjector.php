@@ -80,7 +80,7 @@ final class AirInjector implements InjectorInterface
         static $singleton;
 
         if ($prototype === null) {
-            /** @var InjectionPoint $injectionPoint */ // @phpstan-ignore-next-line
+            /** @var InjectionPoint $injectionPoint */ // @phpstan-ignore-line
             $injectionPoint = function (): InjectionPoint {
                 if ($this->ip[0] === '') {
                     throw new InjectionPointUnbound();
@@ -90,8 +90,7 @@ final class AirInjector implements InjectorInterface
                     new ReflectionParameter(
                         [$this->ip[0], $this->ip[1]],
                         $this->ip[2]
-                    ),
-                    $this->scriptDir
+                    )
                 );
             };
 
