@@ -81,6 +81,7 @@ final class AirInjector implements InjectorInterface
 
         if ($prototype === null) {
             /** @var InjectionPoint $injectionPoint */ // @phpstan-ignore-line
+            // @phpstan-ignore-next-line
             $injectionPoint = function (): InjectionPoint {
                 if ($this->ip[0] === '') {
                     throw new InjectionPointUnbound();
