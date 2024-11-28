@@ -34,10 +34,10 @@ class MultiBindingTest extends TestCase
 
     protected function setUp(): void
     {
-        deleteFiles(__DIR__ . '/tmp');
-        $this->injector = new ScriptInjector(__DIR__ . '/tmp', static function () {
+        @mkdir(__DIR__ . '/tmp/mulit-bindings');
+        $this->injector = new CompileInjector(__DIR__ . '/tmp/mulit-bindings', LazyModule::getInstance(static function () {
             return new FakeMultiBindingsModule();
-        });
+        }));
     }
 
     /** @return Map<FakeEngineInterface> */
