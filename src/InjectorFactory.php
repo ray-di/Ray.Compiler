@@ -47,11 +47,9 @@ final class InjectorFactory
     }
 
     /** @param ScriptDir $scriptDir */
-    private static function getScriptInjector(string $scriptDir, AbstractModule $module): ScriptInjector
+    private static function getScriptInjector(string $scriptDir, AbstractModule $module): CompileInjector
     {
-        return new ScriptInjector($scriptDir, static function () use ($scriptDir, $module) {
-            return new ScriptInjectorModule($scriptDir, $module);
-        });
+        return new CompileInjector($scriptDir, new LazyModule($module));
     }
 
     /** @param ScriptDir $scriptDIr */
