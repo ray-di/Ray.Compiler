@@ -15,7 +15,6 @@ class FakeLazyModule implements LazyModuleInterface
         $module->install(new FakeLoggerModule());
         $module->install(new FakeToBindSingletonModule());
         $module->install(new FakeMultiBindingsModule());
-
         return $module;
     }
 }

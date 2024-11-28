@@ -16,15 +16,17 @@ class ScriptInjectorNullObjectTest extends TestCase
         deleteFiles(__DIR__ . '/tmp');
     }
 
-    public function testNullObjectCompile(): ScriptInjector
+    public function testNullObjectCompile(): CompileInjector
     {
         passthru(sprintf('php %s/script/null_object.php', __DIR__));
 
-        $injector = new ScriptInjector(
-            __DIR__ . '/tmp',
-            static function () {
-                return new FakeNullObjectModule();
-            }
+        $injector = new CompileInjector(
+            __DIR__ . '/tmp/null_object',
+            LazyModule::getInstance(
+                static function () {
+                    return new FakeNullObjectModule();
+                }
+            )
         );
         $instance = $injector->getInstance(FakeTyreInterface::class);
         $this->assertInstanceOf(FakeTyreInterface::class, $instance);

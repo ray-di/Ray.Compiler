@@ -25,6 +25,7 @@ use Ray\Di\MultiBinding\MultiBindings;
 use Ray\Di\NullModule;
 
 use function count;
+use function mkdir;
 
 /** @requires PHP 8.0 */
 class MultiBindingTest extends TestCase

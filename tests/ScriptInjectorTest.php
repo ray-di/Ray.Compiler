@@ -6,33 +6,35 @@ namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
 use Ray\Aop\WeavedInterface;
+use Ray\Di\AbstractModule;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\NullModule;
 
 use function assert;
-use function count;
-use function glob;
+use function mkdir;
 use function serialize;
 use function spl_object_hash;
 use function unserialize;
 
-class ScriptInjectorTest extends TestCase
+class CompileInjectorExtendedScriptInjectorTest extends TestCase
 {
-    /** @var ScriptInjector */
+    /** @var CompileInjector */
     private $injector;
 
     protected function setUp(): void
     {
-        deleteFiles(__DIR__ . '/tmp');
-        $this->injector = new ScriptInjector(__DIR__ . '/tmp');
+        @mkdir(__DIR__ . '/tmp');
+        $this->injector = new CompileInjector(
+            __DIR__ . '/tmp',
+            LazyModule::getInstance(static function (): AbstractModule {
+                return new FakeCarModule();
+            })
+        );
     }
 
     public function testGetInstance(): FakeCar
     {
-        $diCompiler = new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp');
-        $diCompiler->compile();
-        /** @var FakeCar $car */
         $car = $this->injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $car);
 
@@ -48,74 +50,118 @@ class ScriptInjectorTest extends TestCase
     public function testCompileException(): void
     {
         $this->expectException(Unbound::class);
-        $script = new ScriptInjector(__DIR__ . '/tmp');
-        $script->getInstance('invalid-class'); // @phpstan-ignore-line
+        $this->injector->getInstance('invalid-class'); // @phpstan-ignore-line
     }
 
     public function testToPrototype(): void
     {
-        (new DiCompiler(new FakeToBindPrototypeModule(), __DIR__ . '/tmp'))->compile();
-        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
-        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $tmpDir = __DIR__ . '/tmp/testToPrototype';
+        @mkdir($tmpDir);
+        $injector = new CompileInjector(
+            $tmpDir,
+            LazyModule::getInstance(static function (): AbstractModule {
+                return new FakeToBindPrototypeModule();
+            })
+        );
+        $instance1 = $injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $injector->getInstance(FakeRobotInterface::class);
         $this->assertNotSame(spl_object_hash($instance1), spl_object_hash($instance2));
     }
 
     public function testToSingleton(): void
     {
-        (new DiCompiler(new FakeToBindSingletonModule(), __DIR__ . '/tmp'))->compile();
-        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
-        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $tmpDir = __DIR__ . '/tmp/testToSingleton';
+        @mkdir($tmpDir);
+        $injector = new CompileInjector(
+            $tmpDir,
+            LazyModule::getInstance(static function (): AbstractModule {
+                return new FakeToBindSingletonModule();
+            })
+        );
+        $instance1 = $injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $injector->getInstance(FakeRobotInterface::class);
         $this->assertSame($instance1, $instance2);
     }
 
     public function testToProviderPrototype(): void
     {
-        (new DiCompiler(new FakeToProviderPrototypeModule(), __DIR__ . '/tmp'))->compile();
-        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
-        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $tmpDir = __DIR__ . '/tmp/testToProviderPrototype';
+        @mkdir($tmpDir);
+        $injector = new CompileInjector(
+            $tmpDir,
+            LazyModule::getInstance(static function (): AbstractModule {
+                return new FakeToProviderPrototypeModule();
+            })
+        );
+        $instance1 = $injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $injector->getInstance(FakeRobotInterface::class);
         $this->assertNotSame($instance1, $instance2);
     }
 
     public function testToProviderSingleton(): void
     {
-        (new DiCompiler(new FakeToProviderSingletonModule(), __DIR__ . '/tmp'))->compile();
-        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
-        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $tmpdir = __DIR__ . '/tmp/testToProviderSingleton';
+        @mkdir($tmpdir);
+        $injector = new CompileInjector(
+            $tmpdir,
+            LazyModule::getInstance(static function (): AbstractModule {
+                return new FakeToProviderSingletonModule();
+            })
+        );
+        $instance1 = $injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $injector->getInstance(FakeRobotInterface::class);
         $this->assertSame($instance1, $instance2);
     }
 
     public function testToInstancePrototype(): void
     {
-        (new DiCompiler(new FakeToInstancePrototypeModule(), __DIR__ . '/tmp'))->compile();
-        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
-        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $tmpDir = __DIR__ . '/tmp/testToInstancePrototype';
+        @mkdir($tmpDir);
+        $injector = new CompileInjector(
+            $tmpDir,
+            LazyModule::getInstance(static function (): AbstractModule {
+                return new FakeToInstancePrototypeModule();
+            })
+        );
+        $instance1 = $injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $injector->getInstance(FakeRobotInterface::class);
         $this->assertNotSame($instance1, $instance2);
     }
 
     public function testToInstanceSingleton(): void
     {
-        (new DiCompiler(new FakeToInstanceSingletonModule(), __DIR__ . '/tmp'))->compile();
-        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
-        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $tmpDir = __DIR__ . '/tmp/testToInstanceSingleton';
+        @mkdir($tmpDir);
+        $injector = new CompileInjector(
+            $tmpDir,
+            LazyModule::getInstance(static function (): AbstractModule {
+                return new FakeToInstanceSingletonModule();
+            })
+        );
+        $instance1 = $injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $injector->getInstance(FakeRobotInterface::class);
         $this->assertSame($instance1, $instance2);
     }
 
     public function testSerializable(): void
     {
-        $diCompiler = new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp');
-        $diCompiler->compile();
-        $injector = unserialize(serialize($this->injector));
+        $tmpDir = __DIR__ . '/tmp/testSerializable';
+        @mkdir($tmpDir);
+        $originalInjector = new CompileInjector(
+            $tmpDir,
+            new FakeLazyModule()
+        );
+
+        $injector = unserialize(serialize($originalInjector));
         assert($injector instanceof InjectorInterface);
         $car = $injector->getInstance(FakeCarInterface::class);
-        $this->assertInstanceOf(ScriptInjector::class, $injector);
+        $this->assertInstanceOf(CompileInjector::class, $injector);
         $this->assertInstanceOf(FakeCar::class, $car);
     }
 
     public function testAop(): void
     {
-        $compiler = new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp');
-        $compiler->compile();
-        $injector = new ScriptInjector(__DIR__ . '/tmp');
+        $injector = $this->injector;
         $instance1 = $injector->getInstance(FakeCarInterface::class);
         $instance2 = $injector->getInstance(FakeCar::class);
         $instance3 = $injector->getInstance(FakeCar2::class);
@@ -127,9 +173,16 @@ class ScriptInjectorTest extends TestCase
 
     public function testOnDemandSingleton(): void
     {
-        (new DiCompiler(new FakeToBindSingletonModule(), __DIR__ . '/tmp'))->compile();
-        $dependSingleton1 = $this->injector->getInstance(FakeDependSingleton::class);
-        $dependSingleton2 = $this->injector->getInstance(FakeDependSingleton::class);
+        $tmpDir = __DIR__ . '/tmp/testOnDemandSingleton';
+        @mkdir($tmpDir);
+        $injector = new CompileInjector(
+            $tmpDir,
+            LazyModule::getInstance(static function (): AbstractModule {
+                return new FakeToBindSingletonModule();
+            })
+        );
+        $dependSingleton1 = $injector->getInstance(FakeDependSingleton::class);
+        $dependSingleton2 = $injector->getInstance(FakeDependSingleton::class);
         $hash1 = spl_object_hash($dependSingleton1->robot);
         $hash2 = spl_object_hash($dependSingleton2->robot);
         $this->assertSame($hash1, $hash2);
@@ -137,61 +190,102 @@ class ScriptInjectorTest extends TestCase
 
     public function testOnDemandPrototype(): void
     {
-        (new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp'))->compile();
-        $fakeDependPrototype1 = $this->injector->getInstance(FakeDependPrototype::class);
-        $fakeDependPrototype2 = $this->injector->getInstance(FakeDependPrototype::class);
-        $hash1 = spl_object_hash($fakeDependPrototype1->car);
-        $hash2 = spl_object_hash($fakeDependPrototype2->car);
-        $this->assertNotSame($hash1, $hash2);
+        $this->expectException(Unbound::class); // CompileInjector does not support on-demand prototype
+        $this->injector->getInstance(FakeDependPrototype::class);
     }
 
     public function testOptional(): void
     {
+        $tmpDir = __DIR__ . '/tmp/testOptional';
+        @mkdir($tmpDir);
+        $this->injector = new CompileInjector(
+            $tmpDir,
+            LazyModule::getInstance(function (): AbstractModule {
+                return new class () extends AbstractModule {
+                    protected function configure(): void
+                    {
+                        $this->bind(FakeOptional::class);
+                    }
+                };
+            })
+        );
+
         $optional = $this->injector->getInstance(FakeOptional::class);
         $this->assertNull($optional->robot);
     }
 
     public function testDependInjector(): void
     {
-        $diCompiler = new DiCompiler(new NullModule(), __DIR__ . '/tmp');
-        $diCompiler->compile();
-        /** @var FakeFactory $factory */
-        $factory = $diCompiler->getInstance(FakeFactory::class);
-        $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
-        $injector = new ScriptInjector(__DIR__ . '/tmp');
-        /** @var FakeFactory $factory */
+        $tmpDir = __DIR__ . '/tmp/testDependInjector';
+        @mkdir($tmpDir);
+        $injector = new CompileInjector(
+            $tmpDir,
+            new class () implements LazyModuleInterface {
+                public function __invoke(): AbstractModule
+                {
+                    return new class () extends AbstractModule {
+                        protected function configure(): void
+                        {
+                            $this->bind(FakeFactory::class);
+                        }
+                    };
+                }
+            }
+        );
+
         $factory = $injector->getInstance(FakeFactory::class);
         $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
+        $factory = $injector->getInstance(FakeFactory::class);
+        $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
+        $this->assertInstanceOf(AirInjector::class, $factory->injector);
     }
 
     public function testUnbound(): void
     {
+        $injector = new CompileInjector(
+            __DIR__ . '/tmp',
+            new class () implements LazyModuleInterface {
+                public function __invoke(): AbstractModule
+                {
+                    return new NullModule();
+                }
+            }
+        );
+
         $this->expectException(Unbound::class);
         $this->expectExceptionMessage('NO-CLASS-NO-NAME');
-        $injector = new ScriptInjector(__DIR__ . '/tmp');
         $injector->getInstance('NO-CLASS', 'NO-NAME'); // @phpstan-ignore-line
     }
 
     public function testCompileOnDemand(): void
     {
-        $injector = new ScriptInjector(
+        $this->expectException(Unbound::class); // FakeMirrorLeft should be bound
+        $injector = new CompileInjector(
             __DIR__ . '/tmp',
-            static function () {
-                return new FakeCarModule();
+            new class () implements LazyModuleInterface {
+                public function __invoke(): AbstractModule
+                {
+                    return new NullModule();
+                }
             }
         );
-        $car = $injector->getInstance(FakeCar::class);
-        $this->assertInstanceOf(FakeCar::class, $car);
+        $injector->getInstance(FakeMirrorLeft::class);
     }
 
     public function testCompileOnDemandAop(): void
     {
-        $injector = new ScriptInjector(
-            __DIR__ . '/tmp',
-            static function () {
-                return new FakeAopModule();
+        $tmpDir = __DIR__ . '/tmp/testCompileOnDemandAop';
+        @mkdir($tmpDir);
+        $injector = new CompileInjector(
+            $tmpDir,
+            new class () implements LazyModuleInterface {
+                public function __invoke(): AbstractModule
+                {
+                    return new FakeAopModule();
+                }
             }
         );
+
         $aop = $injector->getInstance(FakeAopInterface::class);
         $result = $aop->returnSame(1);
         $this->assertSame(2, $result);
@@ -199,55 +293,34 @@ class ScriptInjectorTest extends TestCase
 
     public function testCompileOnDemandSerialize(): void
     {
-        $serialize = serialize(new ScriptInjector(
-            __DIR__ . '/tmp',
-            static function () {
-                return new FakeCarModule();
-            }
-        ));
-        $injector = unserialize($serialize);
-        assert($injector instanceof InjectorInterface);
-        $car = $injector->getInstance(FakeCar::class);
-        $this->assertTrue($car instanceof FakeCar); // @phpstan-ignore-line
+        $tmpDir = __DIR__ . '/tmp/testCompileOnDemandSerialize';
+        @mkdir($tmpDir);
+        $injector = new CompileInjector($tmpDir, new FakeLazyModule());
+        $unserializedInjector = unserialize(serialize($injector));
+        $this->assertInstanceOf(InjectorInterface::class, $unserializedInjector);
+        $car = $unserializedInjector->getInstance(FakeCar::class);
+        $this->assertTrue($car instanceof FakeCar);
     }
 
     public function testCompileOnDemandAopSerialize(): void
     {
-        $injector = unserialize(serialize(new ScriptInjector(
-            __DIR__ . '/tmp',
-            static function () {
-                return new FakeAopModule();
-            }
-        )));
-        assert($injector instanceof ScriptInjector);
-        /** @var FakeAopInterface $aop */
+        $tmpDir = __DIR__ . '/tmp/testCompileOnDemandAopSerialize';
+        @mkdir($tmpDir);
+        $injector = new CompileInjector($tmpDir, new FakeAopLazyModule());
         $aop = $injector->getInstance(FakeAopInterface::class);
         $result = $aop->returnSame(1);
         $this->assertSame(2, $result);
     }
 
-    public function testClear(): void
+    public function testNullObjectCompile(): InjectorInterface
     {
-        $injector = new ScriptInjector(
+        $injector = new CompileInjector(
             __DIR__ . '/tmp',
-            static function () {
-                return new FakeCarModule();
-            }
-        );
-        $injector->getInstance(FakeCar::class);
-        $count = count((array) glob(__DIR__ . '/tmp/*.php'));
-        $this->assertGreaterThan(1, $count);
-        $injector->clear();
-        $countAfterClear = count((array) glob(__DIR__ . '/tmp/*.php'));
-        $this->assertSame(0, $countAfterClear);
-    }
-
-    public function testNullObjectCompile(): ScriptInjector
-    {
-        $injector = new ScriptInjector(
-            __DIR__ . '/tmp',
-            static function () {
-                return new FakeNullObjectModule();
+            new class () implements LazyModuleInterface {
+                public function __invoke(): AbstractModule
+                {
+                    return new FakeNullObjectModule();
+                }
             }
         );
         $instance = $injector->getInstance(FakeTyreInterface::class);
@@ -260,7 +333,7 @@ class ScriptInjectorTest extends TestCase
      * @runTestsInSeparateProcesses
      * @depends testNullObjectCompile
      */
-    public function testNullObjectCompileCodeRead(ScriptInjector $injector): void
+    public function testNullObjectCompileCodeRead(InjectorInterface $injector): void
     {
         $instance = $injector->getInstance(FakeTyreInterface::class);
         $this->assertInstanceOf(FakeTyreInterface::class, $instance);
@@ -268,34 +341,34 @@ class ScriptInjectorTest extends TestCase
 
     public function testLazyModule(): void
     {
-        $injector = unserialize(serialize(new ScriptInjector(
+        $injector = new CompileInjector(
             __DIR__ . '/tmp',
             new FakeLazyModule()
-        )));
-        /** @var InjectorInterface $injector */
+        );
         $car = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $car);
     }
 
     public function testNotLazyModule(): void
     {
-        $injector = unserialize(serialize(new ScriptInjector(
-            __DIR__ . '/tmp',
-            static function () {
-                return new FakeCarModule();
-            }
-        )));
-        /** @var InjectorInterface $injector */
-        $car = $injector->getInstance(FakeCarInterface::class);
+        $injector = new CompileInjector(__DIR__ . '/tmp', new FakeLazyModule());
+
+        $unserializedInjector = unserialize(serialize($injector));
+        $car = $unserializedInjector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $car);
     }
 
     public function testSingleton(): void
     {
-        $injector = new ScriptInjector(
-            __DIR__ . '/tmp',
-            static function () {
-                return new FakeToBindSingletonModule();
+        $tmpDir = __DIR__ . '/tmp/testSingleton';
+        @mkdir($tmpDir);
+        $injector = new CompileInjector(
+            $tmpDir,
+            new class () implements LazyModuleInterface {
+                public function __invoke(): AbstractModule
+                {
+                    return new FakeToBindSingletonModule();
+                }
             }
         );
         $robot = $injector->getInstance(FakeRobotInterface::class);
