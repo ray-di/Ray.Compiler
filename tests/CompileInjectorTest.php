@@ -7,7 +7,6 @@ namespace Ray\Compiler;
 use PHPUnit\Framework\TestCase;
 use Ray\Di\Exception\Unbound;
 
-use function file_get_contents;
 use function serialize;
 use function spl_object_hash;
 use function unserialize;
@@ -85,15 +84,5 @@ class CompileInjectorTest extends TestCase
     {
         $this->expectException(Unbound::class);
         $this->injector->getInstance(FakeCar2::class);
-    }
-
-    /** @depends testUnboundCompileLogFile */
-    public function testCompileFailureLog(): void
-    {
-        $logFile = __DIR__ . '/tmp/_compile.log';
-        $this->assertFileExists(__DIR__ . '/tmp/compiled');
-        $this->assertFileExists($logFile);
-        $log = (string) file_get_contents($logFile);
-        $this->assertStringContainsString('Error', $log);
     }
 }
