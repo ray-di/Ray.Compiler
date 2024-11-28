@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 final class ContextBindingTest extends TestCase
 {
+    /** @var CompileInjector  */
     private $injector;
 
     public function setUp(): void
