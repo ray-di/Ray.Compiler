@@ -31,6 +31,7 @@ final class InjectorFactory
         $rayInjector = new RayInjector($module, $scriptDir);
         $isProd = false;
         try {
+            /** @var bool $isProd */
             $isProd = $rayInjector->getInstance('', Compile::class);
         } catch (Unbound $e) {
         }
