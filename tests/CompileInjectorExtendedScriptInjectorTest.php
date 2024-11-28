@@ -35,7 +35,15 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testGetInstance(): FakeCar
     {
-        $car = $this->injector->getInstance(FakeCarInterface::class);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
+        $injector = new CompileInjector(
+            $tmpDir,
+            LazyModule::getInstance(static function (): AbstractModule {
+                return new FakeCarModule();
+            })
+        );
+
+        $car = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $car);
 
         return $car;
@@ -154,7 +162,13 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testAop(): void
     {
-        $injector = $this->injector;
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
+        $injector = new CompileInjector(
+            $tmpDir,
+            LazyModule::getInstance(static function (): AbstractModule {
+                return new FakeCarModule();
+            })
+        );
         $instance1 = $injector->getInstance(FakeCarInterface::class);
         $instance2 = $injector->getInstance(FakeCar::class);
         $instance3 = $injector->getInstance(FakeCar2::class);
@@ -365,6 +379,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $this->assertInstanceOf(FakeRobot::class, $robot);
     }
 
+    /** @return non-empty-string */
     private function getTmpDir(string $subDirectory): string
     {
         $tmpDir = __DIR__ . '/tmp/' . $subDirectory;
