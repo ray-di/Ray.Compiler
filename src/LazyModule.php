@@ -17,6 +17,8 @@ use Ray\Di\AbstractModule;
 final class LazyModule
 {
     /**
+     * Create a lazy module from a callable that returns a module
+     */
     public static function getInstance(callable $callable): LazyModuleInterface
     {
         return new class ($callable) implements LazyModuleInterface {
