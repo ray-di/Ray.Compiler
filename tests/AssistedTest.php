@@ -25,9 +25,12 @@ class AssistedTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->injector = new ScriptInjector(__DIR__ . '/tmp', static function () {
-            return new FakeToBindModule();
-        });
+        $this->injector = new CompileInjector(
+            __DIR__ . '/tmp',
+            LazyModule::getInstance(static function () {
+                return new FakeToBindModule();
+            })
+        );
     }
 
     public function testAssisted(): void
