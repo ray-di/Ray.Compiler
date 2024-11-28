@@ -18,10 +18,10 @@ use Ray\ServiceLocator\ServiceLocator;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionParameter;
-
 use function assert;
 use function is_bool;
 
+/** @deprecated Use CompilerInjector instead */
 final class FunctionCode
 {
     /** @var Container */

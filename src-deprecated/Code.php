@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use PhpParser\Node;
 use PhpParser\PrettyPrinter\Standard;
 
+/** @deprecated Use CompileInjector instead */
 final class Code
 {
     /** @var bool */

@@ -15,11 +15,11 @@ use Ray\Di\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\SetterMethod;
 use ReflectionClass;
-
 use function assert;
 use function is_bool;
 use function is_string;
 
+/** @deprecated  */
 final class NodeFactory
 {
     /** @var InjectorInterface|null */

@@ -12,7 +12,6 @@ use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Bind;
 use Ray\Di\Dependency;
 use Ray\Di\Exception\NotFound;
-
 use function assert;
 use function error_reporting;
 use function explode;
@@ -20,12 +19,12 @@ use function file_exists;
 use function file_get_contents;
 use function is_bool;
 use function unserialize;
-
 use const E_NOTICE;
 
 /**
  * @psalm-import-type ScriptDir from CompileInjector
  * @psalm-type Pointcuts = list<Pointcut>
+ * @deprecated
  */
 final class OnDemandCompiler
 {
@@ -70,7 +69,7 @@ final class OnDemandCompiler
 
         ($this->compiler)($containerObject, $this->scriptDir);
         $dependency = $containerArray[$dependencyIndex];
-        /** @var Pointcuts $pointCuts */
+        /** @var Pointcut $pointCuts */
         $pointCuts = $this->loadPointcuts();
         $isWeaverable = $dependency instanceof Dependency && ! empty($pointCuts);
         if ($isWeaverable) {
@@ -81,7 +80,7 @@ final class OnDemandCompiler
         (new DependencySaver($this->scriptDir))($dependencyIndex, $code);
     }
 
-    /** @return Pointcuts */
+    /** @return Pointcut */
     private function loadPointcuts(): array
     {
         $pointcutsPath = $this->scriptDir . ScriptInjector::AOP;
@@ -92,7 +91,7 @@ final class OnDemandCompiler
         $serialized = file_get_contents($pointcutsPath);
         assert(! is_bool($serialized));
         $er = error_reporting(error_reporting() ^ E_NOTICE);
-        /** @var Pointcuts $pointcuts */
+        /** @var Pointcut $pointcuts */
         $pointcuts = unserialize($serialized, ['allowed_classes' => true]);
         error_reporting($er);
 

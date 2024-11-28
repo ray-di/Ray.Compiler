@@ -10,7 +10,6 @@ use PhpParser\Node\Expr;
 use PhpParser\Node\Scalar;
 use Ray\Compiler\Exception\InvalidInstance;
 use Ray\Di\InjectorInterface;
-
 use function is_array;
 use function is_bool;
 use function is_float;
@@ -20,6 +19,7 @@ use function is_string;
 use function serialize;
 
 /**
+ * @deprecated This is subcomponent of
  * Value to code(Node) converter
  */
 final class Normalizer

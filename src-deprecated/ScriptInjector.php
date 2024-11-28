@@ -15,7 +15,6 @@ use Ray\Di\Name;
 use Ray\Di\NullModule;
 use Ray\Di\ProviderSetModule;
 use ReflectionParameter;
-
 use function assert;
 use function count;
 use function error_log;
@@ -35,13 +34,13 @@ use function sprintf;
 use function str_replace;
 use function unlink;
 use function unserialize;
-
 use const DIRECTORY_SEPARATOR;
 use const E_NOTICE;
 
 /**
  * @psalm-import-type ScriptDir from CompileInjector
  * @psalm-import-type Ip from CompileInjector
+ * @deprecated Use CompileInjector instead
  */
 final class ScriptInjector implements ScriptInjectorInterface
 {

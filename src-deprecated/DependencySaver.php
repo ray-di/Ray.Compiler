@@ -6,17 +6,18 @@ namespace Ray\Compiler;
 
 use LogicException;
 use ReflectionClass;
-
 use function file_exists;
 use function is_dir;
 use function mkdir;
 use function serialize;
 use function sprintf;
 use function str_replace;
-
 use const PHP_EOL;
 
-/** @psalm-import-type ScriptDir from CompileInjector */
+/**
+ * @deprecated use CompileInjector instead
+ * @psalm-import-type ScriptDir from CompileInjector
+ */
 final class DependencySaver
 {
     /** @var ScriptDir */

@@ -21,10 +21,10 @@ use Ray\Di\NewInstance;
 use Ray\Di\SetContextInterface;
 use Ray\Di\SetterMethod;
 use Ray\Di\SetterMethods;
-
 use function get_class;
 use function is_a;
 
+/** @deprecated This is subcomponent of deprecated DiCompiler  */
 final class DependencyCode implements SetContextInterface
 {
     /** @var BuilderFactory */
@@ -150,7 +150,6 @@ final class DependencyCode implements SetContextInterface
         $isSingleton = $prop($provider, 'isSingleton');
         $node[] = $this->getIsSingletonCode($isSingleton);
         $node[] = new Stmt\Return_(new MethodCall(new Expr\Variable('instance'), 'get'));
-        /** @psalm-trace $node */
         $codeNode = $this->factory->namespace('Ray\Di\Compiler')->addStmts($node)->getNode();
         $qualifier = $this->qualifier;
         $this->qualifier = null;

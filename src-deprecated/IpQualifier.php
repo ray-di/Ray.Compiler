@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use ReflectionParameter;
-
 use function serialize;
 
+/** @deprecated  */
 final class IpQualifier
 {
     /** @var ReflectionParameter */

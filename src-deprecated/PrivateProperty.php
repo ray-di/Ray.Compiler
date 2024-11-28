@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use ReflectionProperty;
 use Throwable;
 
+/** @deprecated  */
 final class PrivateProperty
 {
     /**

@@ -7,7 +7,10 @@ namespace Ray\Compiler;
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
 
-/** @psalm-import-type ScriptDir from CompileInjector */
+/**
+ * @psalm-import-type ScriptDir from CompileInjector
+ * @deprecated 
+ */
 class ScriptInjectorModule extends AbstractModule
 {
     /** @var ScriptDir */
