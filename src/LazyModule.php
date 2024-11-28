@@ -14,8 +14,21 @@ use Ray\Di\AbstractModule;
  *
  * Please do not use this in production code. Instead of using this class, please create a class that implements LazyModuleInterface.
  */
-final class LazyModule
+final class LazyModule implements LazyModuleInterface
 {
+    /** @var AbstractModule  */
+    private $module;
+
+    public function __construct(AbstractModule $module)
+    {
+        $this->module = $module;
+    }
+
+    public function __invoke(): AbstractModule
+    {
+        return $this->module;
+    }
+
     /**
      * Create a lazy module from a callable that returns a module
      */
