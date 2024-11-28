@@ -299,7 +299,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $unserializedInjector = unserialize(serialize($injector));
         $this->assertInstanceOf(InjectorInterface::class, $unserializedInjector);
         $car = $unserializedInjector->getInstance(FakeCar::class);
-        $this->assertTrue($car instanceof FakeCar);
+        $this->assertInstanceOf(FakeCar::class, $car);
     }
 
     public function testCompileOnDemandAopSerialize(): void
