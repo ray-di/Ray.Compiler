@@ -55,8 +55,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testToPrototype(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testToPrototype';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
             LazyModule::getInstance(static function (): AbstractModule {
@@ -70,8 +69,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testToSingleton(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testToSingleton';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
             LazyModule::getInstance(static function (): AbstractModule {
@@ -85,8 +83,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testToProviderPrototype(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testToProviderPrototype';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
             LazyModule::getInstance(static function (): AbstractModule {
@@ -100,10 +97,9 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testToProviderSingleton(): void
     {
-        $tmpdir = __DIR__ . '/tmp/testToProviderSingleton';
-        @mkdir($tmpdir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
-            $tmpdir,
+            $tmpDir,
             LazyModule::getInstance(static function (): AbstractModule {
                 return new FakeToProviderSingletonModule();
             })
@@ -115,8 +111,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testToInstancePrototype(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testToInstancePrototype';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
             LazyModule::getInstance(static function (): AbstractModule {
@@ -130,8 +125,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testToInstanceSingleton(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testToInstanceSingleton';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
             LazyModule::getInstance(static function (): AbstractModule {
@@ -145,8 +139,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testSerializable(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testSerializable';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $originalInjector = new CompileInjector(
             $tmpDir,
             new FakeLazyModule()
@@ -173,8 +166,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testOnDemandSingleton(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testOnDemandSingleton';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
             LazyModule::getInstance(static function (): AbstractModule {
@@ -196,28 +188,26 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testOptional(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testOptional';
-        @mkdir($tmpDir);
-        $this->injector = new CompileInjector(
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
+        $injector = new CompileInjector(
             $tmpDir,
-            LazyModule::getInstance(function (): AbstractModule {
-                return new class () extends AbstractModule {
+            new LazyModule(
+                new class () extends AbstractModule {
                     protected function configure(): void
                     {
                         $this->bind(FakeOptional::class);
                     }
-                };
-            })
+                }
+            )
         );
 
-        $optional = $this->injector->getInstance(FakeOptional::class);
+        $optional = $injector->getInstance(FakeOptional::class);
         $this->assertNull($optional->robot);
     }
 
     public function testDependInjector(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testDependInjector';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
             new class () implements LazyModuleInterface {
@@ -242,8 +232,9 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testUnbound(): void
     {
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
-            __DIR__ . '/tmp',
+            $tmpDir,
             new class () implements LazyModuleInterface {
                 public function __invoke(): AbstractModule
                 {
@@ -274,8 +265,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testCompileOnDemandAop(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testCompileOnDemandAop';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
             new class () implements LazyModuleInterface {
@@ -293,8 +283,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testCompileOnDemandSerialize(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testCompileOnDemandSerialize';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector($tmpDir, new FakeLazyModule());
         $unserializedInjector = unserialize(serialize($injector));
         $this->assertInstanceOf(InjectorInterface::class, $unserializedInjector);
@@ -304,8 +293,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testCompileOnDemandAopSerialize(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testCompileOnDemandAopSerialize';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector($tmpDir, new FakeAopLazyModule());
         $aop = $injector->getInstance(FakeAopInterface::class);
         $result = $aop->returnSame(1);
@@ -314,8 +302,9 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testNullObjectCompile(): InjectorInterface
     {
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
-            __DIR__ . '/tmp',
+            $tmpDir,
             new class () implements LazyModuleInterface {
                 public function __invoke(): AbstractModule
                 {
@@ -341,8 +330,9 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testLazyModule(): void
     {
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
-            __DIR__ . '/tmp',
+            $tmpDir,
             new FakeLazyModule()
         );
         $car = $injector->getInstance(FakeCarInterface::class);
@@ -351,7 +341,8 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testNotLazyModule(): void
     {
-        $injector = new CompileInjector(__DIR__ . '/tmp', new FakeLazyModule());
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
+        $injector = new CompileInjector($tmpDir, new FakeLazyModule());
 
         $unserializedInjector = unserialize(serialize($injector));
         $car = $unserializedInjector->getInstance(FakeCarInterface::class);
@@ -360,8 +351,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testSingleton(): void
     {
-        $tmpDir = __DIR__ . '/tmp/testSingleton';
-        @mkdir($tmpDir);
+        $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
             new class () implements LazyModuleInterface {
@@ -373,5 +363,13 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         );
         $robot = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobot::class, $robot);
+    }
+
+    private function getTmpDir(string $subDirectory): string
+    {
+        $tmpDir = __DIR__ . '/tmp/' . $subDirectory;
+        @mkdir($tmpDir);
+
+        return $tmpDir;
     }
 }
