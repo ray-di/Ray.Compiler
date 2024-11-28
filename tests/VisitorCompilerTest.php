@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
+use Ray\Di\AcceptInterface;
 use Ray\Di\Container;
 use Ray\Di\Instance;
 use Ray\Di\Name;
 
+use function assert;
 use function str_replace;
 
 class VisitorCompilerTest extends TestCase
@@ -66,6 +68,7 @@ EOT;
         $module = new FakeCarModule();
         $container = $module->getContainer();
         $dependency = $container->getContainer()['Ray\Compiler\FakeCarInterface-' . Name::ANY];
+        assert($dependency instanceof AcceptInterface);
         $code = $dependency->accept(new CompileVisitor($container));
         $expected = <<<'EOT'
 $instance = new \Ray\Compiler\FakeCar($prototype('Ray\Compiler\FakeEngineInterface-', ['Ray\Compiler\FakeCar', '__construct', 'engine']));
@@ -90,6 +93,7 @@ EOT;
     public function testDependencyProviderCompile(Container $container): void
     {
         $dependency = $container->getContainer()['Ray\Compiler\FakeHandleInterface-' . Name::ANY];
+        assert($dependency instanceof AcceptInterface);
         $code = $dependency->accept(new CompileVisitor($container));
         $expected = <<<'EOT'
 $instance = new \Ray\Compiler\FakeHandleProvider('momo');
@@ -106,6 +110,7 @@ EOT;
     public function testDependencyInstanceCompile(Container $container): void
     {
         $dependency = $container->getContainer()['-logo'];
+        assert($dependency instanceof AcceptInterface);
         $code = $dependency->accept(new CompileVisitor($container));
         $expected = <<<'EOT'
 return 'momo';
@@ -132,6 +137,7 @@ EOT;
     {
         $container = (new FakeContextualModule('context'))->getContainer();
         $dependency = $container->getContainer()['Ray\Compiler\FakeRobotInterface-' . Name::ANY];
+        assert($dependency instanceof AcceptInterface);
         $code = $dependency->accept(new CompileVisitor($container));
         $expected = <<<'EOT'
 $instance = new \Ray\Compiler\FakeContextualProvider();
