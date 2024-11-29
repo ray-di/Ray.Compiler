@@ -11,10 +11,6 @@ use Ray\Compiler\LazyModule;
 
 $injector = new CompileInjector(
     dirname(__DIR__) . '/tmp/null_object',
-    LazyModule::getInstance(
-        static function () {
-            return new FakeNullObjectModule();
-        }
-    )
+    new LazyModule(new FakeNullObjectModule())
 );
 $instance = $injector->getInstance(FakeTyreInterface::class);

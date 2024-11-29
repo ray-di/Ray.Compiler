@@ -27,9 +27,7 @@ class AssistedTest extends TestCase
     {
         $this->injector = new CompileInjector(
             __DIR__ . '/tmp',
-            LazyModule::getInstance(static function () {
-                return new FakeToBindModule();
-            })
+            new LazyModule(new FakeToBindModule())
         );
     }
 

@@ -27,9 +27,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         @mkdir(__DIR__ . '/tmp');
         $this->injector = new CompileInjector(
             __DIR__ . '/tmp',
-            LazyModule::getInstance(static function (): AbstractModule {
-                return new FakeCarModule();
-            })
+            new LazyModule(new FakeCarModule())
         );
     }
 
@@ -38,9 +36,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
-            LazyModule::getInstance(static function (): AbstractModule {
-                return new FakeCarModule();
-            })
+            new LazyModule(new FakeCarModule())
         );
 
         $car = $injector->getInstance(FakeCarInterface::class);
@@ -66,9 +62,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
-            LazyModule::getInstance(static function (): AbstractModule {
-                return new FakeToBindPrototypeModule();
-            })
+            new LazyModule(new FakeToBindPrototypeModule())
         );
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -80,9 +74,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
-            LazyModule::getInstance(static function (): AbstractModule {
-                return new FakeToBindSingletonModule();
-            })
+            new LazyModule(new FakeToBindSingletonModule())
         );
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -94,9 +86,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
-            LazyModule::getInstance(static function (): AbstractModule {
-                return new FakeToProviderPrototypeModule();
-            })
+            new LazyModule(new FakeToProviderPrototypeModule())
         );
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -108,9 +98,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
-            LazyModule::getInstance(static function (): AbstractModule {
-                return new FakeToProviderSingletonModule();
-            })
+            new LazyModule(new FakeToProviderSingletonModule())
         );
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -122,9 +110,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
-            LazyModule::getInstance(static function (): AbstractModule {
-                return new FakeToInstancePrototypeModule();
-            })
+            new LazyModule(new FakeToInstancePrototypeModule())
         );
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -136,9 +122,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
-            LazyModule::getInstance(static function (): AbstractModule {
-                return new FakeToInstanceSingletonModule();
-            })
+            new LazyModule(new FakeToInstanceSingletonModule())
         );
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -165,9 +149,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
-            LazyModule::getInstance(static function (): AbstractModule {
-                return new FakeCarModule();
-            })
+            new LazyModule(new FakeCarModule())
         );
         $instance1 = $injector->getInstance(FakeCarInterface::class);
         $instance2 = $injector->getInstance(FakeCar::class);
@@ -183,9 +165,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $injector = new CompileInjector(
             $tmpDir,
-            LazyModule::getInstance(static function (): AbstractModule {
-                return new FakeToBindSingletonModule();
-            })
+            new LazyModule(new FakeToBindSingletonModule())
         );
         $dependSingleton1 = $injector->getInstance(FakeDependSingleton::class);
         $dependSingleton2 = $injector->getInstance(FakeDependSingleton::class);

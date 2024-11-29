@@ -16,9 +16,7 @@ final class ContextBindingTest extends TestCase
         deleteFiles(__DIR__ . '/tmp');
         $this->injector = new CompileInjector(
             __DIR__ . '/tmp',
-            LazyModule::getInstance(static function () {
-                return new FakeDependContextualRobotModule('');
-            })
+            new LazyModule(new FakeDependContextualRobotModule(''))
         );
     }
 

@@ -28,25 +28,4 @@ final class LazyModule implements LazyModuleInterface
     {
         return $this->module;
     }
-
-    /**
-     * Create a lazy module from a callable that returns a module
-     */
-    public static function getInstance(callable $callable): LazyModuleInterface
-    {
-        return new class ($callable) implements LazyModuleInterface {
-            /** @var callable */
-            private $callable;
-
-            public function __construct(callable $callable)
-            {
-                $this->callable = $callable;
-            }
-
-            public function __invoke(): AbstractModule
-            {
-                return ($this->callable)();
-            }
-        };
-    }
 }

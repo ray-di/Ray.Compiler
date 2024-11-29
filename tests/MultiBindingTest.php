@@ -36,9 +36,10 @@ class MultiBindingTest extends TestCase
     protected function setUp(): void
     {
         @mkdir(__DIR__ . '/tmp/mulit-bindings');
-        $this->injector = new CompileInjector(__DIR__ . '/tmp/mulit-bindings', LazyModule::getInstance(static function () {
-            return new FakeMultiBindingsModule();
-        }));
+        $this->injector = new CompileInjector(
+            __DIR__ . '/tmp/mulit-bindings',
+            new LazyModule(new FakeMultiBindingsModule())
+        );
     }
 
     /** @return Map<FakeEngineInterface> */
