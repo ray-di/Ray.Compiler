@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\CompileLockFailed;
 use Ray\Di\AbstractModule;
 use Ray\Di\AcceptInterface;
+use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\ContainerFactory;
 use Ray\Di\DependencyInterface;
 
@@ -19,10 +20,14 @@ use function is_string;
 use const LOCK_EX;
 use const LOCK_UN;
 
+/**
+ * @psalm-import-type ScriptDir from CompileInjector
+ */
 final class Compiler
 {
     /**
      * Compiles a given module into Scripts
+     * @param ScriptDir $scriptDir
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter) // @phpstan-ignore-line
      */
