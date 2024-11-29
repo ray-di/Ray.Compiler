@@ -24,7 +24,10 @@ use function serialize;
 use function sprintf;
 use function sys_get_temp_dir;
 
-/** @psalm-import-type ScriptDir from CompileInjector */
+/**
+ * @deprecated Use CimpileInjector instead
+ * @psalm-import-type ScriptDir from CompileInjector
+ */
 final class DiCompiler implements InjectorInterface
 {
     /** @var ScriptDir */
