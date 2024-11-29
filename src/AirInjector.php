@@ -108,7 +108,7 @@ final class AirInjector implements InjectorInterface
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, array $ip = ['', '', '']) {
+                function (string $dependencyIndex, array $ip) {
                     $this->ip = $ip; // @phpstan-ignore-line
 
                     return require $this->getInstanceFile($dependencyIndex);
@@ -121,7 +121,7 @@ final class AirInjector implements InjectorInterface
                  *
                  * @return mixed
                  */
-                function (string $dependencyIndex, $ip = ['', '', '']) {
+                function (string $dependencyIndex, array $ip) {
                     if (isset($this->singletons[$dependencyIndex])) {
                         return $this->singletons[$dependencyIndex];
                     }
