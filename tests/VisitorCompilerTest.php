@@ -77,6 +77,7 @@ $instance->setHardtop($prototype('Ray\Compiler\FakeHardtopInterface-', ['Ray\Com
 $instance->setMirrors($singleton('Ray\Compiler\FakeMirrorInterface-right', ['Ray\Compiler\FakeCar', 'setMirrors', 'rightMirror']), $singleton('Ray\Compiler\FakeMirrorInterface-left', ['Ray\Compiler\FakeCar', 'setMirrors', 'leftMirror']));
 $instance->setSpareMirror($singleton('Ray\Compiler\FakeMirrorInterface-right', ['Ray\Compiler\FakeCar', 'setSpareMirror', 'rightMirror']));
 $instance->setHandle($prototype('Ray\Compiler\FakeHandleInterface-', ['Ray\Compiler\FakeCar', 'setHandle', 'handle']));
+$instance->setOil($prototype('Ray\Compiler\FakeOilInterface-', ['Ray\Compiler\FakeCar', 'setOil', 'oil']));
 $instance->postConstruct();
 $isSingleton = false;
 return $instance;
