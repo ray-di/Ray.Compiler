@@ -101,19 +101,11 @@ final class InstanceScript
     {
         /** @psalm-suppress PossiblyNullReference / The $parameter here can never be null */
         $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->getName(), $parameter->getDeclaringFunction()->getName(), $parameter->name); //@phpstan-ignore-line
-        $func = $isSingleton ? '$singleton' : '$prototype';
         $filePath = sprintf('/%s.php', str_replace('\\', '_', $index));
-        if ($isSingleton === false) {
-            $arg = sprintf("\\Ray\\Compiler\\prototype(\$scriptDir, '%s', %s)", $filePath, $ip);
-            $this->args[] = $arg;
-
-            return;
-        }
-
-//        function singleton(string $scriptDir, array &$singletons, string $dependencyIndex, string $filePath, array $ip = null) {
-
-        $arg = sprintf("\\Ray\\Compiler\\singleton(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip);
-        $this->args[] = $arg;
+        // Add prototype or singleton
+        $this->args[] = $isSingleton ?
+            sprintf("\\Ray\\Compiler\\singleton(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip) :
+            sprintf("\\Ray\\Compiler\\prototype(\$scriptDir, '%s', %s)", $filePath, $ip);
     }
 
     /** @param mixed $default */
