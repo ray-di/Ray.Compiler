@@ -4,20 +4,14 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Ray\Compiler\Exception\Unbound;
+use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Bind;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
-use function assert;
-use function file_exists;
-use function in_array;
 use function rtrim;
-use function spl_autoload_register;
 use function sprintf;
-use function str_replace;
-use function touch;
 
 /**
  * Compile Injector
@@ -38,194 +32,36 @@ use function touch;
  */
 final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignore-line
 {
-    public const INSTANCE = '%s/%s.php';
-    public const COMPILE_CHECK = '%s/compiled';
-
     /** @var ScriptDir */
     private $scriptDir;
 
-    /**
-     * Injection Point
-     *
-     * [$class, $method, $parameter]
-     *
-     * @var Ip
-     */
-    private $ip = ['', '', ''];
-
-    /**
-     * Singleton instance container
-     *
-     * @var Singletons
-     */
-    private $singletons = [];
-
-    /** @var InstanceFunctions */
-    private $functions; // @phpstan-ignore-line
-
-    /** @var LazyModuleInterface */
-    private $lazyModule;
-
-    /** @var ScriptDirs */
-    private static $scriptDirs = [];
+    /** @var AirInjector */
+    private $injector;
 
     /**
      * @param ScriptDir           $scriptDir  generated instance script folder path
      * @param LazyModuleInterface $lazyModule callable variable which return AbstractModule instance
-     *
-     * @psalm-suppress UnresolvableInclude
      */
     public function __construct(string $scriptDir, LazyModuleInterface $lazyModule)
     {
-        $this->init($scriptDir, $lazyModule);
-    }
-
-    /** @param ScriptDir $scriptDir */
-    public function init(string $scriptDir, LazyModuleInterface $lazyModule): void
-    {
+        $this->injector = new AirInjector($scriptDir);
         /** @var ScriptDir $scriptDir */
         $scriptDir = rtrim($scriptDir, '/');
         $this->scriptDir = $scriptDir;
-        $this->lazyModule = $lazyModule;
-        $this->registerLoader();
-        $prototype =
-            /**
-             * @param Ip $injectionPoint
-             *
-             * @return mixed
-             */
-            function (string $dependencyIndex, array $ip = ['', '', '']) {
-                [$prototype, $singleton, $injector] = $this->functions;
-                $instancFile = $this->getInstanceFile($dependencyIndex);
-                assert(file_exists($instancFile), new Unbound($dependencyIndex));
-
-                return require $instancFile;
-            };
-        $singleton =
-            /**
-             * @param Ip $injectionPoint
-             *
-             * @return mixed
-             */
-            function (string $dependencyIndex, array $ip = ['', '', '']) {
-                if (isset($this->singletons[$dependencyIndex])) {
-                    return $this->singletons[$dependencyIndex];
-                }
-
-                [$prototype, $singleton, $injector] = $this->functions;
-
-                $instanceFile = $this->getInstanceFile($dependencyIndex);
-                assert(file_exists($instanceFile), new Unbound($dependencyIndex));
-                /** @var object $instance */
-                $instance = require $instanceFile;
-                $this->singletons[$dependencyIndex] = $instance;
-
-                return $instance;
-            };
-        $injector = function (): self {
-            return $this;
-        };
-        $this->functions = [$prototype, $singleton, $injector];
-    }
-
-    /** @return list<string> */
-    public function __sleep()
-    {
-        return ['scriptDir', 'singletons', 'lazyModule'];
-    }
-
-    public function __wakeup()
-    {
-        $this->init($this->scriptDir, $this->lazyModule);
+        $this->compile(($lazyModule)());
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      */
     public function getInstance($interface, $name = Name::ANY)
     {
-        $dependencyIndex = $interface . '-' . $name;
-        if (isset($this->singletons[$dependencyIndex])) {
-            return $this->singletons[$dependencyIndex];
-        }
-
-        /** @psalm-suppress DocblockTypeContradiction */
-        if ($this->functions === null) {
-            // @codeCoverageIgnoreStart
-            $this->__wakeup();
-            // @codeCoverageIgnoreEnd
-        }
-
-        [$prototype, $singleton, $injector] = $this->functions;
-        $script = $this->getInstanceFile($dependencyIndex);
-        assert(file_exists($script), new Unbound($dependencyIndex));
-        /** @var mixed $instance */
-        $instance = require $script;
-        /** @psalm-suppress UndefinedVariable */
-        $isSingleton = isset($isSingleton) && $isSingleton;
-        if ($isSingleton) {
-            /** @var object $instance */
-            $this->singletons[$dependencyIndex] = $instance;
-        }
-
-        /**
-         * @psalm-var T $instance
-         * @phpstan-var mixed $instance
-         */
-        return $instance;
+        return $this->injector->getInstance($interface, $name);
     }
 
-    /**
-     * Return compiled script file name
-     */
-    private function getInstanceFile(string $dependencyIndex): string
+    public function compile(AbstractModule $module): void
     {
-        $file = sprintf(self::INSTANCE, $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
-        if (file_exists($file)) {
-            return $file;
-        }
-
-        $checkFile = sprintf(self::COMPILE_CHECK, $this->scriptDir);
-        if (file_exists($checkFile)) {
-            throw new Unbound(sprintf('[%s] See compile log %s', $dependencyIndex, $this->scriptDir . '/_compile.log'));
-        }
-
-        touch($checkFile);
-        $this->compile();
-        if (! file_exists($file)) {
-            throw new Unbound($dependencyIndex); // @codeCoverageIgnore
-        }
-
-        return $file;
-    }
-
-    private function registerLoader(): void
-    {
-        if (in_array($this->scriptDir, self::$scriptDirs, true)) {
-            return;
-        }
-
-        if (self::$scriptDirs === []) {
-            spl_autoload_register(
-                static function (string $class): void {
-                    foreach (self::$scriptDirs as $scriptDir) {
-                        $file = sprintf('%s/%s.php', $scriptDir, str_replace('\\', '_', $class));
-                        if (file_exists($file)) {
-                            require $file; // @codeCoverageIgnore
-                        }
-                    }
-                }
-            );
-        }
-
-        self::$scriptDirs[] = $this->scriptDir;
-    }
-
-    public function compile(): void
-    {
-        $module = (new InstallBuiltinModule())(($this->lazyModule)());
+        $module = (new InstallBuiltinModule())($module);
         (new FilePutContents())(sprintf('%s/_bindings.log', $this->scriptDir), (string) $module);
         (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
         (new Bind($module->getContainer(), InjectorInterface::class))->toInstance(new AirInjector($this->scriptDir));
