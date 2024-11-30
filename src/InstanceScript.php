@@ -23,6 +23,7 @@ use function is_object;
 use function is_string;
 use function serialize;
 use function sprintf;
+use function str_replace;
 use function unserialize;
 use function var_export;
 
@@ -101,7 +102,17 @@ final class InstanceScript
         /** @psalm-suppress PossiblyNullReference / The $parameter here can never be null */
         $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->getName(), $parameter->getDeclaringFunction()->getName(), $parameter->name); //@phpstan-ignore-line
         $func = $isSingleton ? '$singleton' : '$prototype';
-        $arg = sprintf("%s('%s', %s)", $func, $index, $ip);
+        $filePath = sprintf('/%s.php', str_replace('\\', '_', $index));
+        if ($isSingleton === false) {
+            $arg = sprintf("\\Ray\\Compiler\\prototype(\$scriptDir, '%s', %s)", $filePath, $ip);
+            $this->args[] = $arg;
+
+            return;
+        }
+
+//        function singleton(string $scriptDir, array &$singletons, string $dependencyIndex, string $filePath, array $ip = null) {
+
+        $arg = sprintf("\\Ray\\Compiler\\singleton(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip);
         $this->args[] = $arg;
     }
 
@@ -143,7 +154,9 @@ final class InstanceScript
         assert(is_iterable($aopBindings));
         foreach ($aopBindings as &$bindings) {
             foreach ($bindings as &$binding) {
-                $binding = sprintf('$singleton(\'%s-\')', $binding);
+//                function singleton(string $scriptDir, array &$singletons, string $dependencyIndex, string $filePath, array $ip = null) {
+                $filePath = sprintf('/%s-.php', str_replace('\\', '_', $binding));
+                $binding = sprintf("\Ray\Compiler\singleton(\$scriptDir, \$singletons, '%s-', '%s')", $binding, $filePath);
             }
         }
 
@@ -152,7 +165,7 @@ final class InstanceScript
             $interceptors[] =  sprintf('\'%s\' => [%s]', $method, implode(', ', $aopBinding));
         }
 
-        $this->formerLines[] = sprintf('$instance->bindings = [%s];', implode(', ', $interceptors));
+        $this->formerLines[] = sprintf('$instance->bindings = [%s    %s%s];', PHP_EOL, implode(', ' . PHP_EOL . '    ', $interceptors), PHP_EOL);
     }
 
     public function getScript(?string $postConstruct, bool $isSingleton): string
