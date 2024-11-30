@@ -38,6 +38,7 @@ final class CachedInjectorFactory
         /** @psalm-suppress DeprecatedClass */
         $cache = $cache ?? new NullCache();
         $cache->setNamespace($injectorId);
+        /** @var ScriptInjectorInterface|null $cachedInjector */
         $cachedInjector = $cache->fetch(ScriptInjectorInterface::class);
         if ($cachedInjector instanceof ScriptInjectorInterface) {
             return $cachedInjector; // @codeCoverageIgnore

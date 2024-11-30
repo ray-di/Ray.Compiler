@@ -77,9 +77,10 @@ final class AirInjector implements InjectorInterface
             throw new Unbound($dependencyIndex);
         }
 
-        /** @var mixed $instance */
+        /** @psalm-suppress  UnsupportedPropertyReferenceUsage */
         $singletons = &$this->singletons;
         $scriptDir = $this->scriptDir;
+        /** @var mixed $instance */
         $instance = require $scriptFile;
 
         // Save singleton

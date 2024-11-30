@@ -9,12 +9,16 @@ use Ray\Aop\ReflectionMethod;
 use Ray\Di\Di\Qualifier;
 use Ray\Di\InjectionPointInterface;
 use Ray\ServiceLocator\ServiceLocator;
+use ReflectionException;
 use ReflectionParameter;
 
 use function assert;
 use function class_exists;
 
-/** @psalm-import-type ScriptDir from CompileInjector */
+/**
+ * @psalm-import-type ScriptDir from CompileInjector
+ * @psalm-import-type Ip from CompileInjector
+ */
 final class InjectionPoint implements InjectionPointInterface
 {
     /** @var ReflectionParameter */
@@ -26,7 +30,12 @@ final class InjectionPoint implements InjectionPointInterface
         $this->parameter = $parameter;
     }
 
-    public static function getInstance(array $ip)
+    /**
+     * @param Ip $ip
+     *
+     * @throws ReflectionException
+     */
+    public static function getInstance(array $ip): self
     {
         return new self(new ReflectionParameter([$ip[0], $ip[1]], $ip[2]));
     }
