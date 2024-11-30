@@ -28,7 +28,7 @@ class CompileInjectorTest extends TestCase
 
     public function testCompile(): void
     {
-        $this->injector->compile();
+        $this->injector->compile(new FakeLazyModule()());
         // built in script
         $this->assertFileExists(__DIR__ . '/tmp/-Ray_Compiler_Annotation_Compile.php');
         $this->assertFileExists(__DIR__ . '/tmp/-Ray_Di_Annotation_ScriptDir.php');
@@ -83,6 +83,7 @@ class CompileInjectorTest extends TestCase
     public function testUnboundCompileLogFile(): void
     {
         $this->expectException(Unbound::class);
-        $this->injector->getInstance(FakeCar2::class);
+        $this->assertFileExists(__DIR__ . '/tmp/_bindings.log');
+        $this->injector->getInstance(FakeCar3::class);
     }
 }
