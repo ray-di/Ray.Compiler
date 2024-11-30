@@ -9,7 +9,6 @@ use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Bind;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
-use ReflectionParameter;
 
 use function assert;
 use function file_exists;
@@ -34,7 +33,7 @@ use function touch;
  * @psalm-type Singleton = callable(string, Ip): mixed
  * @psalm-type InjectionPoint = callable(): InjectionPoint
  * @psalm-type Injector = callable(): InjectorInterface
- * @psalm-type InstanceFunctions = array{0: Prottype, 1: Singleton, 2: InjectionPoint, 3: Injector}
+ * @psalm-type InstanceFunctions = array{0: Prottype, 1: Singleton, 3: Injector}
  * @psalm-type ScriptDirs = list<ScriptDir>
  */
 final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignore-line
@@ -95,9 +94,8 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
              *
              * @return mixed
              */
-            function (string $dependencyIndex, array $injectionPoint = ['', '', '']) {
-                $this->ip = $injectionPoint; // @phpstan-ignore-line
-                [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
+            function (string $dependencyIndex, array $ip = ['', '', '']) {
+                [$prototype, $singleton, $injector] = $this->functions;
                 $instancFile = $this->getInstanceFile($dependencyIndex);
                 assert(file_exists($instancFile), new Unbound($dependencyIndex));
 
@@ -109,13 +107,12 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
              *
              * @return mixed
              */
-            function (string $dependencyIndex, array $injectionPoint = ['', '', '']) {
+            function (string $dependencyIndex, array $ip = ['', '', '']) {
                 if (isset($this->singletons[$dependencyIndex])) {
                     return $this->singletons[$dependencyIndex];
                 }
 
-                $this->ip = $injectionPoint; // @phpstan-ignore-line
-                [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
+                [$prototype, $singleton, $injector] = $this->functions;
 
                 $instanceFile = $this->getInstanceFile($dependencyIndex);
                 assert(file_exists($instanceFile), new Unbound($dependencyIndex));
@@ -125,15 +122,10 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
 
                 return $instance;
             };
-        $injectionPoint = function (): InjectionPoint {
-            return new InjectionPoint(
-                new ReflectionParameter([$this->ip[0], $this->ip[1]], $this->ip[2])
-            );
-        };
         $injector = function (): self {
             return $this;
         };
-        $this->functions = [$prototype, $singleton, $injectionPoint, $injector];
+        $this->functions = [$prototype, $singleton, $injector];
     }
 
     /** @return list<string> */
@@ -166,7 +158,7 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
             // @codeCoverageIgnoreEnd
         }
 
-        [$prototype, $singleton, $injectionPoint, $injector] = $this->functions;
+        [$prototype, $singleton, $injector] = $this->functions;
         $script = $this->getInstanceFile($dependencyIndex);
         assert(file_exists($script), new Unbound($dependencyIndex));
         /** @var mixed $instance */

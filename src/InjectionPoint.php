@@ -20,9 +20,15 @@ final class InjectionPoint implements InjectionPointInterface
     /** @var ReflectionParameter */
     private $parameter;
 
+    /** @deprecated use getInstance */
     public function __construct(ReflectionParameter $parameter)
     {
         $this->parameter = $parameter;
+    }
+
+    public static function getInstance(array $ip)
+    {
+        return new self(new ReflectionParameter([$ip[0], $ip[1]], $ip[2]));
     }
 
     /**

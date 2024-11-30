@@ -30,6 +30,9 @@ use const PHP_EOL;
 
 final class InstanceScript
 {
+    public const RAY_DI_INJECTOR_INTERFACE = 'Ray\Di\InjectorInterface-';
+    public const RAY_DI_INJECTION_POINT_INTERFACE = 'Ray\Di\InjectionPointInterface-';
+
     /** @var array<mixed> */
     private $args = [];
 
@@ -67,14 +70,14 @@ final class InstanceScript
                 return;
             }
 
-            if ($index === 'Ray\Di\InjectorInterface-') {
+            if ($index === self::RAY_DI_INJECTOR_INTERFACE) {
                 $this->args[] = '$injector()';
 
                 return;
             }
 
-            if ($index === 'Ray\Di\InjectionPointInterface-') {
-                $this->args[] = '$injectionPoint()';
+            if ($index === self::RAY_DI_INJECTION_POINT_INTERFACE) {
+                $this->args[] = 'InjectionPoint::getInstance($ip)';
 
                 return;
             }
