@@ -36,9 +36,9 @@ final class AirInjector implements InjectorInterface
      *
      * [$class, $method, $parameter]
      *
-     * @var Ip
+     * @var Ip|null
      */
-    private $ip = ['', '', ''];
+    private $ip = null;
 
     /**
      * Singleton instance container
@@ -74,68 +74,11 @@ final class AirInjector implements InjectorInterface
      */
     public function getInstance($interface, $name = Name::ANY)
     {
-        static $injectionPoint;
-        static $injector;
-        static $prototype;
-        static $singleton;
-
-        if ($prototype === null) {
-            /** @var InjectionPoint $injectionPoint */ // @phpstan-ignore-line
-            // @phpstan-ignore-next-line
-            $injectionPoint = function (): InjectionPoint {
-                if ($this->ip[0] === '') {
-                    throw new InjectionPointUnbound();
-                }
-
-                return new InjectionPoint(
-                    new ReflectionParameter(
-                        [$this->ip[0], $this->ip[1]],
-                        $this->ip[2]
-                    )
-                );
-            };
-
-            /** @var Injector $injector */
-            // @phpstan-ignore-next-line
-            $injector = function (): self {
-                return $this;
-            };
-
-            /** @var Prottype $prototype */
-            $prototype = // @phpstan-ignore-line
-                /**
-                 * @param Ip $ip
-                 *
-                 * @return mixed
-                 */
-                function (string $dependencyIndex, array $ip) {
-                    $this->ip = $ip; // @phpstan-ignore-line
-
-                    return require $this->getInstanceFile($dependencyIndex);
-                };
-
-            /** @var Singleton $singleton */
-            $singleton = // @phpstan-ignore-line
-                /**
-                 * @param Ip $ip
-                 *
-                 * @return mixed
-                 */
-                function (string $dependencyIndex, array $ip) {
-                    if (isset($this->singletons[$dependencyIndex])) {
-                        return $this->singletons[$dependencyIndex];
-                    }
-
-                    $this->ip = $ip;
-
-                    /** @var object $instance */
-                    $instance = require $this->getInstanceFile($dependencyIndex);
-                    $this->singletons[$dependencyIndex] = $instance;
-
-                    return $instance;
-                };
-            $scriptDir = $this->scriptDir;
+        if (! isset($prototype)) {
+            [$prototype, $singleton, $injectionPoint, $injector] = $this->getFunctions();
         }
+
+        $scriptDir = $this->scriptDir;
 
         $dependencyIndex = $interface . '-' . $name;
         if (isset($this->singletons[$dependencyIndex])) {
@@ -193,5 +136,64 @@ final class AirInjector implements InjectorInterface
         }
 
         self::$scriptDirs[] = $this->scriptDir;
+    }
+
+    private function getFunctions()
+    {
+        /** @var Prottype $prototype */
+        $prototype = // @phpstan-ignore-line
+            /**
+             * @param Ip $ip
+             *
+             * @return mixed
+             */
+            function (string $dependencyIndex, ?array $ip = null) {
+                $this->ip = $ip; // @phpstan-ignore-line
+
+                return require $this->getInstanceFile($dependencyIndex);
+            };
+
+        /** @var Singleton $singleton */
+        $singleton = // @phpstan-ignore-line
+            /**
+             * @param Ip $ip
+             *
+             * @return mixed
+             */
+            function (string $dependencyIndex, ?array $ip = null) {
+                if (isset($this->singletons[$dependencyIndex])) {
+                    return $this->singletons[$dependencyIndex];
+                }
+
+                $this->ip = $ip;
+
+                /** @var object $instance */
+                $instance = require $this->getInstanceFile($dependencyIndex);
+                $this->singletons[$dependencyIndex] = $instance;
+
+                return $instance;
+            };
+        /** @var InjectionPoint $injectionPoint */ // @phpstan-ignore-line
+        // @phpstan-ignore-next-line
+        $injectionPoint = function (): InjectionPoint {
+            if ($this->ip = null) {
+                throw new InjectionPointUnbound();
+            }
+
+            return new InjectionPoint(
+                new ReflectionParameter(
+                    [$this->ip[0], $this->ip[1]],
+                    $this->ip[2]
+                )
+            );
+        };
+
+        /** @var Injector $injector */
+        // @phpstan-ignore-next-line
+        $injector = function (): self {
+            return $this;
+        };
+
+        return [$prototype, $singleton, $injectionPoint, $injector];
     }
 }
