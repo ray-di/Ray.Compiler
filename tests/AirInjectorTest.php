@@ -45,7 +45,7 @@ class AirInjectorTest extends TestCase
 
     public function testGetInstance(): void
     {
-        $className = TestClass::class;
+        $className = FakeTestClass::class;
         file_put_contents(
             $this->scriptDir . '/' . str_replace('\\', '_', $className) . '-' . Name::ANY . '.php',
             '<?php return new ' . $className . '();'
@@ -57,7 +57,7 @@ class AirInjectorTest extends TestCase
 
     public function testGetInstanceSingleton(): void
     {
-        $className = TestClass::class;
+        $className = FakeTestClass::class;
         $code = '<?php $isSingleton = true; return new ' . $className . '();';
         file_put_contents(
             $this->scriptDir . '/' . str_replace('\\', '_', $className) . '-' . Name::ANY . '.php',
@@ -71,7 +71,7 @@ class AirInjectorTest extends TestCase
 
     public function testGetInstanceWithName(): void
     {
-        $className = TestClass::class;
+        $className = FakeTestClass::class;
         $name = 'named';
         file_put_contents(
             $this->scriptDir . '/' . str_replace('\\', '_', $className) . '-' . $name . '.php',
@@ -143,12 +143,5 @@ class AirInjectorTest extends TestCase
         $injector = new AirInjector($tmpDir);
         $instance = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $instance);
-    }
-}
-
-class TestClass
-{
-    public function testMethod(string $param): void
-    {
     }
 }

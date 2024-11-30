@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Attribute;
 use PHPUnit\Framework\TestCase;
 use Ray\Aop\ReflectionClass;
 use Ray\Aop\ReflectionMethod;
-use Ray\Di\Di\Qualifier;
 use ReflectionParameter;
 
 class InjectionPointTest extends TestCase
@@ -21,10 +19,10 @@ class InjectionPointTest extends TestCase
 
     protected function setUp(): void
     {
-        $reflectionClass = new \ReflectionClass(FooClass::class);
+        $reflectionClass = new \ReflectionClass(FakeTestClass::class);
         $reflectionMethod = $reflectionClass->getMethod('testMethod');
         $this->parameter = $reflectionMethod->getParameters()[0];
-        $this->injectionPoint = InjectionPoint::getInstance([FooClass::class, 'testMethod', 'param']);
+        $this->injectionPoint = InjectionPoint::getInstance([FakeTestClass::class, 'testMethod', 'param']);
     }
 
     public function testGetParameter(): void
@@ -45,7 +43,7 @@ class InjectionPointTest extends TestCase
     {
         $class = $this->injectionPoint->getClass();
         $this->assertInstanceOf(ReflectionClass::class, $class);
-        $this->assertSame(FooClass::class, $class->getName());
+        $this->assertSame(FakeTestClass::class, $class->getName());
     }
 
     public function testGetQualifiers(): void
@@ -60,17 +58,4 @@ class InjectionPointTest extends TestCase
         $qualifier = $this->injectionPoint->getQualifier();
         $this->assertNull($qualifier);
     }
-}
-
-class FooClass
-{
-    public function testMethod(string $param): void
-    {
-    }
-}
-
-#[Attribute]
-#[Qualifier]
-class TestQualifier
-{
 }
