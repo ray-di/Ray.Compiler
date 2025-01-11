@@ -20,10 +20,8 @@ final class CompileNullObject
     {
         $container->map(static function (DependencyInterface $dependency) use ($scriptDir) {
             if ($dependency instanceof NullObjectDependency) {
-                return $dependency->toNull($scriptDir);
+                $dependency->toNull($scriptDir);
             }
-
-            return $dependency;
         });
     }
 }
