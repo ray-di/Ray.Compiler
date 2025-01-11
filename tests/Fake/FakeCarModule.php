@@ -28,5 +28,6 @@ class FakeCarModule extends AbstractModule
         $this->bind(FakeCar::class);
         $this->bind(FakeCar2::class);
         $this->bind(FakeRobot::class);
+        $this->bind(FakeNullInterface::class)->toNull();
     }
 }
