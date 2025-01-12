@@ -142,6 +142,7 @@ final class InstanceScript
     {
         $aopBindings = $aopBind->getBindings();
         foreach ($aopBindings as &$bindings) {
+            /** @var array<int, string> $bindings */
             foreach ($bindings as &$binding) {
                 $filePath = sprintf('/%s-.php', str_replace('\\', '_', $binding));
                 $binding = sprintf("\Ray\Compiler\singleton(\$scriptDir, \$singletons, '%s-', '%s')", $binding, $filePath);
@@ -150,6 +151,7 @@ final class InstanceScript
 
         $interceptors = [];
         foreach ($aopBindings as $method => $aopBinding) {
+            /** @var array<int, string> $aopBinding */
             $interceptors[] =  sprintf('\'%s\' => [%s]', $method, implode(', ', $aopBinding));
         }
 
