@@ -8,8 +8,10 @@ use Ray\Compiler\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
+use function assert;
 use function file_exists;
 use function in_array;
+use function is_array;
 use function spl_autoload_register;
 use function sprintf;
 use function str_replace;
@@ -68,18 +70,22 @@ final class AirInjector implements InjectorInterface
             return $this->singletons[$dependencyIndex];
         }
 
-//        $injector = function (): self {
-//            return $this;
-//        };
         // Load instance with injection
         $scriptFile = sprintf('%s/%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
         if (! file_exists($scriptFile)) {
-            throw new Unbound($dependencyIndex);
+            throw new Unbound($dependencyIndex); // Binding not found
         }
 
+        // Two variables in $scriptFile
+        //
+        // @var string       $scriptDir
+        // @var array<mixed> $singletons
         /** @psalm-suppress  UnsupportedPropertyReferenceUsage */
         $singletons = &$this->singletons;
+        assert(is_array($singletons));
         $scriptDir = $this->scriptDir;
+
+        //　Injection
         /** @var mixed $instance */
         $instance = require $scriptFile;
 
