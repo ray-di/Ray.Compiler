@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
-use Ray\Compiler\Exception\InjectionPointUnbound;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
