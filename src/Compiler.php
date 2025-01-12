@@ -20,7 +20,17 @@ use function is_string;
 use const LOCK_EX;
 use const LOCK_UN;
 
-/** @psalm-import-type ScriptDir from CompileInjector */
+/**
+ *  Module Compiler
+ *
+ *  Compiles module bindings into PHP files for CompiledInjector.
+ *  The compilation process includes:
+ *  - Acquiring a file lock to ensure thread safety
+ *  - Converting dependencies into PHP scripts using CompileVisitor
+ *  - Saving compiled scripts to the target directory
+ *
+ * @psalm-import-type ScriptDir from CompileInjector
+ */
 final class Compiler
 {
     /**

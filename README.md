@@ -9,60 +9,88 @@
 
 Ray.Compiler compiles Ray.Di bindings into PHP code, providing a performance boost that makes Dependency Injection couldn't be any faster.
 
-##  Script Injector
+## Production Usage
 
-`ScriptInjector` has the same interface as Ray.Di Injector; whereas Ray.Di Injector resolves dependencies based on memory bindings, ScriptInjector executes pre-compiled PHP code and is faster.
+For production, use `CompiledInjector` with pre-compiled dependencies:
 
-Ray.Di injector
 ```php
-$injector = new Injector(new CarModule); // Ray.Di injector
+// 1. Compile dependencies (during deployment or composer install)
+(new Compiler)->compile($module, $scriptDir);
+
+// 2. Use compiled injector in application
+$injector = new CompiledInjector($scriptDir);
 ```
 
-Ray.Compiler injector
+The `CompiledInjector` executes pre-compiled PHP code and is significantly faster than the standard Ray.Di injector.
+
+## Development Usage
+
+For development, use `CompileInjector` which handles compilation automatically:
+
 ```php
-$injector = new ScriptInjector($tmpDir, fn => new CarModule);
+// Compiles and injects on-demand
+$injector = new CompileInjector($scriptDir, new DevModule);
 ```
 
-## Precompile
+## Performance Comparison
 
-You will want to compile all dependencies into code before deploying the production. The `DiCompiler` will compile all bindings into PHP code.
-
+- Ray.Di injector (memory-based resolution)
 ```php
-$compiler = new DiCompiler(new CarModule, $tmpDir);
-$compiler->compile();
+$injector = new Injector(new CarModule);
 ```
 
-## Object graph visualization
+- CompiledInjector (pre-compiled, fastest)
+```php
+$injector = new CompiledInjector($scriptDir);
+```
 
-Object graph can be visualized with `dumpGraph()`.
-Graph HTML files will be output at `graph` folder under `$tmpDir`.
+- CompileInjector (development-friendly)
+```php
+$injector = new CompileInjector($scriptDir, $module);
+```
+
+## Manual Compilation
+
+You can compile dependencies manually using the Compiler:
 
 ```php
-$compiler = new DiCompiler(new Module, $tmpDir);
-$compiler->compile();
+$compiler = new Compiler();
+$compiler->compile($module, $scriptDir);
+```
+
+This is useful for:
+- Deployment scripts
+- Composer post-install scripts
+- CI/CD pipelines
+
+## Object Graph Visualization
+
+Object graph can be visualized with `dumpGraph()`. Graph HTML files will be output at `graph` folder under `$scriptDir`.
+
+```php
+$compiler = new Compiler();
+$compiler->compile($module, $scriptDir);
 $compiler->dumpGraph();
 ```
 
+View the generated graph:
 ```
-open tmp/graph/Ray_Compiler_FakeCarInterface-.html
+open $scriptDir/graph/Ray_Compiler_FakeCarInterface-.html
 ```
 
-## CompileInjector
+## Production Configuration
 
-The `CompileInjector` gives you the best performance in both development (x2) and production (x10) by switching two injector.
+For production, it's recommended to:
 
-Get the injector by specifying the binding and cache, depending on the execution context of the application.
+1. Pre-compile all dependencies during deployment
+2. Use `CompiledInjector` exclusively
+3. Configure proper error handling for missing dependencies
+
+Example production setup:
 
 ```php
-$injector = new CompileInjector($tmpDir, $injectorContext);
-```
+// composer post-install script
+(new Compiler)->compile(new ProductionModule(), __DIR__ . '/tmp/di');
 
-`$injectorContext` example: 
-
- * [dev](docs/exmaple/DevInjectorContext.php)
- * [prod](docs/exmaple/ProdInjectorContext.php)
-
-The `__invoke()` method prepares the modules needed in that context.
-The `getCache()` method specifies the cache of the injector itself.
-
-Install `DiCompileModule` in the context for production. The injector is more optimized and dependency errors are reported at compile-time instead of run-time.
+// application bootstrap
+$injector = new CompiledInjector(__DIR__ . '/tmp/di');
