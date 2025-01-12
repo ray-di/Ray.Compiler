@@ -27,7 +27,7 @@ use function sprintf;
  * @psalm-type Singleton = callable(string, Ip): mixed
  * @psalm-type InjectionPoint = callable(): InjectionPoint
  * @psalm-type Injector = callable(): InjectorInterface
- * @psalm-type InstanceFunctions = array{0: Prottype, 1: Singleton, 3: Injector}
+ * @psalm-type InstanceFunctions = array{0: Prottype, 1: Singleton, 2: InjectionPoint, 3: Injector}
  * @psalm-type ScriptDirs = list<ScriptDir>
  */
 final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignore-line
