@@ -66,6 +66,5 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
         (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
         (new Bind($module->getContainer(), InjectorInterface::class))->toInstance(new AirInjector($this->scriptDir));
         (new Compiler())->compile($module, $this->scriptDir);
-        (new CompileNullObject())($module->getContainer(), $this->scriptDir);
     }
 }
