@@ -10,10 +10,17 @@ function singleton(string $scriptDir, array &$singletons, string $dependencyInde
             return $singletons[$dependencyIndex];
         }
 
-        $scriptFile =  $scriptDir . $filePath;
-        assert(file_exists($scriptFile)); // soothe Psalm
-        /** @var object $instance */
+        $scriptFile = realpath($scriptDir) . DIRECTORY_SEPARATOR . ltrim($filePath, '/\\');
+        if (!$scriptFile || !file_exists($scriptFile)) {
+            throw new \RuntimeException(sprintf('File not found: %s', $filePath));
+        }
+        if (!str_starts_with($scriptFile, realpath($scriptDir))) {
+            throw new \RuntimeException('Path traversal detected');
+        }
         $instance = require $scriptFile;
+        if (!is_object($instance)) {
+            throw new \RuntimeException(sprintf('File %s must return an object', $filePath));
+        }
         $singletons[$dependencyIndex] = $instance;
 
         return $instance;
