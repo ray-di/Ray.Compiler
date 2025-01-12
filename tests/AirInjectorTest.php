@@ -10,9 +10,13 @@ use Ray\Compiler\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
+use function array_map;
 use function file_exists;
 use function file_put_contents;
+use function glob;
+use function is_array;
 use function mkdir;
+use function rmdir;
 use function serialize;
 use function str_replace;
 use function unserialize;
@@ -43,6 +47,7 @@ class AirInjectorTest extends TestCase
         if (is_array($files)) {
             array_map('unlink', $files);
         }
+
         if (file_exists($this->scriptDir)) {
             rmdir($this->scriptDir);
         }

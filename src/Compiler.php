@@ -38,6 +38,7 @@ final class Compiler
             if ($fp !== false) {
                 fclose($fp);
             }
+
             // @codeCoverageIgnoreStart
             throw new CompileLockFailed($scriptDir);
             // @codeCoverageIgnoreEnd
