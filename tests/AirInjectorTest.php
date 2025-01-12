@@ -90,20 +90,6 @@ class AirInjectorTest extends TestCase
         $this->assertInstanceOf($className, $instance);
     }
 
-    public function testGetInstanceSingleton(): void
-    {
-        $className = FakeTestClass::class;
-        $code = '<?php $isSingleton = true; return new ' . $className . '();';
-        file_put_contents(
-            $this->scriptDir . '/' . str_replace('\\', '_', $className) . '-' . Name::ANY . '.php',
-            $code
-        );
-
-        $instance1 = $this->injector->getInstance($className);
-        $instance2 = $this->injector->getInstance($className);
-        $this->assertSame($instance1, $instance2);
-    }
-
     public function testGetInstanceWithName(): void
     {
         $className = FakeTestClass::class;

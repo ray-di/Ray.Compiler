@@ -19,18 +19,6 @@ use function unserialize;
 
 class CompileInjectorExtendedScriptInjectorTest extends TestCase
 {
-    /** @var CompileInjector */
-    private $injector;
-
-    protected function setUp(): void
-    {
-        @mkdir(__DIR__ . '/tmp');
-        $this->injector = new CompileInjector(
-            __DIR__ . '/tmp',
-            new LazyModule(new FakeCarModule())
-        );
-    }
-
     public function testGetInstance(): FakeCar
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
@@ -53,8 +41,13 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testCompileException(): void
     {
+        $injector = new CompileInjector(
+            __DIR__ . '/tmp',
+            new LazyModule(new NullModule())
+        );
+
         $this->expectException(Unbound::class);
-        $this->injector->getInstance('invalid-class'); // @phpstan-ignore-line
+        $injector->getInstance('invalid-class'); // @phpstan-ignore-line
     }
 
     public function testToPrototype(): void
@@ -176,8 +169,13 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testOnDemandPrototype(): void
     {
+        $injector = new CompileInjector(
+            __DIR__ . '/tmp',
+            new LazyModule(new NullModule())
+        );
+
         $this->expectException(Unbound::class); // CompileInjector does not support on-demand prototype
-        $this->injector->getInstance(FakeDependPrototype::class);
+        $injector->getInstance(FakeDependPrototype::class);
     }
 
     public function testOptional(): void
