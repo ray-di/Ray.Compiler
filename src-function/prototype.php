@@ -2,7 +2,7 @@
 
 namespace Ray\Compiler;
 
-use function assert;
+use Ray\Compiler\Exception\ScriptFileNotFound;
 use function file_exists;
 
 /**
@@ -13,12 +13,9 @@ use function file_exists;
  * @return mixed
  */
 function prototype(string $scriptDir, string $filePath, ?array $ip = null) {
-    $file = realpath($scriptDir) . DIRECTORY_SEPARATOR . ltrim($filePath, '/\\');
-    if (!$file || !file_exists($file)) {
-        throw new \RuntimeException(sprintf('File not found: %s', $filePath));
-    }
-    if (!str_starts_with($file, realpath($scriptDir))) {
-        throw new \RuntimeException('Path traversal detected');
+    $file = $scriptDir . DIRECTORY_SEPARATOR . $filePath;
+    if (! file_exists($file)) {
+        throw new ScriptFileNotFound($filePath);
     }
 
     // $ip can be used in the included file
