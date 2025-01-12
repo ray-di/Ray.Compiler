@@ -71,26 +71,20 @@ final class AirInjector implements InjectorInterface
     public function getInstance($interface, $name = Name::ANY)
     {
         $dependencyIndex = $interface . '-' . $name;
-        // Return singleton if exists
         if (isset($this->singletons[$dependencyIndex])) {
             return $this->singletons[$dependencyIndex];
         }
 
-        // Load instance with injection
         $scriptFile = sprintf('%s/%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
         if (! file_exists($scriptFile)) {
             throw new Unbound($dependencyIndex); // Binding not found
         }
 
-        // Two variables in $scriptFile
-        //
-        // @var string       $scriptDir
-        // @var array<mixed> $singletons
         /** @psalm-suppress  UnsupportedPropertyReferenceUsage */
         $singletons = &$this->singletons;
         $scriptDir = realpath($this->scriptDir);
 
-        //　Injection
+        // $scriptDir, $Singletons, and $dependencyIndex can be used in the included file
         /** @var mixed $instance */
         $instance = require $scriptFile;
 
