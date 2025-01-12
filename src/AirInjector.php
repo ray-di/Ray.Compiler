@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
@@ -12,6 +13,8 @@ use function assert;
 use function file_exists;
 use function in_array;
 use function is_array;
+use function is_dir;
+use function is_readable;
 use function realpath;
 use function spl_autoload_register;
 use function sprintf;
@@ -49,6 +52,10 @@ final class AirInjector implements InjectorInterface
      */
     public function __construct(string $scriptDir)
     {
+        if (! is_dir($scriptDir) || ! is_readable($scriptDir)) {
+            throw new ScriptDirNotReadable($scriptDir);
+        }
+
         $this->scriptDir = $scriptDir;
         $this->registerLoader();
     }

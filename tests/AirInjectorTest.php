@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
+use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
@@ -38,6 +39,31 @@ class AirInjectorTest extends TestCase
         }
 
         $this->injector = new AirInjector($this->scriptDir);
+    }
+
+    public function testConstructorWithValidDirectory(): void
+    {
+        $tmpDir = __DIR__ . '/tmp/validDirectoryTest';
+        @mkdir($tmpDir);
+
+        $injector = new AirInjector($tmpDir);
+        $this->assertInstanceOf(AirInjector::class, $injector);
+
+        if (file_exists($tmpDir)) {
+            rmdir($tmpDir);
+        }
+    }
+
+    public function testConstructorThrowsExceptionForInvalidDirectory(): void
+    {
+        $this->expectException(ScriptDirNotReadable::class);
+
+        $invalidDir = __DIR__ . '/invalidDirectory';
+        if (file_exists($invalidDir)) {
+            rmdir($invalidDir);
+        }
+
+        new AirInjector($invalidDir);
     }
 
     protected function tearDown(): void
