@@ -171,7 +171,7 @@ final class InstanceScript
 
         $this->laterLines[] = self::COMMENT;
         if ($isSingleton) {
-            $this->laterLines[] = sprintf('$singletons[$dependencyIndex] = $instance;');
+            $this->laterLines[] = '$singletons[$dependencyIndex] = $instance;';
         }
 
         $this->laterLines[] = 'return $instance;';
