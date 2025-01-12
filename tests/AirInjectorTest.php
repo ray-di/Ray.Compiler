@@ -39,8 +39,13 @@ class AirInjectorTest extends TestCase
 
     protected function tearDown(): void
     {
-        array_map('unlink', glob($this->scriptDir . '/*'));
-        rmdir($this->scriptDir);
+        $files = glob($this->scriptDir . '/*');
+        if (is_array($files)) {
+            array_map('unlink', $files);
+        }
+        if (file_exists($this->scriptDir)) {
+            rmdir($this->scriptDir);
+        }
     }
 
     public function testGetInstance(): void
