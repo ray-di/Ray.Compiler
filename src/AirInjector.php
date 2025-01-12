@@ -12,7 +12,6 @@ use function assert;
 use function file_exists;
 use function in_array;
 use function is_array;
-use function realpath;
 use function spl_autoload_register;
 use function sprintf;
 use function str_replace;
@@ -49,7 +48,7 @@ final class AirInjector implements InjectorInterface
      */
     public function __construct(string $scriptDir)
     {
-        $this->scriptDir = realpath($scriptDir);
+        $this->scriptDir = $scriptDir;
         $this->registerLoader();
     }
 
@@ -77,12 +76,16 @@ final class AirInjector implements InjectorInterface
             throw new Unbound($dependencyIndex); // Binding not found
         }
 
+        // Two variables in $scriptFile
+        //
+        // @var string       $scriptDir
+        // @var array<mixed> $singletons
         /** @psalm-suppress  UnsupportedPropertyReferenceUsage */
         $singletons = &$this->singletons;
         assert(is_array($singletons));
         $scriptDir = $this->scriptDir;
 
-        // $scriptDir and $singletons are used in the included file
+        //　Injection
         /** @var mixed $instance */
         $instance = require $scriptFile;
 
