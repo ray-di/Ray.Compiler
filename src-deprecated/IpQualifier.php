@@ -7,7 +7,10 @@ namespace Ray\Compiler;
 use ReflectionParameter;
 use function serialize;
 
-/** @deprecated  */
+/**
+ * @deprecated since 1.11.0
+ * Since CompileVisitor pattern is used, this class is no longer needed.
+ */
 final class IpQualifier
 {
     /** @var ReflectionParameter */
