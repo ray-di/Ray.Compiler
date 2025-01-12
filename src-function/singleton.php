@@ -2,7 +2,7 @@
 
 namespace Ray\Compiler;
 
-use function assert;
+use Ray\Compiler\Exception\ScriptFileNotFound;
 use function file_exists;
 
 function singleton(string $scriptDir, array &$singletons, string $dependencyIndex, string $filePath, ?array $ip = null) {
@@ -10,17 +10,13 @@ function singleton(string $scriptDir, array &$singletons, string $dependencyInde
             return $singletons[$dependencyIndex];
         }
 
-        $scriptFile = realpath($scriptDir) . DIRECTORY_SEPARATOR . ltrim($filePath, '/\\');
-        if (!$scriptFile || !file_exists($scriptFile)) {
-            throw new \RuntimeException(sprintf('File not found: %s', $filePath));
+        $scriptFile = $scriptDir . DIRECTORY_SEPARATOR . $filePath;
+        if (! file_exists($scriptFile)) {
+            throw new ScriptFileNotFound($scriptFile);
         }
-        if (!str_starts_with($scriptFile, realpath($scriptDir))) {
-            throw new \RuntimeException('Path traversal detected');
-        }
+
+        // $scriptDir, $Singletons and $ip can be used in the included file
         $instance = require $scriptFile;
-        if (!is_object($instance)) {
-            throw new \RuntimeException(sprintf('File %s must return an object', $filePath));
-        }
         $singletons[$dependencyIndex] = $instance;
 
         return $instance;

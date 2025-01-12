@@ -9,10 +9,8 @@ use Ray\Compiler\Exception\Unbound;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
-use function assert;
 use function file_exists;
 use function in_array;
-use function is_array;
 use function is_dir;
 use function is_readable;
 use function realpath;
@@ -90,7 +88,6 @@ final class AirInjector implements InjectorInterface
         // @var array<mixed> $singletons
         /** @psalm-suppress  UnsupportedPropertyReferenceUsage */
         $singletons = &$this->singletons;
-        assert(is_array($singletons));
         $scriptDir = realpath($this->scriptDir);
 
         //　Injection
