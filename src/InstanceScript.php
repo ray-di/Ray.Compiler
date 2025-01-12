@@ -18,13 +18,11 @@ use function array_unshift;
 use function assert;
 use function implode;
 use function is_a;
-use function is_iterable;
 use function is_object;
 use function is_string;
 use function serialize;
 use function sprintf;
 use function str_replace;
-use function unserialize;
 use function var_export;
 
 use const PHP_EOL;
@@ -142,11 +140,9 @@ final class InstanceScript
 
     public function pushAspectBind(AopBind $aopBind): void
     {
-        $aopBindings = unserialize((string) ($aopBind));
-        assert(is_iterable($aopBindings));
+        $aopBindings = $aopBind->getBindings();
         foreach ($aopBindings as &$bindings) {
             foreach ($bindings as &$binding) {
-//                function singleton(string $scriptDir, array &$singletons, string $dependencyIndex, string $filePath, array $ip = null) {
                 $filePath = sprintf('/%s-.php', str_replace('\\', '_', $binding));
                 $binding = sprintf("\Ray\Compiler\singleton(\$scriptDir, \$singletons, '%s-', '%s')", $binding, $filePath);
             }
