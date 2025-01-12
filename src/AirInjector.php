@@ -12,6 +12,7 @@ use function assert;
 use function file_exists;
 use function in_array;
 use function is_array;
+use function realpath;
 use function spl_autoload_register;
 use function sprintf;
 use function str_replace;
@@ -83,7 +84,7 @@ final class AirInjector implements InjectorInterface
         /** @psalm-suppress  UnsupportedPropertyReferenceUsage */
         $singletons = &$this->singletons;
         assert(is_array($singletons));
-        $scriptDir = $this->scriptDir;
+        $scriptDir = realpath($this->scriptDir);
 
         //　Injection
         /** @var mixed $instance */
