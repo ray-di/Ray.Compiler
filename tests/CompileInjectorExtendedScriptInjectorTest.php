@@ -219,7 +219,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
         $factory = $injector->getInstance(FakeFactory::class);
         $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
-        $this->assertInstanceOf(AirInjector::class, $factory->injector);
+        $this->assertInstanceOf(CompiledInjector::class, $factory->injector);
     }
 
     public function testUnbound(): void
