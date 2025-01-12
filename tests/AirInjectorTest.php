@@ -92,46 +92,6 @@ class AirInjectorTest extends TestCase
         $this->assertInstanceOf($className, $instance);
     }
 
-    public function estInjectionPoint(): void
-    {
-        // 依存クラスを作成
-        $engineProviderFile = $this->scriptDir . '/FakeEngineProvider.php';
-        file_put_contents($engineProviderFile, '<?php
-       namespace Ray\Compiler;
-       class FakeEngineProvider { 
-           public function __construct($ip) {} 
-       }
-   ');
-        require $engineProviderFile;
-
-        $carFile = $this->scriptDir . '/FakeCar.php';
-        file_put_contents($carFile, '<?php
-       namespace Ray\Compiler;
-       class FakeCar { 
-           public function setEngine(FakeEngineProvider $engine) {} 
-       }
-   ');
-        require $carFile;
-
-        // エンジンプロバイダーのインジェクションコード
-        $providerInstanceFile = $this->scriptDir . '/Ray_Compiler_FakeEngineProvider-' . Name::ANY . '.php';
-        file_put_contents($providerInstanceFile, '<?php
-       $instance = new \Ray\Compiler\FakeEngineProvider($injectionPoint());
-       return $instance;
-   ');
-
-        // 車のインスタンスコード
-        $carInstanceFile = $this->scriptDir . '/Ray_Compiler_FakeCar-' . Name::ANY . '.php';
-        file_put_contents($carInstanceFile, '<?php
-       $instance = new \Ray\Compiler\FakeCar();
-       $instance->setEngine($prototype("Ray_Compiler_FakeEngineProvider-", ["Ray\\Compiler\\FakeCar", "setEngine", "engine"]));
-       return $instance;
-   ');
-
-        $this->expectException(InjectionPointUnbound::class);
-        $this->injector->getInstance(FakeCar::class);
-    }
-
     public function testUnbound(): void
     {
         $this->expectException(Unbound::class);
