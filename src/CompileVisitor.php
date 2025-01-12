@@ -52,7 +52,7 @@ final class CompileVisitor implements VisitorInterface
         string $context,
         bool $isSingleton
     ): string {
-        $this->script->pushProviderContext($context, $isSingleton);
+        $this->script->pushProviderContext($context);
         $script = $dependency->accept($this);
         assert(is_string($script));
 

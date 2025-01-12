@@ -48,9 +48,6 @@ final class InstanceScript
     /** @var bool */
     private $implementsSetContext = false;
 
-    /** @var bool|null */
-    private $isSingleton = null;
-
     /** @var array<DependencyInterface> */
     private $container;
 
@@ -133,10 +130,9 @@ final class InstanceScript
         $this->args = [];
     }
 
-    public function pushProviderContext(string $context, bool $isSingleton): void
+    public function pushProviderContext(string $context): void
     {
         $this->context = $context;
-        $this->isSingleton = $isSingleton;
     }
 
     public function pushAspectBind(AopBind $aopBind): void
