@@ -56,7 +56,9 @@ final class CompileVisitor implements VisitorInterface
         $script = $dependency->accept($this);
         assert(is_string($script));
 
-        return str_replace('return $instance', 'return $instance->get()', $script);
+        $providerScript = $this->getProviderScript($isSingleton);
+
+        return str_replace(InstanceScript::COMMENT, $providerScript, $script);
     }
 
     /** @inheritDoc */
@@ -128,5 +130,21 @@ final class CompileVisitor implements VisitorInterface
         ReflectionParameter $parameter
     ): void {
         $this->script->addArg($index, $isDefaultAvailable, $defaultValue, $parameter);
+    }
+
+    private function getProviderScript(bool $isSingleton): string
+    {
+        if ($isSingleton) {
+            return <<<'EOT'
+$instance = $instance->get();
+// singleton
+$singletons[$dependencyIndex] = $instance;
+EOT;
+        }
+
+        return <<<'EOT'
+$instance = $instance->get();
+// prototype
+EOT;
     }
 }

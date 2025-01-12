@@ -15,9 +15,8 @@ function singleton(string $scriptDir, array &$singletons, string $dependencyInde
             throw new ScriptFileNotFound($scriptFile);
         }
 
-        // $scriptDir, $Singletons and $ip can be used in the included file
+        // $scriptDir, $Singletons, $dependencyIndex and $ip can be used in the included file
         $instance = require $scriptFile;
-        $singletons[$dependencyIndex] = $instance;
 
         return $instance;
     };

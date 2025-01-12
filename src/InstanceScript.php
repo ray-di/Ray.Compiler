@@ -31,6 +31,7 @@ final class InstanceScript
 {
     public const RAY_DI_INJECTOR_INTERFACE = 'Ray\Di\InjectorInterface-';
     public const RAY_DI_INJECTION_POINT_INTERFACE = 'Ray\Di\InjectionPointInterface-';
+    public const COMMENT = '// prototype';
 
     /** @var array<mixed> */
     private $args = [];
@@ -103,7 +104,7 @@ final class InstanceScript
         // Add prototype or singleton
         $this->args[] = $isSingleton ?
             sprintf("\\Ray\\Compiler\\singleton(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip) :
-            sprintf("\\Ray\\Compiler\\prototype(\$scriptDir, '%s', %s)", $filePath, $ip);
+            sprintf("\\Ray\\Compiler\\prototype(\$scriptDir, '%s', '%s', %s)", $index, $filePath, $ip);
     }
 
     /** @param mixed $default */
@@ -168,14 +169,16 @@ final class InstanceScript
             $this->laterLines[] = sprintf('$instance->setContext(%s);', var_export($this->context, true));
         }
 
-        $isSingleton = $this->isSingleton ?? $isSingleton;
-        $this->laterLines[] = sprintf('$isSingleton = %s;', $isSingleton ? 'true' : 'false');
+        $this->laterLines[] = self::COMMENT;
+        if ($isSingleton) {
+            $this->laterLines[] = sprintf('$singletons[$dependencyIndex] = $instance;');
+        }
+
         $this->laterLines[] = 'return $instance;';
 
         $script = implode(PHP_EOL, $this->formerLines) . PHP_EOL . implode(PHP_EOL, $this->laterLines);
         $this->formerLines = [];
         $this->laterLines = [];
-        $this->isSingleton = null;
 
         return $script;
     }

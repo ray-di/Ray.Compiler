@@ -94,13 +94,6 @@ final class AirInjector implements InjectorInterface
         /** @var mixed $instance */
         $instance = require $scriptFile;
 
-        // Save singleton
-        /** @psalm-suppress UndefinedVariable */
-        if (isset($isSingleton) && $isSingleton) {
-            /** @var object $instance */
-            $this->singletons[$dependencyIndex] = $instance;
-        }
-
         /** @pslam-var T $instance */
         return $instance;
     }
