@@ -100,7 +100,8 @@ final class AirInjector implements InjectorInterface
 
     private function registerLoader(): void
     {
-        if (in_array($this->scriptDir, self::$scriptDirs, true)) {
+        $scriptDir = $this->scriptDir;
+        if (in_array($scriptDir, self::$scriptDirs, true)) {
             return;
         }
 
@@ -110,13 +111,13 @@ final class AirInjector implements InjectorInterface
                     foreach (self::$scriptDirs as $scriptDir) {
                         $file = sprintf('%s/%s.php', $scriptDir, str_replace('\\', '_', $class));
                         if (file_exists($file)) {
-                            require_once $file; // @codeCoverageIgnore
+                            require_once $file;
                         }
                     }
                 }
             );
         }
 
-        self::$scriptDirs[] = $this->scriptDir;
+        self::$scriptDirs[] = $scriptDir;
     }
 }
