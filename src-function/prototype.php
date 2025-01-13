@@ -11,9 +11,16 @@ use function file_exists;
 use const DIRECTORY_SEPARATOR;
 
 /**
- * @param array|null $ip
+ * Injection with prototype scope
  *
- * @return mixed
+ * @param string     $scriptDir       The base directory of the script files.
+ * @param string     $dependencyIndex The dependency identifier used in the script's context.
+ * @param string     $filePath        The relative file path of the script to be included.
+ * @param array|null $ip              An optional array for injection point to be accessible in the script.
+ *
+ * @return mixed The resolved dependency instance from the required script file.
+ *
+ * @throws ScriptFileNotFound Thrown if the specified script file could not be located.
  */
 function prototype(string $scriptDir, string $dependencyIndex, string $filePath, ?array $ip = null)
 {
