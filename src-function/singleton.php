@@ -19,7 +19,7 @@ use const DIRECTORY_SEPARATOR;
  * @param string     $filePath        The relative file path of the script to be included.
  * @param array|null $ip              An optional array for injection point to be accessible in the script.
  *
- * @return mixed The resolved dependency instance from the required script file.
+ * @return object The resolved dependency instance from the required script file.
  *
  * @throws ScriptFileNotFound Thrown if the specified script file could not be located.
  */
