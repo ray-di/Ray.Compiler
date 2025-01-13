@@ -8,14 +8,17 @@ use Ray\Compiler\Exception\CompileLockFailed;
 use Ray\Di\AbstractModule;
 use Ray\Di\AcceptInterface;
 use Ray\Di\Annotation\ScriptDir;
+use Ray\Di\Bind;
 use Ray\Di\ContainerFactory;
 use Ray\Di\DependencyInterface;
+use Ray\Di\InjectorInterface;
 
 use function assert;
 use function fclose;
 use function flock;
 use function fopen;
 use function is_string;
+use function sprintf;
 
 use const LOCK_EX;
 use const LOCK_UN;
@@ -42,6 +45,7 @@ final class Compiler
      */
     public function compile(AbstractModule $module, string $scriptDir): Scripts
     {
+        $this->installBuiltInModule($module, $scriptDir);
         // Lock
         $fp = fopen($scriptDir . '/compile.lock', 'a+');
         if ($fp === false || ! flock($fp, LOCK_EX)) {
@@ -73,5 +77,13 @@ final class Compiler
         fclose($fp);
 
         return $scripts;
+    }
+
+    private function installBuiltInModule(AbstractModule $module, string $scriptDir): void
+    {
+        $module = (new InstallBuiltinModule())($module);
+        (new FilePutContents())(sprintf('%s/_bindings.log', $scriptDir), (string) $module);
+        (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($scriptDir);
+        (new Bind($module->getContainer(), InjectorInterface::class))->to(CompiledInjector::class);
     }
 }

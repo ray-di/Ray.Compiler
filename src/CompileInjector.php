@@ -7,12 +7,10 @@ namespace Ray\Compiler;
 use Ray\Compiler\Exception\FileNotWritable;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
-use Ray\Di\Bind;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
 use function rtrim;
-use function sprintf;
 
 /**
  * Compile Injector
@@ -67,10 +65,6 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
      */
     public function compile(AbstractModule $module): void
     {
-        $module = (new InstallBuiltinModule())($module);
-        (new FilePutContents())(sprintf('%s/_bindings.log', $this->scriptDir), (string) $module);
-        (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
-        (new Bind($module->getContainer(), InjectorInterface::class))->to(CompiledInjector::class);
         (new Compiler())->compile($module, $this->scriptDir);
     }
 }
