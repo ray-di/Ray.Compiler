@@ -63,7 +63,7 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
     /**
      * Compiles the module and its dependencies
      *
-     * @throws FileNotWritable When binding log file cannot be written
+     * @throws FileNotWritable When binding log file cannot be written.
      */
     public function compile(AbstractModule $module): void
     {
