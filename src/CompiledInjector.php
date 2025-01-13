@@ -60,7 +60,7 @@ final class CompiledInjector implements InjectorInterface
             throw new ScriptDirNotReadable($scriptDir);
         }
 
-        $this->scriptDir = $scriptDir;
+        $this->scriptDir = realpath($scriptDir);
         $this->registerLoader();
     }
 
