@@ -70,7 +70,7 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
         $module = (new InstallBuiltinModule())($module);
         (new FilePutContents())(sprintf('%s/_bindings.log', $this->scriptDir), (string) $module);
         (new Bind($module->getContainer(), ''))->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
-        (new Bind($module->getContainer(), InjectorInterface::class))->toInstance(new CompiledInjector($this->scriptDir));
+        (new Bind($module->getContainer(), InjectorInterface::class))->to(CompiledInjector::class);
         (new Compiler())->compile($module, $this->scriptDir);
     }
 }

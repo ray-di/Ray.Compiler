@@ -6,6 +6,7 @@ namespace Ray\Compiler;
 
 use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Compiler\Exception\Unbound;
+use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
@@ -53,7 +54,9 @@ final class CompiledInjector implements InjectorInterface
      * @param ScriptDir $scriptDir generated instance script folder path
      *
      * @psalm-suppress UnresolvableInclude
+     * @ScriptDir
      */
+    #[ScriptDir]
     public function __construct(string $scriptDir)
     {
         if (! is_dir($scriptDir) || ! is_readable($scriptDir)) {
