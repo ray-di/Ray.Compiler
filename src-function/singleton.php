@@ -25,6 +25,7 @@ use const DIRECTORY_SEPARATOR;
  */
 function singleton(string $scriptDir, array &$singletons, string $dependencyIndex, string $filePath, ?array $ip = null)
 {
+    // Get singleton when called from this singeleton function
     if (isset($singletons[$dependencyIndex])) {
         return $singletons[$dependencyIndex];
     }
