@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Ray\Compiler\Exception\FileNotWritable;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Bind;
@@ -59,6 +60,11 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
         return $this->injector->getInstance($interface, $name);
     }
 
+    /**
+     * Compiles the module and its dependencies
+     *
+     * @throws FileNotWritable When binding log file cannot be written
+     */
     public function compile(AbstractModule $module): void
     {
         $module = (new InstallBuiltinModule())($module);
