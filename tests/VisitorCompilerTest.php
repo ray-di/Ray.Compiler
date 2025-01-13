@@ -71,13 +71,13 @@ EOT;
         assert($dependency instanceof AcceptInterface);
         $code = $dependency->accept(new CompileVisitor($container));
         $expected = <<<'EOT'
-$instance = new \Ray\Compiler\FakeCar(\Ray\Compiler\prototype($scriptDir, 'Ray\Compiler\FakeEngineInterface-', '/Ray_Compiler_FakeEngineInterface-.php', ['Ray\Compiler\FakeCar', '__construct', 'engine']));
-$instance->setTires(\Ray\Compiler\prototype($scriptDir, 'Ray\Compiler\FakeTyreInterface-', '/Ray_Compiler_FakeTyreInterface-.php', ['Ray\Compiler\FakeCar', 'setTires', 'frontTyre']), \Ray\Compiler\prototype($scriptDir, 'Ray\Compiler\FakeTyreInterface-', '/Ray_Compiler_FakeTyreInterface-.php', ['Ray\Compiler\FakeCar', 'setTires', 'rearTyre']), NULL);
-$instance->setHardtop(\Ray\Compiler\prototype($scriptDir, 'Ray\Compiler\FakeHardtopInterface-', '/Ray_Compiler_FakeHardtopInterface-.php', ['Ray\Compiler\FakeCar', 'setHardtop', 'hardtop']));
+$instance = new \Ray\Compiler\FakeCar(\Ray\Compiler\prototype($scriptDir, $singletons, 'Ray\Compiler\FakeEngineInterface-', '/Ray_Compiler_FakeEngineInterface-.php', ['Ray\Compiler\FakeCar', '__construct', 'engine']));
+$instance->setTires(\Ray\Compiler\prototype($scriptDir, $singletons, 'Ray\Compiler\FakeTyreInterface-', '/Ray_Compiler_FakeTyreInterface-.php', ['Ray\Compiler\FakeCar', 'setTires', 'frontTyre']), \Ray\Compiler\prototype($scriptDir, $singletons, 'Ray\Compiler\FakeTyreInterface-', '/Ray_Compiler_FakeTyreInterface-.php', ['Ray\Compiler\FakeCar', 'setTires', 'rearTyre']), NULL);
+$instance->setHardtop(\Ray\Compiler\prototype($scriptDir, $singletons, 'Ray\Compiler\FakeHardtopInterface-', '/Ray_Compiler_FakeHardtopInterface-.php', ['Ray\Compiler\FakeCar', 'setHardtop', 'hardtop']));
 $instance->setMirrors(\Ray\Compiler\singleton($scriptDir, $singletons, 'Ray\Compiler\FakeMirrorInterface-right', '/Ray_Compiler_FakeMirrorInterface-right.php', ['Ray\Compiler\FakeCar', 'setMirrors', 'rightMirror']), \Ray\Compiler\singleton($scriptDir, $singletons, 'Ray\Compiler\FakeMirrorInterface-left', '/Ray_Compiler_FakeMirrorInterface-left.php', ['Ray\Compiler\FakeCar', 'setMirrors', 'leftMirror']));
 $instance->setSpareMirror(\Ray\Compiler\singleton($scriptDir, $singletons, 'Ray\Compiler\FakeMirrorInterface-right', '/Ray_Compiler_FakeMirrorInterface-right.php', ['Ray\Compiler\FakeCar', 'setSpareMirror', 'rightMirror']));
-$instance->setHandle(\Ray\Compiler\prototype($scriptDir, 'Ray\Compiler\FakeHandleInterface-', '/Ray_Compiler_FakeHandleInterface-.php', ['Ray\Compiler\FakeCar', 'setHandle', 'handle']));
-$instance->setOil(\Ray\Compiler\prototype($scriptDir, 'Ray\Compiler\FakeOilInterface-', '/Ray_Compiler_FakeOilInterface-.php', ['Ray\Compiler\FakeCar', 'setOil', 'oil']));
+$instance->setHandle(\Ray\Compiler\prototype($scriptDir, $singletons, 'Ray\Compiler\FakeHandleInterface-', '/Ray_Compiler_FakeHandleInterface-.php', ['Ray\Compiler\FakeCar', 'setHandle', 'handle']));
+$instance->setOil(\Ray\Compiler\prototype($scriptDir, $singletons, 'Ray\Compiler\FakeOilInterface-', '/Ray_Compiler_FakeOilInterface-.php', ['Ray\Compiler\FakeCar', 'setOil', 'oil']));
 $instance->postConstruct();
 // prototype
 return $instance;

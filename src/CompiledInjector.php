@@ -59,11 +59,13 @@ final class CompiledInjector implements InjectorInterface
     #[ScriptDir]
     public function __construct(string $scriptDir)
     {
-        if (! is_dir($scriptDir) || ! is_readable($scriptDir)) {
+        $realPath = realpath($scriptDir);
+        if ($realPath === false || ! is_dir($realPath) || ! is_readable($realPath)) {
             throw new ScriptDirNotReadable($scriptDir);
         }
 
-        $this->scriptDir = realpath($scriptDir);
+        /** @psalm-var ScriptDir $realPath */
+        $this->scriptDir = $realPath;
         $this->registerLoader();
     }
 

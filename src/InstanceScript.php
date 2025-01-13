@@ -101,7 +101,7 @@ final class InstanceScript
         // Add prototype or singleton
         $this->args[] = $isSingleton ?
             sprintf("\\Ray\\Compiler\\singleton(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip) :
-            sprintf("\\Ray\\Compiler\\prototype(\$scriptDir, '%s', '%s', %s)", $index, $filePath, $ip);
+            sprintf("\\Ray\\Compiler\\prototype(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip);
     }
 
     /** @param mixed $default */

@@ -22,7 +22,7 @@ use const DIRECTORY_SEPARATOR;
  *
  * @throws ScriptFileNotFound Thrown if the specified script file could not be located.
  */
-function prototype(string $scriptDir, string $dependencyIndex, string $filePath, ?array $ip = null)
+function prototype(string $scriptDir, array &$singletons, string $dependencyIndex, string $filePath, ?array $ip = null)
 {
     $file = $scriptDir . DIRECTORY_SEPARATOR . $filePath;
     if (! file_exists($file)) {
