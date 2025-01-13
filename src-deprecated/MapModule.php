@@ -8,6 +8,7 @@ use Ray\Di\AbstractModule;
 use Ray\Di\MultiBinding\Map;
 use Ray\Di\MultiBinding\MapProvider;
 
+/** @deprecated Use CompilerModule */
 class MapModule extends AbstractModule
 {
     /**

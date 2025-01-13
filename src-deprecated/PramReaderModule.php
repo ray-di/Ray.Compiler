@@ -8,6 +8,7 @@ use Koriym\ParamReader\ParamReader;
 use Koriym\ParamReader\ParamReaderInterface;
 use Ray\Di\AbstractModule;
 
+/** @deprecated Use CompilerModule */
 class PramReaderModule extends AbstractModule
 {
     /**

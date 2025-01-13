@@ -7,9 +7,9 @@ namespace Ray\Compiler;
 use Ray\Di\AbstractModule;
 use Ray\Di\AssistedModule;
 use Ray\Di\ProviderSetModule;
-
 use function count;
 
+/** @deprecated Use CompilerModule */
 final class InstallBuiltinModule
 {
     public function __invoke(AbstractModule $module): AbstractModule
