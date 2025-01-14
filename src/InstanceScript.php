@@ -67,12 +67,6 @@ final class InstanceScript
                 return;
             }
 
-            if ($index === self::RAY_DI_INJECTOR_INTERFACE) {
-                $this->args[] = '$injector()';
-
-                return;
-            }
-
             if ($index === self::RAY_DI_INJECTION_POINT_INTERFACE) {
                 $this->args[] = '\Ray\Compiler\InjectionPoint::getInstance($ip)';
 
