@@ -22,7 +22,7 @@ use function str_replace;
  * Compiled Injector
  *
  * An injector that requires all bindings to be pre-compiled into PHP code.
- * Use Ray\Compiler\CompileInjector to compile the bindings.
+ * Use Ray\Compiler\Compiler to compile the bindings.
  * Runtime compilation is not supported.
  *
  * @psalm-import-type ScriptDir from Types
