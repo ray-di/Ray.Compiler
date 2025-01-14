@@ -93,7 +93,7 @@ class CompiledInjectorTest extends TestCase
         $this->injector->getInstance(FakeCar3::class);
     }
 
-    public function testThrowsScriptDirNotReadableException()
+    public function testThrowsScriptDirNotReadableException(): void
     {
         $scriptDir = __DIR__ . '/not-exists';
         $this->expectException(ScriptDirNotReadable::class);
