@@ -139,11 +139,11 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
 
     public function testAop(): void
     {
-        $tmpDir = $this->getTmpDir(__FUNCTION__);
-        $injector = new CompileInjector(
-            $tmpDir,
-            new LazyModule(new FakeCarModule())
-        );
+        $compiler = new DiCompiler(new FakeCarModule(), __DIR__ . '/tmp');
+        $compiler->compile();
+
+        $injector = new ScriptInjector(__DIR__ . '/tmp');
+
         $instance1 = $injector->getInstance(FakeCarInterface::class);
         $instance2 = $injector->getInstance(FakeCar::class);
         $instance3 = $injector->getInstance(FakeCar2::class);
@@ -219,7 +219,7 @@ class CompileInjectorExtendedScriptInjectorTest extends TestCase
         $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
         $factory = $injector->getInstance(FakeFactory::class);
         $this->assertInstanceOf(InjectorInterface::class, $factory->injector);
-        $this->assertInstanceOf(CompiledInjector::class, $factory->injector);
+        $this->assertInstanceOf(CompileInjector::class, $factory->injector);
     }
 
     public function testUnbound(): void
