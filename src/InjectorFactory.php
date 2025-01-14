@@ -17,6 +17,7 @@ use function mkdir;
 /**
  * @psalm-immutable
  * @psalm-import-type ScriptDir from CompileInjector
+ * @psalm-suppress DeprecatedClass
  */
 final class InjectorFactory
 {

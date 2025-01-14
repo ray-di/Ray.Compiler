@@ -7,14 +7,14 @@ namespace Ray\Compiler;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
 use Ray\Di\AbstractModule;
 
-class FakeLazyModule implements LazyModuleInterface
+class FakeLazyModule extends AbstractModule
 {
-    public function __invoke(): AbstractModule
+    public function configure(): void
     {
-        $module = new FakeCarModule();
-        $module->install(new FakeLoggerModule());
-        $module->install(new FakeToBindSingletonModule());
-        $module->install(new FakeMultiBindingsModule());
-        return $module;
+        $this->install(new FakeCarModule());
+        $this->install(new FakeLoggerModule());
+        $this->install(new FakeToBindSingletonModule());
+        $this->install(new FakeMultiBindingsModule());
+        $this->install(new FakeCarModule());
     }
 }

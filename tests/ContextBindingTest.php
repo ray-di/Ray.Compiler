@@ -8,16 +8,15 @@ use PHPUnit\Framework\TestCase;
 
 final class ContextBindingTest extends TestCase
 {
-    /** @var CompileInjector  */
+    /** @var CompiledInjector  */
     private $injector;
 
     public function setUp(): void
     {
         deleteFiles(__DIR__ . '/tmp');
-        $this->injector = new CompileInjector(
-            __DIR__ . '/tmp',
-            new LazyModule(new FakeDependContextualRobotModule(''))
-        );
+        $scriptDir = __DIR__ . '/tmp';
+        (new Compiler())->compile($scriptDir, new FakeDependContextualRobotModule(''));
+        $this->injector = new CompiledInjector($scriptDir);
     }
 
     /** @requires PHP >= 7.4 */

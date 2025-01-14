@@ -5,124 +5,90 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
-use Ray\Compiler\Exception\ScriptDirNotReadable;
-use Ray\Compiler\Exception\Unbound;
-use Ray\Di\InjectorInterface;
-use Ray\Di\Name;
+use Ray\Di\Exception\Unbound;
 
-use function array_map;
-use function file_exists;
-use function file_put_contents;
-use function glob;
-use function is_array;
-use function mkdir;
-use function rmdir;
 use function serialize;
-use function str_replace;
+use function spl_object_hash;
 use function unserialize;
 
+/** @psalm-import-type ScriptDir from CompileInjector */
 class CompiledInjectorTest extends TestCase
 {
-    /** @var CompiledInjector */
-    private $injector;
+    public static function setUpBeforeClass(): void
+    {
+        deleteFiles(__DIR__ . '/tmp');
+    }
 
-    /** @var string  */
-    private $scriptDir;
+    /** @var CompiledInjector $injector */
+    private $injector;
 
     protected function setUp(): void
     {
-        $tmpDir = __DIR__ . '/tmp/AirInjectorTest';
-        @mkdir($tmpDir);
-        $this->scriptDir = $tmpDir;
-        if (! file_exists($this->scriptDir)) {
-            mkdir($this->scriptDir, 0777, true);
-        }
-
-        $this->injector = new CompiledInjector($this->scriptDir);
+        $scriptDir = __DIR__ . '/tmp';
+        (new Compiler())->compile($scriptDir, new FakeLazyModule());
+        $this->injector = new CompiledInjector($scriptDir);
     }
 
-    public function testConstructorWithValidDirectory(): void
+    public function testCompile(): void
     {
-        $tmpDir = __DIR__ . '/tmp/validDirectoryTest';
-        @mkdir($tmpDir);
-
-        $injector = new CompiledInjector($tmpDir);
-        $this->assertInstanceOf(CompiledInjector::class, $injector);
-
-        if (file_exists($tmpDir)) {
-            rmdir($tmpDir);
-        }
+        // built in script
+        $this->assertFileExists(__DIR__ . '/tmp/-Ray_Compiler_Annotation_Compile.php');
+        $this->assertFileExists(__DIR__ . '/tmp/-Ray_Di_Annotation_ScriptDir.php');
+        $this->assertFileExists(__DIR__ . '/tmp/Ray_Aop_MethodInvocation-.php');
+        $this->assertFileExists(__DIR__ . '/tmp/Koriym_ParamReader_ParamReaderInterface-.php');
+        $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_AssistedInterceptor-.php');
+        $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_InjectorInterface-.php');
+        $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_MethodInvocationProvider-.php');
+        $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_ProviderInterface-.php');
+        // application binding
+        $this->assertFileExists(__DIR__ . '/tmp/Ray_Compiler_FakeCar-.php');
     }
 
-    public function testConstructorThrowsExceptionForInvalidDirectory(): void
-    {
-        $this->expectException(ScriptDirNotReadable::class);
-
-        $invalidDir = __DIR__ . '/invalidDirectory';
-        if (file_exists($invalidDir)) {
-            rmdir($invalidDir);
-        }
-
-        new CompiledInjector($invalidDir);
-    }
-
-    protected function tearDown(): void
-    {
-        $files = glob($this->scriptDir . '/*');
-        if (is_array($files)) {
-            array_map('unlink', $files);
-        }
-
-        if (file_exists($this->scriptDir)) {
-            rmdir($this->scriptDir);
-        }
-    }
-
+    /** @depends testCompile */
     public function testGetInstance(): void
     {
-        $className = FakeTestClass::class;
-        file_put_contents(
-            $this->scriptDir . '/' . str_replace('\\', '_', $className) . '-' . Name::ANY . '.php',
-            '<?php return new ' . $className . '();'
-        );
-
-        $instance = $this->injector->getInstance($className);
-        $this->assertInstanceOf($className, $instance);
+        $instance = $this->injector->getInstance(FakeCarInterface::class);
+        $this->assertInstanceOf(FakeCarInterface::class, $instance);
     }
 
-    public function testGetInstanceWithName(): void
+    public function testInjectionPoint(): void
     {
-        $className = FakeTestClass::class;
-        $name = 'named';
-        file_put_contents(
-            $this->scriptDir . '/' . str_replace('\\', '_', $className) . '-' . $name . '.php',
-            '<?php return new ' . $className . '();'
-        );
+        $instance = $this->injector->getInstance(FakeLoggerConsumer::class);
+        $this->assertInstanceOf(FakeLoggerConsumer::class, $instance);
+    }
 
-        $instance = $this->injector->getInstance($className, $name);
-        $this->assertInstanceOf($className, $instance);
+    public function testSingleton(): void
+    {
+        $instance1 = $this->injector->getInstance(FakeRobotInterface::class);
+        $instance2 = $this->injector->getInstance(FakeRobotInterface::class);
+        $this->assertSame(spl_object_hash($instance1), spl_object_hash($instance2));
+    }
+
+    public function testSerialize(): void
+    {
+        deleteFiles(__DIR__ . '/tmp');
+        $scriptDir = __DIR__ . '/tmp';
+        (new Compiler())->compile($scriptDir, new FakeLazyModule());
+        $injector = new CompiledInjector($scriptDir);
+        $injector = unserialize(serialize($injector));
+        $instance = $injector->getInstance(FakeCarInterface::class);
+        $this->assertInstanceOf(FakeCarInterface::class, $instance);
     }
 
     public function testUnbound(): void
     {
+        deleteFiles(__DIR__ . '/tmp');
         $this->expectException(Unbound::class);
-        $this->injector->getInstance('InvalidClass'); // @phpstan-ignore-line
+        $scriptDir = __DIR__ . '/tmp';
+        $injector = new CompiledInjector($scriptDir);
+        $injector->getInstance(FakeCar2::class);
     }
 
-    public function testWakeup(): void
+    /** @depends testUnbound */
+    public function testUnboundCompileLogFile(): void
     {
-        $injector = unserialize(serialize($this->injector));
-        $this->assertInstanceOf(InjectorInterface::class, $injector);
-    }
-
-    public function testWithCompiler(): void
-    {
-        $tmpDir = __DIR__ . '/tmp/testWithCompiler';
-        @mkdir($tmpDir);
-        $module = new FakeCarModule();
-        (new Compiler())->compile($tmpDir, $module);
-        $injector = new CompiledInjector($tmpDir);
-        $instance = $injector->getInstance(FakeCarInterface::class);
-        $this->assertInstanceOf(FakeCar::class, $instance);
+        $this->expectException(Unbound::class);
+        $this->assertFileExists(__DIR__ . '/tmp/_bindings.log');
+        $this->injector->getInstance(FakeCar3::class);
     }
 }
