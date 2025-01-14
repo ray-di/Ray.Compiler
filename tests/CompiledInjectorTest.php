@@ -11,7 +11,7 @@ use function serialize;
 use function spl_object_hash;
 use function unserialize;
 
-/** @psalm-import-type ScriptDir from CompileInjector */
+/** @psalm-import-type ScriptDir from CompiledInjector */
 class CompiledInjectorTest extends TestCase
 {
     public static function setUpBeforeClass(): void

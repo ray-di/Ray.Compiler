@@ -25,10 +25,10 @@ class ContextInjectorTest extends TestCase
         return $injector;
     }
 
-    public function testGetCompileInjector(): void
+    public function testGetCompiledInjector(): void
     {
         $injector = ContextInjector::getInstance(new FakeProdContext(__DIR__ . '/tmp/base'));
-        $this->assertInstanceOf(CompileInjector::class, $injector);
+        $this->assertInstanceOf(CompiledInjector::class, $injector);
         $robot = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobotInterface::class, $robot);
     }
