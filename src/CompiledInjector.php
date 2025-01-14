@@ -70,6 +70,7 @@ final class CompiledInjector implements ScriptInjectorInterface
     /**
      * {@inheritDoc}
      *
+     * @template T
      * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      */
     public function getInstance($interface, $name = Name::ANY)
