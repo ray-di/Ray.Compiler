@@ -118,7 +118,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeLazyModule());
+        (new Compiler())->compile($scriptDir, new FakeModule());
         $originalInjector = new CompiledInjector($scriptDir);
 
         $injector = unserialize(serialize($originalInjector));
@@ -239,7 +239,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeLazyModule());
+        (new Compiler())->compile($scriptDir, new FakeModule());
         $injector = new CompiledInjector($scriptDir);
         $unserializedInjector = unserialize(serialize($injector));
         $this->assertInstanceOf(InjectorInterface::class, $unserializedInjector);
@@ -284,7 +284,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeLazyModule());
+        (new Compiler())->compile($scriptDir, new FakeModule());
         $injector = new CompiledInjector($scriptDir);
         $car = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $car);
@@ -294,7 +294,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeLazyModule());
+        (new Compiler())->compile($scriptDir, new FakeModule());
         $injector = new CompiledInjector($scriptDir);
 
         $unserializedInjector = unserialize(serialize($injector));

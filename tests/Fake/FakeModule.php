@@ -7,7 +7,7 @@ namespace Ray\Compiler;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
 use Ray\Di\AbstractModule;
 
-class FakeLazyModule extends AbstractModule
+class FakeModule extends AbstractModule
 {
     public function configure(): void
     {
