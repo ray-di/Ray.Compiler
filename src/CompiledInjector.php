@@ -29,7 +29,7 @@ use function str_replace;
  * @psalm-import-type ScriptDir from Types
  * @psalm-import-type Singletons from Types
  */
-final class CompiledInjector implements InjectorInterface
+final class CompiledInjector implements ScriptInjectorInterface
 {
     /** @var ScriptDir */
     private $scriptDir;
