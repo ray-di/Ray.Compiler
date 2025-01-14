@@ -2,95 +2,173 @@
 
 ## Dependency Injection Compiler
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/ray-di/Ray.Di/badges/quality-score.png?b=2.x)](https://scrutinizer-ci.com/g/ray-di/Ray.Di/?branch=2.x)
-[![codecov](https://codecov.io/gh/ray-di/Ray.Di/branch/2.x/graph/badge.svg?token=KCQXtu01zc)](https://codecov.io/gh/ray-di/Ray.Di)
-[![Type Coverage](https://shepherd.dev/github/ray-di/Ray.Di/coverage.svg)](https://shepherd.dev/github/ray-di/Ray.Di)
-[![Continuous Integration](https://github.com/ray-di/Ray.Di/actions/workflows/continuous-integration.yml/badge.svg?branch=2.x)](https://github.com/ray-di/Ray.Di/actions/workflows/continuous-integration.yml)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/ray-di/Ray.Compiler/badges/quality-score.png?b=1.x)](https://scrutinizer-ci.com/g/ray-di/Ray.Compiler/?branch=1.x)
+[![codecov](https://codecov.io/gh/ray-di/Ray.Compiler/branch/1.x/graph/badge.svg?token=KCQXtu01zc)](https://codecov.io/gh/ray-di/Ray.Compiler)
+[![Type Coverage](https://shepherd.dev/github/ray-di/Ray.Compiler/coverage.svg)](https://shepherd.dev/github/ray-di/Ray.Compiler)
+[![Continuous Integration](https://github.com/ray-di/Ray.Compiler/actions/workflows/continuous-integration.yml/badge.svg?branch=1.x)](https://github.com/ray-di/Ray.Compiler/actions/workflows/continuous-integration.yml)
 
-Ray.Compiler compiles Ray.Di bindings into PHP code, providing a performance boost that makes Dependency Injection couldn't be any faster.
+Ray.Compiler compiles Ray.Di bindings into PHP code, providing a performance boost that makes dependency injection as fast as possible.
 
-## Production Usage
+## Installation
 
-For production, use `CompiledInjector` with pre-compiled dependencies:
-
-```php
-// 1. Compile dependencies (during deployment or composer install)
-(new Compiler)->compile($module, $scriptDir);
-
-// 2. Use compiled injector in application
-$injector = new CompiledInjector($scriptDir);
+```bash
+composer require ray/compiler
 ```
 
-The `CompiledInjector` executes pre-compiled PHP code and is significantly faster than the standard Ray.Di injector.
+## Overview
 
-## Development Usage
+Ray.Compiler enhances Ray.Di by providing pre-compiled dependency injection, dramatically improving performance in production environments. It consists of two main components:
 
-For development, use `CompileInjector` which handles compilation automatically:
+1. `Compiler`: Compiles Ray.Di bindings into optimized PHP code
+2. `CompiledInjector`: High-performance injector that executes pre-compiled bindings
+
+## Usage
+
+### Production
+
+For production environments, use the two-step process:
+
+1. Compile your bindings (during deployment):
+```php
+use Ray\Compiler\Compiler;
+
+$compiler = new Compiler();
+$compiler->compile($module, $scriptDir);
+```
+
+2. Use CompiledInjector in your application:
+```php
+use Ray\Compiler\CompiledInjector;
+
+$injector = new CompiledInjector($scriptDir);
+$instance = $injector->getInstance(YourInterface::class);
+```
+
+Note: Ensure that `$scriptDir` is writable during compilation and add it to your `.gitignore` as these are generated files.
+
+The `CompiledInjector` executes pre-compiled PHP code for maximum performance.
+
+### Development
+
+During development, you can use the same `CompiledInjector` as in production for consistency and better performance. Simply compile your bindings when needed:
 
 ```php
-// Compiles and injects on-demand
-$injector = new CompileInjector($scriptDir, new DevModule);
+use Ray\Compiler\Compiler;
+
+$compiler = new Compiler();
+$compiler->compile(new DevModule(), __DIR__ . '/tmp/di');
+
+// Use CompiledInjector just like in production
+$injector = new CompiledInjector(__DIR__ . '/tmp/di');
 ```
 
 ## Performance Comparison
 
-- Ray.Di injector (memory-based resolution)
-```php
-$injector = new Injector(new CarModule);
-```
+Ray.Di offers two types of dependency injection, optimized for different use cases:
 
-- CompiledInjector (pre-compiled, fastest)
+1. CompiledInjector (Optimized for production)
 ```php
+// Pre-compiled dependencies for maximum performance
 $injector = new CompiledInjector($scriptDir);
 ```
 
-- CompileInjector (development-friendly)
+2. Ray\Di\Injector (Standard resolution)
 ```php
-$injector = new CompileInjector($scriptDir, $module);
+// Memory-based dependency resolution
+$injector = new Injector(new YourModule);
 ```
 
-## Manual Compilation
+For production environments, `CompiledInjector` is recommended as it offers significant performance benefits through pre-compiled dependency resolution.
 
-You can compile dependencies manually using the Compiler:
+## Docker Integration
+
+When using Docker, compile the dependencies inside the container during the build process:
+
+```dockerfile
+# Build stage
+FROM composer:2 as vendor
+COPY composer.json composer.lock /app/
+COPY bin/compile.php /app/bin/
+RUN composer install --no-dev --no-scripts
+
+# Compile dependencies with the container's environment and paths
+RUN php bin/compile.php
+
+# Application stage
+FROM php:8.2-alpine
+COPY --from=vendor /app/vendor /app/vendor
+COPY --from=vendor /app/tmp/di /app/tmp/di  # Compiled code with correct paths
+```
+
+This ensures:
+- Dependencies are compiled with the container's paths and environment
+- Each container rebuild generates fresh compiled code
+- Production containers include only the necessary compiled code
+
+## Important: Compilation and Version Control
+
+⚠️ Never commit compiled code to your repository:
+- Compiled code is environment-specific and should be generated during `composer install`
+- Committing compiled code can leak sensitive information from your environment
+- Different environments (dev, staging, prod) should generate their own compiled code
+
+Instead:
+1. Add your script directory to `.gitignore`:
+```
+/tmp/di/
+```
+
+2. Let each environment compile its own code during `composer install`:
+```json
+{
+    "scripts": {
+        "post-install-cmd": ["php bin/compile.php"]
+    }
+}
+```
+
+This ensures:
+- Clean separation between environments
+- Proper handling of sensitive configuration
+- Correct environment-specific paths and settings
+
+## Composer Integration
+
+Create a compile script (`bin/compile.php`):
 
 ```php
-$compiler = new Compiler();
-$compiler->compile($module, $scriptDir);
+<?php
+
+use Ray\Compiler\Compiler;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+(new Compiler)->compile(new ProductionModule(), dirname(__DIR__) . '/tmp/di');
 ```
 
-This is useful for:
-- Deployment scripts
-- Composer post-install scripts
-- CI/CD pipelines
+Add it to your `composer.json`:
 
-## Object Graph Visualization
-
-Object graph can be visualized with `dumpGraph()`. Graph HTML files will be output at `graph` folder under `$scriptDir`.
-
-```php
-$compiler = new Compiler();
-$compiler->compile($module, $scriptDir);
-$compiler->dumpGraph();
+```json
+{
+    "scripts": {
+        "post-install-cmd": ["php bin/compile.php"]
+    }
+}
 ```
 
-View the generated graph:
-```
-open $scriptDir/graph/Ray_Compiler_FakeCarInterface-.html
-```
+This ensures your dependencies are compiled during:
+- `composer install`
+- `composer update`
 
-## Production Configuration
+## Production Best Practices
 
-For production, it's recommended to:
-
-1. Pre-compile all dependencies during deployment
-2. Use `CompiledInjector` exclusively
-3. Configure proper error handling for missing dependencies
-
-Example production setup:
-
-```php
-// composer post-install script
-(new Compiler)->compile(new ProductionModule(), __DIR__ . '/tmp/di');
-
-// application bootstrap
-$injector = new CompiledInjector(__DIR__ . '/tmp/di');
+1. Pre-compile all bindings during `composer install`
+    - Ensures bindings are compiled with the correct environment settings
+    - Handles environment-specific paths and configurations automatically
+    - Keeps sensitive information secure by generating factory code only in the target environment
+    - Never compile and commit code before deployment - let the target environment handle it
+2. Use `CompiledInjector` exclusively in production
+3. Set up proper error handling for missing dependencies
+4. Keep the script directory (`$scriptDir`) outside of version control
+    - Always add the compile directory to .gitignore
+    - Treat compiled code as environment-specific build artifacts
