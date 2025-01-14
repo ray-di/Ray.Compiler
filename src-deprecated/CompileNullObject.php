@@ -6,9 +6,12 @@ namespace Ray\Compiler;
 
 use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
+use Ray\Di\NullDependency;
 use Ray\Di\NullObjectDependency;
 
 /**
+ * @deprecated Compiler use BuiltInModule
+ *
  * Convert NullObjectDependency to Dependency
  *
  * @psalm-import-type ScriptDir from CompileInjector
@@ -22,10 +25,10 @@ final class CompileNullObject
             static function (DependencyInterface $dependency, string $string) use ($scriptDir): DependencyInterface {
                 unset($string);
                 if ($dependency instanceof NullObjectDependency) {
-                    return $dependency->toNull($scriptDir);
+                    $dependency->toNull($scriptDir);
                 }
 
-                return $dependency;
+                return new NullDependency(); // keep interface
             }
         );
     }
