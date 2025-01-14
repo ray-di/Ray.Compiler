@@ -9,11 +9,8 @@ use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\BuiltinModule;
 use Ray\Di\InjectorInterface;
-use Ray\Di\MultiBinding\Map;
-use Ray\Di\MultiBinding\MapProvider;
 use Ray\Di\Scope;
 
-use function count;
 use function sprintf;
 
 class CompilerModule extends AbstractModule
