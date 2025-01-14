@@ -120,7 +120,7 @@ class CompiledInjectorTest extends TestCase
         $tmpDir = __DIR__ . '/tmp/testWithCompiler';
         @mkdir($tmpDir);
         $module = new FakeCarModule();
-        (new Compiler())->compile($module, $tmpDir);
+        (new Compiler())->compile($tmpDir, $module);
         $injector = new CompiledInjector($tmpDir);
         $instance = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $instance);

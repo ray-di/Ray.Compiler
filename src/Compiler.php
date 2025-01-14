@@ -40,7 +40,7 @@ final class Compiler
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter) // @phpstan-ignore-line
      */
-    public function compile(AbstractModule $module, string $scriptDir): Scripts
+    public function compile(string $scriptDir, AbstractModule $module): Scripts
     {
         $module->install(new CompilerModule($scriptDir));
 
