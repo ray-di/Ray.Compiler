@@ -25,10 +25,10 @@ final class CompileNullObject
             static function (DependencyInterface $dependency, string $string) use ($scriptDir): DependencyInterface {
                 unset($string);
                 if ($dependency instanceof NullObjectDependency) {
-                    $dependency->toNull($scriptDir);
+                    return $dependency->toNull($scriptDir);
                 }
 
-                return new NullDependency(); // keep interface
+                return $dependency;
             }
         );
     }
