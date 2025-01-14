@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
+use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Di\Exception\Unbound;
 
 use function serialize;
@@ -90,5 +91,13 @@ class CompiledInjectorTest extends TestCase
         $this->expectException(Unbound::class);
         $this->assertFileExists(__DIR__ . '/tmp/_bindings.log');
         $this->injector->getInstance(FakeCar3::class);
+    }
+
+    public function testThrowsScriptDirNotReadableException()
+    {
+        $scriptDir = __DIR__ . '/not-exists';
+        $this->expectException(ScriptDirNotReadable::class);
+        $this->expectExceptionMessage($scriptDir);
+        new CompiledInjector($scriptDir);
     }
 }
