@@ -8,6 +8,8 @@ use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\InjectorInterface;
 
 /**
+ * Type definitions for Ray.Compiler
+ *
  * @psalm-type ScriptDir = non-empty-string
  * @psalm-type Ip = array{0: string, 1: string, 2: string}
  * @psalm-type Singletons = array<string, object>
@@ -19,6 +21,7 @@ use Ray\Di\InjectorInterface;
  */
 final class Types
 {
+    /** @codeCoverageIgnore */
     private function __construct()
     {
     }
