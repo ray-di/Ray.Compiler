@@ -26,14 +26,8 @@ use function str_replace;
  * Use Ray\Compiler\CompileInjector to compile the bindings.
  * Runtime compilation is not supported.
  *
- * @psalm-import-type ScriptDir from CompileInjector
- * @psalm-import-type Ip from CompileInjector
- * @psalm-import-type Singleton from CompileInjector
- * @psalm-import-type Prottype from CompileInjector
- * @psalm-import-type InjectionPoint from CompileInjector
- * @psalm-import-type Injector from CompileInjector
- * @psalm-import-type InstanceFunctions from CompileInjector
- * @psalm-type Injector = callable(): InjectorInterface
+ * @psalm-import-type ScriptDir from Types
+ * @psalm-import-type Singletons from Types
  */
 final class CompiledInjector implements InjectorInterface
 {
@@ -43,7 +37,7 @@ final class CompiledInjector implements InjectorInterface
     /**
      * Singleton instance container
      *
-     * @var array<object>
+     * @var Singletons
      */
     private $singletons = [];
 

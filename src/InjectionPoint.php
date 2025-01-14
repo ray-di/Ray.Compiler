@@ -16,8 +16,8 @@ use function assert;
 use function class_exists;
 
 /**
- * @psalm-import-type ScriptDir from CompileInjector
- * @psalm-import-type Ip from CompileInjector
+ * @psalm-import-type ScriptDir from Types
+ * @psalm-import-type Ip from Types
  */
 final class InjectionPoint implements InjectionPointInterface
 {

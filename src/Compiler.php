@@ -29,7 +29,7 @@ use const LOCK_UN;
  *  - Converting dependencies into PHP scripts using CompileVisitor
  *  - Saving compiled scripts to the target directory
  *
- * @psalm-import-type ScriptDir from CompileInjector
+ * @psalm-import-type ScriptDir from Types
  */
 final class Compiler
 {
