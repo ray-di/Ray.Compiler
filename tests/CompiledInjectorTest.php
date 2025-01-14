@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Di\Exception\Unbound;
 
+use function mkdir;
 use function serialize;
 use function spl_object_hash;
 use function unserialize;
@@ -68,7 +69,7 @@ class CompiledInjectorTest extends TestCase
     public function testSerialize(): void
     {
         $scriptDir = __DIR__ . '/tmp/' . __FUNCTION__;
-        deleteFiles($scriptDir);
+        @mkdir($scriptDir);
         (new Compiler())->compile($scriptDir, new FakeModule());
         $injector = new CompiledInjector($scriptDir);
         $injector = unserialize(serialize($injector));
@@ -79,6 +80,7 @@ class CompiledInjectorTest extends TestCase
     public function testUnbound(): void
     {
         $scriptDir = __DIR__ . '/tmp/' . __FUNCTION__;
+        @mkdir($scriptDir);
         $this->expectException(Unbound::class);
         $injector = new CompiledInjector($scriptDir);
         $injector->getInstance(FakeCar2::class);
