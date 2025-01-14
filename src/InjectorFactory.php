@@ -42,23 +42,17 @@ final class InjectorFactory
         }
 
         if ($modules instanceof LazyModuleInterface) {
-            return self::getCompileInjector($scriptDir, $modules);
+            return self::getCompiledInjector($scriptDir, ($modules)());
         }
 
-        return self::getScriptInjector($scriptDir, $module);
+        return self::getCompiledInjector($scriptDir, $module);
     }
 
     /** @param ScriptDir $scriptDir */
-    private static function getScriptInjector(string $scriptDir, AbstractModule $module): InjectorInterface
+    private static function getCompiledInjector(string $scriptDir, AbstractModule $module): InjectorInterface
     {
         (new Compiler())->compile($scriptDir, $module);
 
         return new CompiledInjector($scriptDir);
-    }
-
-    /** @param ScriptDir $scriptDIr */
-    private static function getCompileInjector(string $scriptDIr, LazyModuleInterface $module): InjectorInterface
-    {
-        return self::getScriptInjector($scriptDIr, $module());
     }
 }
