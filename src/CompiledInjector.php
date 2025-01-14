@@ -92,7 +92,7 @@ final class CompiledInjector implements ScriptInjectorInterface
         /** @var mixed $instance */
         $instance = require $scriptFile;
 
-        /** @pslam-var T $instance */
+        /** @psalm-var T $instance */
         return $instance;
     }
 
