@@ -15,6 +15,5 @@ class FakeLazyModule extends AbstractModule
         $this->install(new FakeLoggerModule());
         $this->install(new FakeToBindSingletonModule());
         $this->install(new FakeMultiBindingsModule());
-        $this->install(new FakeCarModule());
     }
 }
