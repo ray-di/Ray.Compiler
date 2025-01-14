@@ -7,6 +7,8 @@ namespace Ray\Compiler;
 use Ray\Di\AbstractModule;
 
 /**
+ * @deprecated Use Compiller and CompiledInjector instead
+ *
  * Factory class for creating a lazy module
  *
  * Lazymodule is required to create CompileInjector. This utility class is useful when creating a module
