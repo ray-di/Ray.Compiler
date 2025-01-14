@@ -11,6 +11,7 @@ use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 use ReflectionParameter;
 use function assert;
+use function class_exists;
 use function file_exists;
 use function in_array;
 use function rtrim;
@@ -79,6 +80,9 @@ final class CompileInjector implements ScriptInjectorInterface // @phpstan-ignor
      */
     public function __construct(string $scriptDir, LazyModuleInterface $lazyModule)
     {
+        if (! class_exists(\PhpParser\ParserFactory::class)) {
+            throw new \LogicException('nikic/php-parser is required to use CompileInjector'); // @codeCoverageIgnore
+        }
         $this->init($scriptDir, $lazyModule);
     }
 
