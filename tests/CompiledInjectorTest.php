@@ -67,7 +67,7 @@ class CompiledInjectorTest extends TestCase
 
     public function testSerialize(): void
     {
-        $scriptDir = __DIR__ . '/tmp';
+        $scriptDir = __DIR__ . '/tmp/' . __FUNCTION__;
         deleteFiles($scriptDir);
         (new Compiler())->compile($scriptDir, new FakeModule());
         $injector = new CompiledInjector($scriptDir);
@@ -78,8 +78,7 @@ class CompiledInjectorTest extends TestCase
 
     public function testUnbound(): void
     {
-        $scriptDir = __DIR__ . '/tmp';
-        deleteFiles($scriptDir);
+        $scriptDir = __DIR__ . '/tmp/' . __FUNCTION__;
         $this->expectException(Unbound::class);
         $injector = new CompiledInjector($scriptDir);
         $injector->getInstance(FakeCar2::class);
