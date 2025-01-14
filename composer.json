@@ -13,6 +13,7 @@
     "require": {
         "php": "^7.2 || ^8.0",
         "doctrine/cache": "^1.10 || ^2.1",
+        "doctrine/annotations": "^1.8 || ^2.0",
         "koriym/attributes": "^1.0",
         "koriym/null-object": "^1.0",
         "koriym/param-reader": "^1.0",
@@ -23,6 +24,7 @@
     "require-dev": {
         "ext-pdo": "*",
         "bamarni/composer-bin-plugin": "^1.4",
+        "maglnet/composer-require-checker": "^4.14",
         "phpunit/phpunit": "^8.5.41 || ^9.5"
     },
     "config": {
