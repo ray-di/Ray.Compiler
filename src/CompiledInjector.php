@@ -9,22 +9,14 @@ use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Name;
 
-use function array_shift;
-use function count;
-use function explode;
 use function file_exists;
-use function implode;
 use function in_array;
 use function is_dir;
 use function is_readable;
 use function realpath;
-use function rtrim;
 use function spl_autoload_register;
 use function sprintf;
-use function str_repeat;
 use function str_replace;
-
-use const DIRECTORY_SEPARATOR;
 
 /**
  * Compiled Injector
@@ -38,12 +30,8 @@ use const DIRECTORY_SEPARATOR;
  */
 final class CompiledInjector implements ScriptInjectorInterface
 {
-    /**
-     * Relative path to the generated instance script folder
-     *
-     * @var string
-     */
-    private $relativePath;
+    /** @var ScriptDir */
+    private $scriptDir;
 
     /**
      * Singleton instance container
@@ -72,7 +60,7 @@ final class CompiledInjector implements ScriptInjectorInterface
         }
 
         /** @psalm-var ScriptDir $realPath */
-        $this->relativePath = $this->getRelativePath($realPath);
+        $this->scriptDir = $realPath;
         $this->registerLoader();
     }
 
@@ -94,17 +82,16 @@ final class CompiledInjector implements ScriptInjectorInterface
             return $this->singletons[$dependencyIndex];
         }
 
-        $scriptDir = __DIR__ . '/' . $this->relativePath; // for container environment
-        $scriptFile = sprintf('%s/%s.php', $scriptDir, str_replace('\\', '_', $dependencyIndex));
+        $scriptFile = sprintf('%s/%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
         if (! file_exists($scriptFile)) {
             throw new Unbound($dependencyIndex); // Binding not found
         }
 
         /** @psalm-suppress  UnsupportedPropertyReferenceUsage */
         $singletons = &$this->singletons;
-        $scriptDir = realpath(__DIR__ . '/' . $this->relativePath);
+        $scriptDir = realpath($this->scriptDir);
 
-        // $scriptDir, $singletons, and $dependencyIndex can be used in the included file
+        // $scriptDir, $Singletons, and $dependencyIndex can be used in the included file
         /** @var mixed $instance */
         $instance = require $scriptFile;
 
@@ -114,7 +101,7 @@ final class CompiledInjector implements ScriptInjectorInterface
 
     private function registerLoader(): void
     {
-        $scriptDir = __DIR__ . '/' . $this->relativePath;
+        $scriptDir = $this->scriptDir;
         if (in_array($scriptDir, self::$scriptDirs, true)) {
             return;
         }
@@ -133,19 +120,5 @@ final class CompiledInjector implements ScriptInjectorInterface
         }
 
         self::$scriptDirs[] = $scriptDir;
-    }
-
-    private function getRelativePath(string $target): string
-    {
-        $base = explode(DIRECTORY_SEPARATOR, rtrim(__DIR__, DIRECTORY_SEPARATOR));
-        $target = explode(DIRECTORY_SEPARATOR, rtrim($target, DIRECTORY_SEPARATOR));
-
-        while (! empty($base) && ! empty($target) && $base[0] === $target[0]) {
-            array_shift($base);
-            array_shift($target);
-        }
-
-        return str_repeat('..' . DIRECTORY_SEPARATOR, count($base))
-            . implode(DIRECTORY_SEPARATOR, $target);
     }
 }
