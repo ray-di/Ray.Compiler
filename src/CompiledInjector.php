@@ -66,7 +66,9 @@ final class CompiledInjector implements ScriptInjectorInterface
     {
         $realPath = realpath($scriptDir);
         if ($realPath === false || ! is_dir($realPath) || ! is_readable($realPath)) {
-            throw new ScriptDirNotReadable($scriptDir);
+            $message = sprintf('Script directory "%s" is not readable. See https://ray-di.github.io/Ray.Compiler/error/ScriptDirNotReadable', $scriptDir);
+
+            throw new ScriptDirNotReadable($message);
         }
 
         /** @psalm-var ScriptDir $realPath */
