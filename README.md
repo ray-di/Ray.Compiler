@@ -29,6 +29,7 @@ Ray.Compiler enhances Ray.Di by providing pre-compiled dependency injection, dra
 For production environments, use the two-step process:
 
 1. Compile your bindings (during deployment):
+
 ```php
 use Ray\Compiler\Compiler;
 

@@ -27,7 +27,7 @@ class CompiledInjectorTest extends TestCase
     protected function setUp(): void
     {
         $scriptDir = __DIR__ . '/tmp';
-        (new Compiler())->compile($scriptDir, new FakeModule());
+        (new Compiler())->compile(new FakeModule(), $scriptDir);
         $this->injector = new CompiledInjector($scriptDir);
     }
 
@@ -70,7 +70,7 @@ class CompiledInjectorTest extends TestCase
     {
         $scriptDir = __DIR__ . '/tmp/' . __FUNCTION__;
         @mkdir($scriptDir);
-        (new Compiler())->compile($scriptDir, new FakeModule());
+        (new Compiler())->compile(new FakeModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $injector = unserialize(serialize($injector));
         $instance = $injector->getInstance(FakeCarInterface::class);

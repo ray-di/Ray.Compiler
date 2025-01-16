@@ -21,7 +21,7 @@ class ScriptInjectorNullObjectTest extends TestCase
         passthru(sprintf('php %s/script/null_object.php', __DIR__));
 
         $scriptDir = __DIR__ . '/tmp/null_object';
-        (new Compiler())->compile($scriptDir, new FakeNullObjectModule());
+        (new Compiler())->compile(new FakeNullObjectModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $instance = $injector->getInstance(FakeTyreInterface::class);
         $this->assertInstanceOf(FakeTyreInterface::class, $instance);

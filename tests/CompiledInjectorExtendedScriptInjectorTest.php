@@ -23,7 +23,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeCarModule());
+        (new Compiler())->compile(new FakeCarModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
 
         $car = $injector->getInstance(FakeCarInterface::class);
@@ -41,7 +41,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     public function testCompileException(): void
     {
         $scriptDir = __DIR__ . '/tmp';
-        (new Compiler())->compile($scriptDir, new NullModule());
+        (new Compiler())->compile(new NullModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
 
         $this->expectException(Unbound::class);
@@ -52,7 +52,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeToBindPrototypeModule());
+        (new Compiler())->compile(new FakeToBindPrototypeModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -63,7 +63,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeToBindSingletonModule());
+        (new Compiler())->compile(new FakeToBindSingletonModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -74,7 +74,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeToProviderPrototypeModule());
+        (new Compiler())->compile(new FakeToProviderPrototypeModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -85,7 +85,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeToProviderSingletonModule());
+        (new Compiler())->compile(new FakeToProviderSingletonModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -96,7 +96,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeToInstancePrototypeModule());
+        (new Compiler())->compile(new FakeToInstancePrototypeModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -107,7 +107,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeToInstanceSingletonModule());
+        (new Compiler())->compile(new FakeToInstanceSingletonModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $instance1 = $injector->getInstance(FakeRobotInterface::class);
         $instance2 = $injector->getInstance(FakeRobotInterface::class);
@@ -118,7 +118,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeModule());
+        (new Compiler())->compile(new FakeModule(), $scriptDir);
         $originalInjector = new CompiledInjector($scriptDir);
 
         $injector = unserialize(serialize($originalInjector));
@@ -131,7 +131,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     public function testAop(): void
     {
         $scriptDir = __DIR__ . '/tmp';
-        (new Compiler())->compile($scriptDir, new FakeCarModule());
+        (new Compiler())->compile(new FakeCarModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
 
         $instance1 = $injector->getInstance(FakeCarInterface::class);
@@ -147,7 +147,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeToBindSingletonModule());
+        (new Compiler())->compile(new FakeToBindSingletonModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $dependSingleton1 = $injector->getInstance(FakeDependSingleton::class);
         $dependSingleton2 = $injector->getInstance(FakeDependSingleton::class);
@@ -159,7 +159,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     public function testOnDemandPrototype(): void
     {
         $scriptDir = __DIR__ . '/tmp';
-        (new Compiler())->compile($scriptDir, new NullModule());
+        (new Compiler())->compile(new NullModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
 
         $this->expectException(Unbound::class); // CompiledInjector does not support on-demand prototype
@@ -170,12 +170,12 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new class () extends AbstractModule {
+        (new Compiler())->compile(new class () extends AbstractModule {
             protected function configure(): void
             {
                 $this->bind(FakeOptional::class);
             }
-        });
+        }, $scriptDir);
         $injector = new CompiledInjector($scriptDir);
 
         $optional = $injector->getInstance(FakeOptional::class);
@@ -186,12 +186,12 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new class () extends AbstractModule {
+        (new Compiler())->compile(new class () extends AbstractModule {
             protected function configure(): void
             {
                 $this->bind(FakeFactory::class);
             }
-        });
+        }, $scriptDir);
         $injector = new CompiledInjector($scriptDir);
 
         $factory = $injector->getInstance(FakeFactory::class);
@@ -205,7 +205,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new NullModule());
+        (new Compiler())->compile(new NullModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
 
         $this->expectException(Unbound::class);
@@ -216,7 +216,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     public function testCompileOnDemand(): void
     {
         $scriptDir = __DIR__ . '/tmp';
-        (new Compiler())->compile($scriptDir, new NullModule());
+        (new Compiler())->compile(new NullModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
 
         $this->expectException(Unbound::class); // FakeMirrorLeft should be bound
@@ -227,7 +227,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeAopModule());
+        (new Compiler())->compile(new FakeAopModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
 
         $aop = $injector->getInstance(FakeAopInterface::class);
@@ -239,7 +239,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeModule());
+        (new Compiler())->compile(new FakeModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $unserializedInjector = unserialize(serialize($injector));
         $this->assertInstanceOf(InjectorInterface::class, $unserializedInjector);
@@ -251,7 +251,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeAopModule());
+        (new Compiler())->compile(new FakeAopModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $aop = $injector->getInstance(FakeAopInterface::class);
         $result = $aop->returnSame(1);
@@ -262,7 +262,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeNullObjectModule());
+        (new Compiler())->compile(new FakeNullObjectModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $instance = $injector->getInstance(FakeTyreInterface::class);
         $this->assertInstanceOf(FakeTyreInterface::class, $instance);
@@ -284,7 +284,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeModule());
+        (new Compiler())->compile(new FakeModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $car = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $car);
@@ -294,7 +294,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeModule());
+        (new Compiler())->compile(new FakeModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
 
         $unserializedInjector = unserialize(serialize($injector));
@@ -306,7 +306,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
     {
         $tmpDir = $this->getTmpDir(__FUNCTION__);
         $scriptDir = $tmpDir;
-        (new Compiler())->compile($scriptDir, new FakeToBindSingletonModule());
+        (new Compiler())->compile(new FakeToBindSingletonModule(), $scriptDir);
         $injector = new CompiledInjector($scriptDir);
         $robot = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobot::class, $robot);

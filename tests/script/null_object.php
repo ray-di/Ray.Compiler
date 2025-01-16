@@ -10,7 +10,7 @@ use Ray\Compiler\FakeNullObjectModule;
 use Ray\Compiler\FakeTyreInterface;
 
 $scriptDir = dirname(__DIR__) . '/tmp/null_object';
-(new Compiler())->compile($scriptDir, new FakeNullObjectModule());
+(new Compiler())->compile(new FakeNullObjectModule(), $scriptDir);
 $injector = new CompiledInjector($scriptDir);
 
 $instance = $injector->getInstance(FakeTyreInterface::class);

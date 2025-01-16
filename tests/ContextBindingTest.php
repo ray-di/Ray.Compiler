@@ -15,7 +15,7 @@ final class ContextBindingTest extends TestCase
     {
         deleteFiles(__DIR__ . '/tmp');
         $scriptDir = __DIR__ . '/tmp';
-        (new Compiler())->compile($scriptDir, new FakeDependContextualRobotModule(''));
+        (new Compiler())->compile(new FakeDependContextualRobotModule(''), $scriptDir);
         $this->injector = new CompiledInjector($scriptDir);
     }
 

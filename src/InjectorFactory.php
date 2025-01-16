@@ -51,7 +51,7 @@ final class InjectorFactory
     /** @param ScriptDir $scriptDir */
     private static function getCompiledInjector(string $scriptDir, AbstractModule $module): InjectorInterface
     {
-        (new Compiler())->compile($scriptDir, $module);
+        (new Compiler())->compile($module, $scriptDir);
 
         return new CompiledInjector($scriptDir);
     }

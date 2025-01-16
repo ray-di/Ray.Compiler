@@ -37,7 +37,7 @@ class MultiBindingTest extends TestCase
     {
         @mkdir(__DIR__ . '/tmp/mulit-bindings');
         $scriptDir = __DIR__ . '/tmp/mulit-bindings';
-        (new Compiler())->compile($scriptDir, new FakeMultiBindingsModule());
+        (new Compiler())->compile(new FakeMultiBindingsModule(), $scriptDir);
         $this->injector = new CompiledInjector($scriptDir);
     }
 
