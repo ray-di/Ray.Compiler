@@ -46,7 +46,7 @@ Create a compile script:
 
 ```php
 use Ray\Compiler\Compiler;
-]
+
 $scripts = (new Compiler())->compile(
     new AppModule(),
     __DIR__ . '/di'
