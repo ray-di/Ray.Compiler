@@ -54,8 +54,8 @@ class ScriptsTest extends TestCase
         $this->assertFileExists($tempDir . '/Test_FirstScript.php');
         $this->assertFileExists($tempDir . '/Test_SecondScript.php');
 
-        $firstScriptContent = file_get_contents($tempDir . '/Test_FirstScript.php');
-        $secondScriptContent = file_get_contents($tempDir . '/Test_SecondScript.php');
+        $firstScriptContent = (string) file_get_contents($tempDir . '/Test_FirstScript.php');
+        $secondScriptContent = (string) file_get_contents($tempDir . '/Test_SecondScript.php');
 
         $this->assertStringContainsString('<?php', $firstScriptContent);
         $this->assertStringContainsString('echo "First Script";', $firstScriptContent);
@@ -64,7 +64,7 @@ class ScriptsTest extends TestCase
         $this->assertStringContainsString('echo "Second Script";', $secondScriptContent);
 
         // Clean up
-        array_map('unlink', glob($tempDir . '/*.php'));
+        array_map('unlink', (array) glob($tempDir . '/*.php')); // @phpstan-ignore-line
         rmdir($tempDir);
     }
 }
