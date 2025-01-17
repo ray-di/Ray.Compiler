@@ -72,14 +72,18 @@ Use multi-stage builds to maintain path consistency:
 ```dockerfile
 # Build stage
 FROM php:8.2-cli as builder
+# Set working directory for consistent paths during compilation
 WORKDIR /app
 COPY . .
+# Compile DI code
 RUN php bin/compile.php
 
 # Production stage
 FROM php:8.2-fpm
+# Maintain the same working directory structure
 WORKDIR /app
 COPY . .
+# Copy only the compiled DI files from the builder stage
 COPY --from=builder /app/tmp/di/ ./tmp/di/
 ```
 
@@ -87,7 +91,7 @@ COPY --from=builder /app/tmp/di/ ./tmp/di/
 
 Add compile directory to `.gitignore`:
 
-```
+```gitignore
 /tmp/di/
 ```
 
