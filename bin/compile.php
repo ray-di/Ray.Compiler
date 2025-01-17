@@ -9,4 +9,5 @@ $scripts = (new Compiler())->compile(
     new FakeCarModule(),
     __DIR__ . '/di'
 );
-printf('%d filess gererated.', count($scripts));
+
+printf('Compiled %d files.', count($scripts));
