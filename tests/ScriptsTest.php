@@ -7,14 +7,18 @@ namespace Ray\Compiler;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
+use function dirname;
 use function file_get_contents;
 use function glob;
 use function is_dir;
 use function mkdir;
 use function rmdir;
-use function sys_get_temp_dir;
 
-/** @covers \Ray\Compiler\Scripts */
+/**
+ * Tests for the Scripts class which manages script collection and persistence.
+ *
+ * @covers \Ray\Compiler\Scripts
+ */
 class ScriptsTest extends TestCase
 {
     public function testAdd(): void
@@ -40,7 +44,7 @@ class ScriptsTest extends TestCase
     public function testSave(): void
     {
         $scripts = new Scripts();
-        $tempDir = sys_get_temp_dir() . '/scripts_test';
+        $tempDir = dirname(__DIR__) . '/tests/tmp/scripts_test';
 
         if (! is_dir($tempDir)) {
             mkdir($tempDir);
