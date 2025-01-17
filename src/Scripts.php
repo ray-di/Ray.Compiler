@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Countable;
+
+use function count;
 use function sprintf;
 use function str_replace;
 
-final class Scripts
+final class Scripts implements Countable
 {
     /** @var array<string, string> */
     private $scripts = [];
@@ -29,5 +32,10 @@ EOL;
             $script = sprintf($template, $script);
             $filePutContents($file, $script);
         }
+    }
+
+    public function count(): int
+    {
+        return count($this->scripts);
     }
 }
