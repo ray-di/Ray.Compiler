@@ -17,8 +17,8 @@ composer require ray/compiler
 
 Ray.Compiler provides two main components:
 
-1. `Compiler`: Compiles Ray.Di bindings into PHP code
-2. `CompiledInjector`: High-performance injector that executes pre-compiled code
+1. `Compiler`: Compiles Ray.Di bindings into PHP code.
+2. `CompiledInjector`: High-performance injector that executes pre-compiled code.
 
 ### Basic Usage
 
