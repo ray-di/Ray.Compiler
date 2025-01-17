@@ -42,6 +42,19 @@ $instance = $injector->getInstance(YourInterface::class);
 
 ### Compiler Integration
 
+Create a compile script:
+
+```php
+use Ray\Compiler\Compiler;
+
+$scripts = (new Compiler())->compile(
+    new FakeCarModule(),
+    __DIR__ . '/di'
+);
+
+printf('Compiled %d files.', count($scripts));
+```
+
 Add compile script to your `composer.json`:
 
 ```json
