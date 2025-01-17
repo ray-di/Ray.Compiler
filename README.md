@@ -48,7 +48,7 @@ Create a compile script:
 use Ray\Compiler\Compiler;
 ]
 $scripts = (new Compiler())->compile(
-    new FakeCarModule(),
+    new AppModule(),
     __DIR__ . '/di'
 );
 
