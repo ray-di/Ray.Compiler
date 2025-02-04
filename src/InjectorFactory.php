@@ -16,7 +16,8 @@ use function mkdir;
 
 /**
  * @psalm-immutable
- * @psalm-import-type ScriptDir from CompileInjector
+ * @psalm-import-type ScriptDir from Types
+ * @psalm-suppress DeprecatedClass
  */
 final class InjectorFactory
 {
@@ -31,6 +32,7 @@ final class InjectorFactory
         $rayInjector = new RayInjector($module, $scriptDir);
         $isProd = false;
         try {
+            /** @var bool $isProd */
             $isProd = $rayInjector->getInstance('', Compile::class);
         } catch (Unbound $e) {
         }
@@ -40,23 +42,17 @@ final class InjectorFactory
         }
 
         if ($modules instanceof LazyModuleInterface) {
-            return self::getCompileInjector($scriptDir, $modules);
+            return self::getCompiledInjector($scriptDir, ($modules)());
         }
 
-        return self::getScriptInjector($scriptDir, $module);
+        return self::getCompiledInjector($scriptDir, $module);
     }
 
     /** @param ScriptDir $scriptDir */
-    private static function getScriptInjector(string $scriptDir, AbstractModule $module): ScriptInjector
+    private static function getCompiledInjector(string $scriptDir, AbstractModule $module): InjectorInterface
     {
-        return new ScriptInjector($scriptDir, static function () use ($scriptDir, $module) {
-            return new ScriptInjectorModule($scriptDir, $module);
-        });
-    }
+        (new Compiler())->compile($module, $scriptDir);
 
-    /** @param ScriptDir $scriptDIr */
-    private static function getCompileInjector(string $scriptDIr, LazyModuleInterface $module): CompileInjector
-    {
-        return new CompileInjector($scriptDIr, $module);
+        return new CompiledInjector($scriptDir);
     }
 }

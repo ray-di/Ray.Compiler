@@ -36,7 +36,7 @@ class InjectorFactoryTest extends TestCase
         );
         $instance = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobot::class, $instance);
-        $this->assertInstanceOf(ScriptInjector::class, $injector);
+        $this->assertInstanceOf(CompiledInjector::class, $injector);
     }
 
     public function testInjectComplexModule(): void

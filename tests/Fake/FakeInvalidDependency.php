@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use Ray\Di\Bind;
 use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
+use Ray\Di\VisitorInterface;
 
 class FakeInvalidDependency implements DependencyInterface
 {
@@ -23,6 +24,10 @@ class FakeInvalidDependency implements DependencyInterface
     }
 
     public function __toString()
+    {
+    }
+
+    public function accept(VisitorInterface $visitor)
     {
     }
 }

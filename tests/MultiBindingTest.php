@@ -25,6 +25,7 @@ use Ray\Di\MultiBinding\MultiBindings;
 use Ray\Di\NullModule;
 
 use function count;
+use function mkdir;
 
 /** @requires PHP 8.0 */
 class MultiBindingTest extends TestCase
@@ -34,10 +35,10 @@ class MultiBindingTest extends TestCase
 
     protected function setUp(): void
     {
-        deleteFiles(__DIR__ . '/tmp');
-        $this->injector = new ScriptInjector(__DIR__ . '/tmp', static function () {
-            return new FakeMultiBindingsModule();
-        });
+        @mkdir(__DIR__ . '/tmp/mulit-bindings');
+        $scriptDir = __DIR__ . '/tmp/mulit-bindings';
+        (new Compiler())->compile(new FakeMultiBindingsModule(), $scriptDir);
+        $this->injector = new CompiledInjector($scriptDir);
     }
 
     /** @return Map<FakeEngineInterface> */

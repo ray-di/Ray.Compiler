@@ -14,7 +14,7 @@ use function assert;
 use function serialize;
 use function unserialize;
 
-/** @psalm-import-type ScriptDir from CompileInjector */
+/** @psalm-import-type ScriptDir from Types */
 final class CachedInjectorFactory
 {
     /** @var array<string, string> */
@@ -38,6 +38,7 @@ final class CachedInjectorFactory
         /** @psalm-suppress DeprecatedClass */
         $cache = $cache ?? new NullCache();
         $cache->setNamespace($injectorId);
+        /** @var ScriptInjectorInterface|null $cachedInjector */
         $cachedInjector = $cache->fetch(ScriptInjectorInterface::class);
         if ($cachedInjector instanceof ScriptInjectorInterface) {
             return $cachedInjector; // @codeCoverageIgnore

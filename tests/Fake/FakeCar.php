@@ -18,6 +18,7 @@ class FakeCar implements FakeCarInterface
     public $rightMirror;
     public $leftMirror;
     public $spareMirror;
+    public $oil;
 
     /** @var FakeHandleInterface */
     public $handle;
@@ -69,12 +70,21 @@ class FakeCar implements FakeCarInterface
     }
 
     /**
+     * @Inject
+     */
+    public function setOil(FakeOilInterface $oil)
+    {
+        $this->oil = $oil;
+    }
+
+    /**
      * Inject annotation at constructor is just for human, not mandatory.
      */
     public function __construct(FakeEngineInterface $engine)
     {
         $this->engine = $engine;
     }
+
 
     /**
      * @PostConstruct

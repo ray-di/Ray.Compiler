@@ -8,7 +8,7 @@ use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 
-/** @psalm-import-type ScriptDir from CompileInjector */
+/** @psalm-import-type ScriptDir from Types */
 abstract class AbstractInjectorContext implements LazyModuleInterface
 {
     /**
