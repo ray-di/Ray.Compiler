@@ -17,8 +17,8 @@ composer require ray/compiler
 
 Ray.Compiler provides two main components:
 
-1. `Compiler`: Compiles Ray.Di bindings into PHP code.
-2. `CompiledInjector`: High-performance injector that executes pre-compiled code.
+1. **`Compiler`**: Compiles Ray.Di bindings into PHP code.
+2. **`CompiledInjector`**: High-performance injector that executes pre-compiled code.
 
 ### Basic Usage
 
@@ -77,37 +77,96 @@ Use multi-stage builds to maintain path consistency:
 
 ```dockerfile
 # Build stage
-FROM php:8.2-cli as builder
+FROM php:8.2-cli-alpine as builder
+
+# Set working directory
+WORKDIR /app
+
 # Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-# Set working directory for consistent paths during compilation
-WORKDIR /app
-# Copy only necessary files
+
+# Copy composer files first
 COPY composer.json composer.lock ./
-COPY bin/compile.php bin/
+
 # Install dependencies
-RUN composer install --no-dev --no-scripts \
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --prefer-dist \
+    --no-interaction \
+    --optimize-autoloader
+
+# Copy application code
+COPY . .
+
+# Create non-root user
+RUN adduser -D appuser
+USER appuser
+
 # Compile DI code
 RUN php bin/compile.php
 
 # Production stage
-# Add non-root user
-RUN adduser --disabled-password --gecos '' appuser
-# Maintain the same working directory structure
+FROM php:8.2-cli-alpine
+
+# Create non-root user
+RUN adduser -D appuser
+
+# Set working directory
 WORKDIR /app
+
+# Copy only necessary files from builder
+COPY --from=builder /app/vendor/ ./vendor/
 COPY . .
-# Copy only the compiled DI files from the builder stage
 COPY --from=builder /app/tmp/di/ ./tmp/di/
+
 # Switch to non-root user
 USER appuser
+# Start command or other configurations can be added here
+```
+
+## Docker Best Practices
+
+When building your Docker images, it’s important to exclude unnecessary files to speed up builds, reduce image size, and prevent sensitive files from being included in the image. Below is a recommended `.dockerignore` file. Adjust it to fit your project’s requirements:
+
+```dockerignore
+# Ignore Git files
+.git/
+
+# Ignore dependency directories
+/vendor/
+/node_modules/
+
+# Ignore compiled DI files
+/tmp/di/
+
+# Ignore environment-specific files
+.env
+.env.local
+.env.*.local
+
+# Ignore documentation and tests
+/docs/
+/tests/
+
+# Ignore IDE-specific files
+.idea/
+.vscode/
+
+# Ignore log files
+*.log
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
 ```
 
 ## Version Control
 
-Add compile directory to `.gitignore`:
+Compiled DI code is considered an environment-specific build artifact and **should not** be committed to version control. This approach ensures that your repository remains clean and build artifacts do not cause merge conflicts or unexpected behavior across different environments.
+
+Add the compile directory to your `.gitignore`:
 
 ```gitignore
 /tmp/di/
 ```
-
-The compiled code should be treated as environment-specific build artifacts and not committed to version control.
