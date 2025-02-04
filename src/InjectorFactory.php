@@ -6,6 +6,7 @@ namespace Ray\Compiler;
 
 use Ray\Compiler\Annotation\Compile;
 use Ray\Di\AbstractModule;
+use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\Injector as RayInjector;
 use Ray\Di\InjectorInterface;
@@ -15,11 +16,14 @@ use function mkdir;
 
 /**
  * @psalm-immutable
+ * @psalm-import-type ScriptDir from Types
+ * @psalm-suppress DeprecatedClass
  */
 final class InjectorFactory
 {
     /**
      * @param callable(): AbstractModule $modules
+     * @param ScriptDir                  $scriptDir
      */
     public static function getInstance(callable $modules, string $scriptDir): InjectorInterface
     {
@@ -28,30 +32,27 @@ final class InjectorFactory
         $rayInjector = new RayInjector($module, $scriptDir);
         $isProd = false;
         try {
+            /** @var bool $isProd */
             $isProd = $rayInjector->getInstance('', Compile::class);
         } catch (Unbound $e) {
         }
 
-        if (! $isProd) {
+        if ($isProd === false) {
             return $rayInjector;
         }
 
         if ($modules instanceof LazyModuleInterface) {
-            return self::getCompileInjector($scriptDir, $modules);
+            return self::getCompiledInjector($scriptDir, ($modules)());
         }
 
-        return self::getScriptInjector($scriptDir, $module);
+        return self::getCompiledInjector($scriptDir, $module);
     }
 
-    private static function getScriptInjector(string $scriptDir, AbstractModule $module): ScriptInjector
+    /** @param ScriptDir $scriptDir */
+    private static function getCompiledInjector(string $scriptDir, AbstractModule $module): InjectorInterface
     {
-        return new ScriptInjector($scriptDir, static function () use ($scriptDir, $module) {
-            return new ScriptinjectorModule($scriptDir, $module);
-        });
-    }
+        (new Compiler())->compile($module, $scriptDir);
 
-    private static function getCompileInjector(string $scriptDIr, LazyModuleInterface $module): CompileInjector
-    {
-        return new CompileInjector($scriptDIr, $module);
+        return new CompiledInjector($scriptDir);
     }
 }

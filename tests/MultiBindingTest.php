@@ -25,10 +25,9 @@ use Ray\Di\MultiBinding\MultiBindings;
 use Ray\Di\NullModule;
 
 use function count;
+use function mkdir;
 
-/**
- * @requires PHP 8.0
- */
+/** @requires PHP 8.0 */
 class MultiBindingTest extends TestCase
 {
     /** @var InjectorInterface */
@@ -36,12 +35,13 @@ class MultiBindingTest extends TestCase
 
     protected function setUp(): void
     {
-        deleteFiles(__DIR__ . '/tmp');
-        $this->injector = new ScriptInjector(__DIR__ . '/tmp', static function () {
-            return new FakeMultiBindingsModule();
-        });
+        @mkdir(__DIR__ . '/tmp/mulit-bindings');
+        $scriptDir = __DIR__ . '/tmp/mulit-bindings';
+        (new Compiler())->compile(new FakeMultiBindingsModule(), $scriptDir);
+        $this->injector = new CompiledInjector($scriptDir);
     }
 
+    /** @return Map<FakeEngineInterface> */
     public function testInjectMap(): Map
     {
         /** @var FakeMultiBindingConsumer $consumer */
@@ -52,6 +52,8 @@ class MultiBindingTest extends TestCase
     }
 
     /**
+     * @param Map<FakeEngineInterface> $map
+     *
      * @depends testInjectMap
      */
     public function testMapInstance(Map $map): void
@@ -61,6 +63,8 @@ class MultiBindingTest extends TestCase
     }
 
     /**
+     * @param Map<FakeEngineInterface> $map
+     *
      * @depends testInjectMap
      */
     public function testMapIteration(Map $map): void
@@ -71,6 +75,8 @@ class MultiBindingTest extends TestCase
     }
 
     /**
+     * @param Map<FakeEngineInterface> $map
+     *
      * @depends testInjectMap
      */
     public function testIsSet(Map $map): void
@@ -80,6 +86,8 @@ class MultiBindingTest extends TestCase
     }
 
     /**
+     * @param Map<FakeEngineInterface> $map
+     *
      * @depends testInjectMap
      */
     public function testOffsetSet(Map $map): void
@@ -89,6 +97,8 @@ class MultiBindingTest extends TestCase
     }
 
     /**
+     * @param Map<FakeEngineInterface> $map
+     *
      * @depends testInjectMap
      */
     public function testOffsetUnset(Map $map): void
@@ -106,7 +116,7 @@ class MultiBindingTest extends TestCase
         $this->assertSame(3, count($consumer->robots));
     }
 
-    public function testMultipileModule(): void
+    public function testMultipleModule(): void
     {
         $module = new NullModule();
         $binder = MultiBinder::newInstance($module, FakeEngineInterface::class);

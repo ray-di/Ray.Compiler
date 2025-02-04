@@ -17,9 +17,7 @@ use Ray\Di\FakeToBindModule;
 use Ray\Di\Injector;
 use Ray\Di\InjectorInterface;
 
-/**
- * @requires PHP 8.0
- */
+/** @requires PHP 8.0 */
 class AssistedTest extends TestCase
 {
     /** @var InjectorInterface */
@@ -27,9 +25,9 @@ class AssistedTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->injector = new ScriptInjector(__DIR__ . '/tmp', static function () {
-            return new FakeToBindModule();
-        });
+        $scriptDir = __DIR__ . '/tmp';
+        (new Compiler())->compile(new FakeToBindModule(), $scriptDir);
+        $this->injector = new CompiledInjector($scriptDir);
     }
 
     public function testAssisted(): void
@@ -37,8 +35,8 @@ class AssistedTest extends TestCase
         $consumer = $this->injector->getInstance(FakeAssistedConsumer::class);
         /** @var FakeAssistedConsumer $consumer */
         $assistedDependency = $consumer->assistOne('a', 'b');
-        $expecetd = FakeRobot::class;
-        $this->assertInstanceOf($expecetd, $assistedDependency);
+        $expected = FakeRobot::class;
+        $this->assertInstanceOf($expected, $assistedDependency);
     }
 
     public function testAssistedWithName(): void
@@ -47,8 +45,8 @@ class AssistedTest extends TestCase
         $consumer = $this->injector->getInstance(FakeAssistedConsumer::class);
         /** @var FakeAssistedConsumer $consumer */
         $assistedDependency = $consumer->assistWithName('a7');
-        $expecetd = 1;
-        $this->assertSame($expecetd, $assistedDependency);
+        $expected = 1;
+        $this->assertSame($expected, $assistedDependency);
     }
 
     public function testAssistedAnyWithName(): void
@@ -80,12 +78,11 @@ class AssistedTest extends TestCase
         $assistedDbProvider->get();
     }
 
-    public function testAssistedCustomeInject(): void
+    public function testAssistedCustomInject(): void
     {
         $assistedConsumer = (new Injector(new FakeAssistedDbModule(), __DIR__ . '/tmp'))->getInstance(FakeAssistedParamsConsumer::class);
         /** @var FakeAssistedParamsConsumer $assistedConsumer */
-        [$id, $db] = $assistedConsumer->getUser(1);
-        /** @var FakeAbstractDb $db */
+        [$id] = $assistedConsumer->getUser(1);
         $this->assertSame(1, $id);
     }
 }

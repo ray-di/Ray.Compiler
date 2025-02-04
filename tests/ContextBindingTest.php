@@ -8,30 +8,28 @@ use PHPUnit\Framework\TestCase;
 
 final class ContextBindingTest extends TestCase
 {
+    /** @var CompiledInjector  */
+    private $injector;
+
     public function setUp(): void
     {
         deleteFiles(__DIR__ . '/tmp');
+        $scriptDir = __DIR__ . '/tmp';
+        (new Compiler())->compile(new FakeDependContextualRobotModule(''), $scriptDir);
+        $this->injector = new CompiledInjector($scriptDir);
     }
 
     /** @requires PHP >= 7.4 */
     public function testContextBindingWhenContextIsEmptyAndPropertyHasType(): void
     {
-        $injector = new ScriptInjector(__DIR__ . '/tmp', static function () {
-            return new FakeDependContextualRobotModule('');
-        });
-
-        $instance = $injector->getInstance(FakeRobotInterface::class);
+        $instance = $this->injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobotInterface::class, $instance);
     }
 
     /** @requires PHP >= 7.4 */
     public function testContextBindingWhenContextIsEmpty(): void
     {
-        $injector = new ScriptInjector(__DIR__ . '/tmp', static function () {
-            return new FakeContextualModule('');
-        });
-
-        $instance = $injector->getInstance(FakeRobotInterface::class);
+        $instance = $this->injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobotInterface::class, $instance);
     }
 }

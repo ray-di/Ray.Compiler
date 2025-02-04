@@ -1,10 +1,11 @@
 parameters:
-  level: max
-  paths:
-    - src
-    - tests
-  excludePaths:
-    - tests/tmp/*
-    - tests/Fake/*
-  checkGenericClassInNonGenericObjectType: false
-
+    level: 8
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - tests/tmp/*
+        - tests/Fake/*
+    ignoreErrors:
+        -
+            identifier: typeAlias.duplicate

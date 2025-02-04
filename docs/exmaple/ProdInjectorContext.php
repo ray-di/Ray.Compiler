@@ -6,7 +6,6 @@ use Doctrine\Common\Cache\ApcuCache;
 use Doctrine\Common\Cache\CacheProvider;
 use Ray\Compiler\AbstractInjectorContext;
 use Ray\Compiler\DiCompileModule;
-use Ray\Compiler\FakeCarModule;
 use Ray\Di\AbstractModule;
 
 final class ProdInjectorContext extends AbstractInjectorContext
@@ -23,6 +22,10 @@ final class ProdInjectorContext extends AbstractInjectorContext
 
     public function getCache(): CacheProvider
     {
-        return new ApcuCache();
+        if (! class_exists(ApcuCache::class)) {
+            throw new \RuntimeException('doctrine/cache ^1.0 is required for ProdInjectorContext.');
+        }
+
+        return new ApcuCache(); // @phpstan-ignore-line
     }
 }

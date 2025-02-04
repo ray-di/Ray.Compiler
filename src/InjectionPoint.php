@@ -6,35 +6,42 @@ namespace Ray\Compiler;
 
 use Ray\Aop\ReflectionClass;
 use Ray\Aop\ReflectionMethod;
+use Ray\Di\Di\Qualifier;
 use Ray\Di\InjectionPointInterface;
+use Ray\ServiceLocator\ServiceLocator;
+use ReflectionException;
 use ReflectionParameter;
-use RuntimeException;
 
 use function assert;
 use function class_exists;
-use function file_exists;
-use function file_get_contents;
-use function is_bool;
-use function sprintf;
-use function str_replace;
-use function unserialize;
 
+/**
+ * @psalm-import-type ScriptDir from Types
+ * @psalm-import-type Ip from Types
+ */
 final class InjectionPoint implements InjectionPointInterface
 {
     /** @var ReflectionParameter */
     private $parameter;
 
-    /** @var string */
-    private $scriptDir;
-
-    public function __construct(ReflectionParameter $parameter, string $scriptDir)
+    /** @deprecated use getInstance */
+    public function __construct(ReflectionParameter $parameter)
     {
         $this->parameter = $parameter;
-        $this->scriptDir = $scriptDir;
     }
 
     /**
-     * {@inheritdoc}
+     * @param Ip $ip
+     *
+     * @throws ReflectionException
+     */
+    public static function getInstance(array $ip): self
+    {
+        return new self(new ReflectionParameter([$ip[0], $ip[1]], $ip[2]));
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function getParameter(): ReflectionParameter
     {
@@ -42,7 +49,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getMethod(): ReflectionMethod
     {
@@ -56,7 +63,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getClass(): ReflectionClass
     {
@@ -67,7 +74,7 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return array<(object|null)>
      *
@@ -79,37 +86,23 @@ final class InjectionPoint implements InjectionPointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return object|null
      */
     public function getQualifier()
     {
-        $class = $this->parameter->getDeclaringClass();
-        assert($class instanceof \ReflectionClass);
-
-        $qualifierFile = sprintf(
-            ScriptInjector::QUALIFIER,
-            $this->scriptDir,
-            str_replace('\\', '_', $class->name),
-            $this->parameter->getDeclaringFunction()->name,
-            $this->parameter->name
-        );
-        // @codeCoverageIgnoreStart
-        if (! file_exists($qualifierFile)) {
-            return null;
+        $reader = ServiceLocator::getReader();
+        $annotations = $reader->getMethodAnnotations($this->getMethod());
+        foreach ($annotations as $annotation) {
+            $maybeQualifers = $reader->getClassAnnotations(new \ReflectionClass($annotation));
+            foreach ($maybeQualifers as $maybeQualifer) {
+                if ($maybeQualifer instanceof Qualifier) {
+                    return $annotation;
+                }
+            }
         }
 
-        // @codeCoverageIgnoreEnd
-
-        $qualifierString = file_get_contents($qualifierFile);
-        if (is_bool($qualifierString)) {
-            throw new RuntimeException(); // @codeCoverageIgnore
-        }
-
-        /** @var ?object $qualifier */
-        $qualifier = unserialize($qualifierString, ['allowed_classes' => true]);
-
-        return $qualifier;
+        return null;
     }
 }

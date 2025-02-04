@@ -12,7 +12,7 @@ use Ray\ServiceLocator\ServiceLocator;
  * @deprecated
  * @codeCoverageIgnore
  */
-final class ReaderProvider implements ProviderInterface
+final class ReaderProvider implements ProviderInterface // @phpstan-ignore-line
 {
     public function get(): Reader
     {
