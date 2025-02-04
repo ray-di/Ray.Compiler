@@ -1,3 +1,5 @@
+<img src="https://ray-di.github.io/images/logo.svg" width=160  alt="logo">
+
 # Ray.Compiler
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/ray-di/Ray.Compiler/badges/quality-score.png?b=1.x)](https://scrutinizer-ci.com/g/ray-di/Ray.Compiler/?branch=1.x)
