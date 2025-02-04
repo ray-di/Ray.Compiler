@@ -28,7 +28,11 @@ Pre-compile your dependencies:
 use Ray\Compiler\Compiler;
 
 $compiler = new Compiler();
-$compiler->compile($module, $scriptDir);
+// Compile Ray.Di bindings to PHP files
+$compiler->compile(
+    $module,    // AbstractModule: Your application's module
+    $scriptDir  // string: Directory path where compiled PHP files will be generated
+);
 ```
 
 Use the compiled injector:
@@ -45,14 +49,16 @@ $instance = $injector->getInstance(YourInterface::class);
 Create a compile script:
 
 ```php
-use Ray\Compiler\Compiler;
-
-$scripts = (new Compiler())->compile(
-    new AppModule(),
-    __DIR__ . '/di'
-);
-
-printf('Compiled %d files.', count($scripts));
+try {
+    $scripts = (new Compiler())->compile(
+        new AppModule(),
+        __DIR__ . '/di'
+    );
+    printf("Compiled %d files.\n", count($scripts));
+} catch (CompileException $e) {
+    fprintf(STDERR, "Compilation failed: %s\n", $e->getMessage());
+    exit(1);
+}
 ```
 
 Add compile script to your `composer.json`:
@@ -72,19 +78,28 @@ Use multi-stage builds to maintain path consistency:
 ```dockerfile
 # Build stage
 FROM php:8.2-cli as builder
+# Install composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory for consistent paths during compilation
 WORKDIR /app
-COPY . .
+# Copy only necessary files
+COPY composer.json composer.lock ./
+COPY bin/compile.php bin/
+# Install dependencies
+RUN composer install --no-dev --no-scripts \
 # Compile DI code
 RUN php bin/compile.php
 
 # Production stage
-FROM php:8.2-fpm
+# Add non-root user
+RUN adduser --disabled-password --gecos '' appuser
 # Maintain the same working directory structure
 WORKDIR /app
 COPY . .
 # Copy only the compiled DI files from the builder stage
 COPY --from=builder /app/tmp/di/ ./tmp/di/
+# Switch to non-root user
+USER appuser
 ```
 
 ## Version Control
