@@ -21,7 +21,7 @@ use function var_export;
 
 use const PHP_EOL;
 
-class Code4Dependency extends Code
+final class Code4Dependency extends Code
 {
     /** @var Dependency */
     private $dependency;
@@ -36,6 +36,7 @@ class Code4Dependency extends Code
     public function __construct(Container $container, Dependency $dependency, ?IpQualifier $qualifier = null)
     {
         $this->dependency = $dependency;
+        $this->isSingleton = $dependency->isSingleton();
         $this->qualifiers = $qualifier;
         $this->prop = new PrivateProperty();
         $this->container = $container->getContainer();
