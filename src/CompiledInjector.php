@@ -75,6 +75,7 @@ final class CompiledInjector implements ScriptInjectorInterface
      * @template T
      * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      */
+    #[\Override]
     public function getInstance($interface, $name = Name::ANY)
     {
         $dependencyIndex = $interface . '-' . $name;

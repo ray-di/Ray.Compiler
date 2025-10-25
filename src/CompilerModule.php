@@ -28,6 +28,7 @@ class CompilerModule extends AbstractModule
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     protected function configure(): void
     {
         $this->bind()->annotatedWith(Compile::class)->toInstance(true);

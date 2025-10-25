@@ -43,6 +43,7 @@ final class InjectionPoint implements InjectionPointInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getParameter(): ReflectionParameter
     {
         return $this->parameter;
@@ -51,6 +52,7 @@ final class InjectionPoint implements InjectionPointInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getMethod(): ReflectionMethod
     {
         $this->parameter = $this->getParameter();
@@ -65,6 +67,7 @@ final class InjectionPoint implements InjectionPointInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getClass(): ReflectionClass
     {
         $class = $this->parameter->getDeclaringClass();
@@ -80,6 +83,7 @@ final class InjectionPoint implements InjectionPointInterface
      *
      * @psalm-suppress ImplementedReturnTypeMismatch
      */
+    #[\Override]
     public function getQualifiers(): array
     {
         return [$this->getQualifier()];
