@@ -36,6 +36,7 @@ final class CompileVisitor implements VisitorInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function visitDependency(
         NewInstance $newInstance,
         ?string $postConstruct,
@@ -47,6 +48,7 @@ final class CompileVisitor implements VisitorInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function visitProvider(
         Dependency $dependency,
         string $context,
@@ -62,6 +64,7 @@ final class CompileVisitor implements VisitorInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function visitInstance($value): string
     {
         if ($value === null || is_scalar($value) || is_array($value)) {
@@ -74,12 +77,14 @@ final class CompileVisitor implements VisitorInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function visitAspectBind(Bind $aopBind): void
     {
         $this->script->pushAspectBind($aopBind);
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function visitNewInstance(
         string $class,
         SetterMethods $setterMethods,
@@ -99,6 +104,7 @@ final class CompileVisitor implements VisitorInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function visitSetterMethods(
         array $setterMethods
     ) {
@@ -108,6 +114,7 @@ final class CompileVisitor implements VisitorInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function visitSetterMethod(string $method, Arguments $arguments): void
     {
         $arguments->accept($this);
@@ -115,6 +122,7 @@ final class CompileVisitor implements VisitorInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function visitArguments(array $arguments): void
     {
         foreach ($arguments as $argument) {
@@ -123,6 +131,7 @@ final class CompileVisitor implements VisitorInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function visitArgument(
         string $index,
         bool $isDefaultAvailable,

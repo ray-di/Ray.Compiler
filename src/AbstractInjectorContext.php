@@ -23,6 +23,7 @@ abstract class AbstractInjectorContext implements LazyModuleInterface
         $this->tmpDir = $tmpDir;
     }
 
+    #[\Override]
     abstract public function __invoke(): AbstractModule;
 
     abstract public function getCache(): CacheProvider;
