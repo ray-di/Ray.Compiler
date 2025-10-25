@@ -33,7 +33,6 @@ final class CompilerModule extends AbstractModule
     protected function configure(): void
     {
         $this->bind()->annotatedWith(Compile::class)->toInstance(true);
-        $this->install((new BuiltinModule())($this));
         $this->bind('')->annotatedWith(ScriptDir::class)->toInstance($this->scriptDir);
         $this->bind(InjectorInterface::class)->to(CompiledInjector::class)->in(Scope::SINGLETON);
         (new FilePutContents())(sprintf('%s/_bindings.log', $this->scriptDir), (string) $this);
