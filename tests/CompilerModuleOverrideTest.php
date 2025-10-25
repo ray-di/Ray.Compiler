@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use LogicException;
 use PHPUnit\Framework\TestCase;
+use Ray\Compiler\Fake\FakeCustomInjector;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
 use Ray\Compiler\MultiBindings\FakeEngine;
 use Ray\Compiler\MultiBindings\FakeEngineInterface;
@@ -129,16 +129,5 @@ class CompilerModuleOverrideTest extends TestCase
         $consumer = $injector->getInstance(FakeMultiBindingConsumer::class);
         $this->assertInstanceOf(Map::class, $consumer->engines);
         $this->assertArrayHasKey('test', $consumer->engines);
-    }
-}
-
-/**
- * Fake custom injector for testing override behavior
- */
-class FakeCustomInjector implements InjectorInterface
-{
-    public function getInstance($interface, $name = '')
-    {
-        throw new LogicException('This injector should be overridden by CompilerModule');
     }
 }

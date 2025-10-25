@@ -8,7 +8,6 @@ use Override;
 use Ray\Compiler\Annotation\Compile;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
-use Ray\Di\BuiltinModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Scope;
 
