@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use Doctrine\Common\Cache\CacheProvider;
+use Override;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 
@@ -23,7 +24,7 @@ abstract class AbstractInjectorContext implements LazyModuleInterface
         $this->tmpDir = $tmpDir;
     }
 
-    #[\Override]
+    #[Override]
     abstract public function __invoke(): AbstractModule;
 
     abstract public function getCache(): CacheProvider;

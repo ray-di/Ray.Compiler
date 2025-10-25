@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Override;
 use Ray\Aop\ReflectionClass;
 use Ray\Aop\ReflectionMethod;
 use Ray\Di\Di\Qualifier;
@@ -43,7 +44,7 @@ final class InjectionPoint implements InjectionPointInterface
     /**
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function getParameter(): ReflectionParameter
     {
         return $this->parameter;
@@ -52,7 +53,7 @@ final class InjectionPoint implements InjectionPointInterface
     /**
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function getMethod(): ReflectionMethod
     {
         $this->parameter = $this->getParameter();
@@ -67,7 +68,7 @@ final class InjectionPoint implements InjectionPointInterface
     /**
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function getClass(): ReflectionClass
     {
         $class = $this->parameter->getDeclaringClass();
@@ -83,7 +84,7 @@ final class InjectionPoint implements InjectionPointInterface
      *
      * @psalm-suppress ImplementedReturnTypeMismatch
      */
-    #[\Override]
+    #[Override]
     public function getQualifiers(): array
     {
         return [$this->getQualifier()];

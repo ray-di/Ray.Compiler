@@ -10,6 +10,6 @@ namespace Ray\Compiler\Exception;
  * This method is thrown if the injection point is not bound.
  * For example, when retrieving the root object.
  */
-class InjectionPointUnbound extends Unbound
+final class InjectionPointUnbound extends Unbound
 {
 }

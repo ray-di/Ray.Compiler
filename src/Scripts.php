@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use Countable;
-
 use Override;
+
 use function count;
 use function sprintf;
 use function str_replace;
