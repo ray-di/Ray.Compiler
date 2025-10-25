@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use Doctrine\Common\Cache\CacheProvider;
+use Override;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 
-/** @psalm-import-type ScriptDir from Types */
+/**
+ * @psalm-import-type ScriptDir from Types
+ * @psalm-import-type SavedSingletons from Types
+ */
 abstract class AbstractInjectorContext implements LazyModuleInterface
 {
     /**
@@ -23,6 +27,7 @@ abstract class AbstractInjectorContext implements LazyModuleInterface
         $this->tmpDir = $tmpDir;
     }
 
+    #[Override]
     abstract public function __invoke(): AbstractModule;
 
     abstract public function getCache(): CacheProvider;
@@ -30,7 +35,7 @@ abstract class AbstractInjectorContext implements LazyModuleInterface
     /**
      * Return array of cacheable singleton class names
      *
-     * @return array<class-string>
+     * @return SavedSingletons
      */
     public function getSavedSingleton(): array
     {

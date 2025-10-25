@@ -6,6 +6,6 @@ namespace Ray\Compiler\Exception;
 
 use LogicException;
 
-class InvalidInstance extends LogicException implements ExceptionInterface
+final class InvalidInstance extends LogicException implements ExceptionInterface
 {
 }

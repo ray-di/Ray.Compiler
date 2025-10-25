@@ -6,6 +6,6 @@ namespace Ray\Compiler\Exception;
 
 use RuntimeException;
 
-class ScriptDirNotReadable extends RuntimeException implements ExceptionInterface
+final class ScriptDirNotReadable extends RuntimeException implements ExceptionInterface
 {
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Override;
 use Ray\Compiler\Annotation\Compile;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
@@ -13,7 +14,7 @@ use Ray\Di\Scope;
 
 use function sprintf;
 
-class CompilerModule extends AbstractModule
+final class CompilerModule extends AbstractModule
 {
     /** @var string */
     private $scriptDir;
@@ -28,6 +29,7 @@ class CompilerModule extends AbstractModule
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function configure(): void
     {
         $this->bind()->annotatedWith(Compile::class)->toInstance(true);

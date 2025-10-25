@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Override;
 use Ray\Di\AbstractModule;
 
-class OverrideLazyModule implements LazyModuleInterface
+final class OverrideLazyModule implements LazyModuleInterface
 {
     /** @var callable(): AbstractModule */
     private $modules;
@@ -21,6 +22,7 @@ class OverrideLazyModule implements LazyModuleInterface
         $this->overrideModule = $overrideModule;
     }
 
+    #[Override]
     public function __invoke(): AbstractModule
     {
         $module = ($this->modules)();

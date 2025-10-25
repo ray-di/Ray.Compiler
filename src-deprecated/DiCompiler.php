@@ -101,7 +101,7 @@ final class DiCompiler implements InjectorInterface
         foreach ($container as $dependencyIndex => $dependency) {
             fwrite($fp, sprintf("Compiled: %s\n", $dependencyIndex));
             try {
-                $code = $this->dependencyCompiler->getCode($dependency);
+                $code = $this->dependencyCompiler->getCode($dependency, $container);
             } catch (Unbound $e) {
                 fwrite($fp, sprintf("\nError: %s\nUnbound: %s\n", $dependencyIndex, $e->getMessage()));
 

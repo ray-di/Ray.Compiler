@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Override;
 use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Annotation\ScriptDir;
@@ -27,6 +28,7 @@ use function str_replace;
  *
  * @psalm-import-type ScriptDir from Types
  * @psalm-import-type Singletons from Types
+ * @psalm-import-type ScriptDirs from Types
  */
 final class CompiledInjector implements ScriptInjectorInterface
 {
@@ -40,7 +42,10 @@ final class CompiledInjector implements ScriptInjectorInterface
      */
     private $singletons = [];
 
-    /** @var array<ScriptDir> */
+    /**
+     * @psalm-import-type ScriptDirs from Types
+     * @var ScriptDirs
+     */
     private static $scriptDirs = [];
 
     /**
@@ -75,6 +80,7 @@ final class CompiledInjector implements ScriptInjectorInterface
      * @template T
      * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      */
+    #[Override]
     public function getInstance($interface, $name = Name::ANY)
     {
         $dependencyIndex = $interface . '-' . $name;
