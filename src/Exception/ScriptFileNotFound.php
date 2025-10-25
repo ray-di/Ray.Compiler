@@ -6,6 +6,6 @@ namespace Ray\Compiler\Exception;
 
 use RuntimeException;
 
-class ScriptFileNotFound extends RuntimeException implements ExceptionInterface
+final class ScriptFileNotFound extends RuntimeException implements ExceptionInterface
 {
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Override;
 use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Annotation\ScriptDir;
@@ -75,7 +76,7 @@ final class CompiledInjector implements ScriptInjectorInterface
      * @template T
      * @SuppressWarnings(PHPMD.UnusedLocalVariable) // @phpstan-ignore-line
      */
-    #[\Override]
+    #[Override]
     public function getInstance($interface, $name = Name::ANY)
     {
         $dependencyIndex = $interface . '-' . $name;
