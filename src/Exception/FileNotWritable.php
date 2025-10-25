@@ -6,6 +6,6 @@ namespace Ray\Compiler\Exception;
 
 use RuntimeException;
 
-class FileNotWritable extends RuntimeException implements ExceptionInterface
+final class FileNotWritable extends RuntimeException implements ExceptionInterface
 {
 }

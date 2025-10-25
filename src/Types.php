@@ -18,6 +18,12 @@ use Ray\Di\InjectorInterface;
  * @psalm-type InjectionPoint = callable(): InjectionPoint
  * @psalm-type Injector = callable(): InjectorInterface
  * @psalm-type ScriptDirs = list<ScriptDir>
+ * @psalm-type Scripts = array<string, string>
+ * @psalm-type SavedSingletons = list<class-string>
+ * @psalm-type ConstructorParams = list<mixed>
+ * @psalm-type BindingCode = list<string>
+ * @psalm-type SetterCode = list<string>
+ * @psalm-type IpParameters = list<object|null>
  */
 final class Types
 {

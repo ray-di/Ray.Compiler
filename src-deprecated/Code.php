@@ -8,7 +8,7 @@ use PhpParser\Node;
 use PhpParser\PrettyPrinter\Standard;
 
 /** @deprecated Use CompileInjector instead */
-final class Code
+class Code
 {
     /** @var bool */
     public $isSingleton;
