@@ -6,6 +6,7 @@ use Ray\Di\Bind;
 use Ray\Di\Container;
 use Ray\Di\DependencyInterface;
 
+/** @deprecated */
 final class NullDependendy implements DependencyInterface
 {
     public function __toString()
