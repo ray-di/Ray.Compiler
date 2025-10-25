@@ -42,7 +42,7 @@ final class Compiler
      */
     public function compile(AbstractModule $module, string $scriptDir): Scripts
     {
-        $module->install(new CompilerModule($scriptDir));
+        $module->override(new CompilerModule($scriptDir));
 
         // Lock
         $fp = fopen($scriptDir . '/compile.lock', 'a+');
