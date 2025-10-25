@@ -73,96 +73,6 @@ Add compile script to your `composer.json`:
 }
 ```
 
-## Docker Integration
-
-Use multi-stage builds to maintain path consistency:
-
-```dockerfile
-# Build stage
-FROM php:8.2-cli-alpine as builder
-
-# Set working directory
-WORKDIR /app
-
-# Install composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copy composer files first
-COPY composer.json composer.lock ./
-
-# Install dependencies
-RUN composer install \
-    --no-dev \
-    --no-scripts \
-    --prefer-dist \
-    --no-interaction \
-    --optimize-autoloader
-
-# Copy application code
-COPY . .
-
-# Create non-root user
-RUN adduser -D appuser
-USER appuser
-
-# Compile DI code
-RUN php bin/compile.php
-
-# Production stage
-FROM php:8.2-cli-alpine
-
-# Create non-root user
-RUN adduser -D appuser
-
-# Set working directory
-WORKDIR /app
-
-# Copy only necessary files from builder
-COPY --from=builder /app/vendor/ ./vendor/
-COPY . .
-COPY --from=builder /app/tmp/di/ ./tmp/di/
-
-# Switch to non-root user
-USER appuser
-# Start command or other configurations can be added here
-```
-
-## Docker Best Practices
-
-When building your Docker images, it’s important to exclude unnecessary files to speed up builds, reduce image size, and prevent sensitive files from being included in the image. Below is a recommended `.dockerignore` file. Adjust it to fit your project’s requirements:
-
-```dockerignore
-# Ignore Git files
-.git/
-
-# Ignore dependency directories
-/vendor/
-/node_modules/
-
-# Ignore compiled DI files
-/tmp/di/
-
-# Ignore environment-specific files
-.env
-.env.local
-.env.*.local
-
-# Ignore documentation and tests
-/docs/
-/tests/
-
-# Ignore IDE-specific files
-.idea/
-.vscode/
-
-# Ignore log files
-*.log
-
-# Ignore OS-specific files
-.DS_Store
-Thumbs.db
-```
-
 ## Version Control
 
 Compiled DI code is considered an environment-specific build artifact and **should not** be committed to version control. This approach ensures that your repository remains clean and build artifacts do not cause merge conflicts or unexpected behavior across different environments.
@@ -172,3 +82,9 @@ Add the compile directory to your `.gitignore`:
 ```gitignore
 /tmp/di/
 ```
+
+## Documentation
+
+- **[LLM Documentation](https://ray-di.github.io/Ray.Compiler/llms.txt)** - Brief documentation optimized for LLMs
+- **[Complete LLM Documentation](https://ray-di.github.io/Ray.Compiler/llms-full.txt)** - Full documentation with architecture details
+
