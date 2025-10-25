@@ -4,32 +4,25 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use LogicException;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
+use Ray\Compiler\MultiBindings\FakeEngine;
 use Ray\Compiler\MultiBindings\FakeEngineInterface;
 use Ray\Compiler\MultiBindings\FakeMultiBindingConsumer;
+use Ray\Compiler\MultiBindings\FakeRobot;
+use Ray\Compiler\MultiBindings\FakeRobotInterface;
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
 use Ray\Di\MultiBinder;
 use Ray\Di\MultiBinding\Map;
 use Ray\Di\Scope;
 
-use function assert;
-use function mkdir;
 use function is_dir;
+use function mkdir;
 
 class CompilerModuleOverrideTest extends TestCase
 {
-    private string $scriptDir;
-
-    protected function setUp(): void
-    {
-        $this->scriptDir = __DIR__ . '/tmp/compiler-module-override';
-        if (! is_dir($this->scriptDir)) {
-            mkdir($this->scriptDir, 0777, true);
-        }
-    }
-
     /**
      * Test 1: InjectorInterface replacement
      *
@@ -38,6 +31,11 @@ class CompilerModuleOverrideTest extends TestCase
      */
     public function testInjectorInterfaceOverride(): void
     {
+        $scriptDir = __DIR__ . '/tmp/compiler-module-override';
+        if (! is_dir($scriptDir)) {
+            mkdir($scriptDir, 0777, true);
+        }
+
         $module = new class extends AbstractModule {
             protected function configure(): void
             {
@@ -46,13 +44,12 @@ class CompilerModuleOverrideTest extends TestCase
             }
         };
 
-        (new Compiler())->compile($module, $this->scriptDir);
-        $injector = new CompiledInjector($this->scriptDir);
+        (new Compiler())->compile($module, $scriptDir);
+        $injector = new CompiledInjector($scriptDir);
 
         // The injector should get CompiledInjector, not FakeCustomInjector
         $retrievedInjector = $injector->getInstance(InjectorInterface::class);
         $this->assertInstanceOf(CompiledInjector::class, $retrievedInjector);
-        $this->assertNotInstanceOf(FakeCustomInjector::class, $retrievedInjector);
     }
 
     /**
@@ -104,15 +101,15 @@ class CompilerModuleOverrideTest extends TestCase
 
                 // User also uses MultiBinding for engines
                 $engineBinder = MultiBinder::newInstance($this, FakeEngineInterface::class);
-                $engineBinder->addBinding('test')->to(\Ray\Compiler\MultiBindings\FakeEngine::class);
+                $engineBinder->addBinding('test')->to(FakeEngine::class);
 
                 // User also uses MultiBinding for robots (required by FakeMultiBindingConsumer)
-                $robotBinder = MultiBinder::newInstance($this, \Ray\Compiler\MultiBindings\FakeRobotInterface::class);
-                $robotBinder->addBinding('test')->to(\Ray\Compiler\MultiBindings\FakeRobot::class);
+                $robotBinder = MultiBinder::newInstance($this, FakeRobotInterface::class);
+                $robotBinder->addBinding('test')->to(FakeRobot::class);
 
                 $this->bind(FakeMultiBindingConsumer::class);
-                $this->bind(\Ray\Compiler\MultiBindings\FakeEngine::class);
-                $this->bind(\Ray\Compiler\MultiBindings\FakeRobot::class);
+                $this->bind(FakeEngine::class);
+                $this->bind(FakeRobot::class);
             }
         };
 
@@ -143,6 +140,6 @@ class FakeCustomInjector implements InjectorInterface
 {
     public function getInstance($interface, $name = '')
     {
-        throw new \LogicException('This injector should be overridden by CompilerModule');
+        throw new LogicException('This injector should be overridden by CompilerModule');
     }
 }
