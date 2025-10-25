@@ -11,25 +11,25 @@ use Ray\Di\Container;
 use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
 use Ray\Di\NewInstance;
-
 use Ray\Di\SetterMethod;
 use Ray\Di\SetterMethods;
+
 use function implode;
 use function is_array;
 use function sprintf;
-
 use function var_export;
+
 use const PHP_EOL;
 
 class Code4Dependency extends Code
 {
     /** @var Dependency */
     private $dependency;
+
     /** @var PrivateProperty  */
     private $prop;
-    /**
-     * @var DependencyInterface[]
-     */
+
+    /** @var DependencyInterface[] */
     private $container;
 
     /** @SuppressWarnings("PHPMD.BooleanArgumentFlag") */
@@ -51,9 +51,7 @@ class Code4Dependency extends Code
         return implode(PHP_EOL, $lines);
     }
 
-    /**
-     * @param array<string> $lines
-     */
+    /** @param array<string> $lines */
     private function addSetterCode(array &$lines): void
     {
         $newInstance = ($this->prop)($this->dependency, 'newInstance');
@@ -73,6 +71,7 @@ class Code4Dependency extends Code
                 $index = ($this->prop)($argument, 'index');
                 $args[] = $this->getArgumentCode($argument, $index);
             }
+
             if ($args === []) {
                 return;
             }
@@ -82,9 +81,7 @@ class Code4Dependency extends Code
         }
     }
 
-    /**
-     * @param array<string> $lines
-     */
+    /** @param array<string> $lines */
     private function addBindingCode(array &$lines): void
     {
         /** @var ?NewInstance */
@@ -104,9 +101,7 @@ class Code4Dependency extends Code
         $lines[] = $line;
     }
 
-    /**
-     * @param array<string, array<string>> $bindings
-     */
+    /** @param array<string, array<string>> $bindings */
     private function getBindingsCode(array $bindings): string
     {
         $methodBinding = [];
@@ -117,9 +112,7 @@ class Code4Dependency extends Code
         return '[' . implode(', ', $methodBinding) . ']';
     }
 
-    /**
-     * @param array<string> $interceptors
-     */
+    /** @param array<string> $interceptors */
     private function getInterceptorCode(array $interceptors): string
     {
         $interceptorCode = [];
@@ -130,12 +123,9 @@ class Code4Dependency extends Code
         return implode(', ', $interceptorCode);
     }
 
-    /**
-     * @return array<string>
-     */
+    /** @return array<string> */
     public function getNewInstanceCode(): array
     {
-
         $newInstance = ($this->prop)($this->dependency, 'newInstance');
         $className = ($this->prop)($newInstance, 'class');
 
@@ -149,18 +139,20 @@ class Code4Dependency extends Code
         }
 
         $argString = implode(', ', $args);
-        $lines = [sprintf("<?php\n\$instance = new %s(%s);", $className, $argString)];
-        return $lines;
+
+        return [sprintf("<?php\n\$instance = new %s(%s);", $className, $argString)];
     }
 
-    public function getArgumentCode(Argument  $argument, string $index): string
+    public function getArgumentCode(Argument $argument, string $index): string
     {
         if (isset($this->container[$index])) {
             return sprintf('$prototype(\'%s\')', $index);
         }
-       if ($argument->isDefaultAvailable()) {
-           return var_export($argument->getDefaultValue(), true);
-       }
-       throw new Unbound($index);
+
+        if ($argument->isDefaultAvailable()) {
+            return var_export($argument->getDefaultValue(), true);
+        }
+
+        throw new Unbound($index);
     }
 }
