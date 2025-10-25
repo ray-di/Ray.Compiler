@@ -28,6 +28,7 @@ use function str_replace;
  *
  * @psalm-import-type ScriptDir from Types
  * @psalm-import-type Singletons from Types
+ * @psalm-import-type ScriptDirs from Types
  */
 final class CompiledInjector implements ScriptInjectorInterface
 {
@@ -41,7 +42,10 @@ final class CompiledInjector implements ScriptInjectorInterface
      */
     private $singletons = [];
 
-    /** @var array<ScriptDir> */
+    /**
+     * @psalm-import-type ScriptDirs from Types
+     * @var ScriptDirs
+     */
     private static $scriptDirs = [];
 
     /**
