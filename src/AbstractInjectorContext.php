@@ -9,7 +9,10 @@ use Override;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 
-/** @psalm-import-type ScriptDir from Types */
+/**
+ * @psalm-import-type ScriptDir from Types
+ * @psalm-import-type SavedSingletons from Types
+ */
 abstract class AbstractInjectorContext implements LazyModuleInterface
 {
     /**
@@ -32,7 +35,7 @@ abstract class AbstractInjectorContext implements LazyModuleInterface
     /**
      * Return array of cacheable singleton class names
      *
-     * @return array<class-string>
+     * @return SavedSingletons
      */
     public function getSavedSingleton(): array
     {

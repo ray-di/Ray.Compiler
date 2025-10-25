@@ -11,9 +11,10 @@ use function count;
 use function sprintf;
 use function str_replace;
 
+/** @psalm-import-type Scripts from Types */
 final class Scripts implements Countable
 {
-    /** @var array<string, string> */
+    /** @var Scripts */
     private $scripts = [];
 
     public function add(string $index, string $script): void

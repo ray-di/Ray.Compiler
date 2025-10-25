@@ -19,6 +19,7 @@ use function class_exists;
 /**
  * @psalm-import-type ScriptDir from Types
  * @psalm-import-type Ip from Types
+ * @psalm-import-type IpParameters from Types
  */
 final class InjectionPoint implements InjectionPointInterface
 {
@@ -80,7 +81,7 @@ final class InjectionPoint implements InjectionPointInterface
     /**
      * {@inheritDoc}
      *
-     * @return array<(object|null)>
+     * @return IpParameters
      *
      * @psalm-suppress ImplementedReturnTypeMismatch
      */
