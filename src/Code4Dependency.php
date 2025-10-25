@@ -32,9 +32,7 @@ class Code4Dependency extends Code
      */
     private $container;
 
-    /**
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     */
+    /** @SuppressWarnings("PHPMD.BooleanArgumentFlag") */
     public function __construct(Container $container, Dependency $dependency, ?IpQualifier $qualifier = null)
     {
         $this->dependency = $dependency;
@@ -53,7 +51,10 @@ class Code4Dependency extends Code
         return implode(PHP_EOL, $lines);
     }
 
-    private function addSetterCode(array &$lines)
+    /**
+     * @param array<string> $lines
+     */
+    private function addSetterCode(array &$lines): void
     {
         $newInstance = ($this->prop)($this->dependency, 'newInstance');
         // class name
@@ -81,6 +82,9 @@ class Code4Dependency extends Code
         }
     }
 
+    /**
+     * @param array<string> $lines
+     */
     private function addBindingCode(array &$lines): void
     {
         /** @var ?NewInstance */
@@ -100,6 +104,9 @@ class Code4Dependency extends Code
         $lines[] = $line;
     }
 
+    /**
+     * @param array<string, array<string>> $bindings
+     */
     private function getBindingsCode(array $bindings): string
     {
         $methodBinding = [];
@@ -110,7 +117,9 @@ class Code4Dependency extends Code
         return '[' . implode(', ', $methodBinding) . ']';
     }
 
-    /** @ */
+    /**
+     * @param array<string> $interceptors
+     */
     private function getInterceptorCode(array $interceptors): string
     {
         $interceptorCode = [];
@@ -122,9 +131,7 @@ class Code4Dependency extends Code
     }
 
     /**
-     * @param PrivateProperty $prop
-     *
-     * @return array
+     * @return array<string>
      */
     public function getNewInstanceCode(): array
     {
@@ -146,11 +153,6 @@ class Code4Dependency extends Code
         return $lines;
     }
 
-    /**
-     * @param $index
-     *
-     * @return string
-     */
     public function getArgumentCode(Argument  $argument, string $index): string
     {
         if (isset($this->container[$index])) {
