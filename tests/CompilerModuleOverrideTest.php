@@ -21,6 +21,7 @@ use Ray\Di\Scope;
 use function is_dir;
 use function mkdir;
 
+/** @requires PHP 8.0 */
 class CompilerModuleOverrideTest extends TestCase
 {
     /**
@@ -57,8 +58,6 @@ class CompilerModuleOverrideTest extends TestCase
      *
      * CompilerModule uses override() to replace bindings, but this should not
      * break MultiBinder functionality. MultiBindings should still work correctly.
-     *
-     * @requires PHP 8.0
      */
     public function testMultiBindingWithOverride(): void
     {
