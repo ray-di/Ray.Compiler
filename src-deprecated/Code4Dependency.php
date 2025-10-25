@@ -21,6 +21,7 @@ use function var_export;
 
 use const PHP_EOL;
 
+/** @deprecated */
 final class Code4Dependency extends Code
 {
     /** @var Dependency */
