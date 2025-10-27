@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.1] - 2025-10-27
+
+### Fixed
+- Remove incorrect @deprecated annotation from DiCompileModule
+
 ## [1.12.0] - 2025-10-26
 
 ### Changed
@@ -27,5 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Previous releases (prior to 1.11.0) are not documented in this changelog.
 
+[1.12.1]: https://github.com/ray-di/Ray.Compiler/compare/1.12.0...1.12.1
 [1.12.0]: https://github.com/ray-di/Ray.Compiler/compare/1.11.0...1.12.0
 [1.11.0]: https://github.com/ray-di/Ray.Compiler/releases/tag/1.11.0
