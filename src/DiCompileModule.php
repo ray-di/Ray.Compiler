@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use Override;
 use Ray\Compiler\Annotation\Compile;
 use Ray\Di\AbstractModule;
 
-/** @deprecated Use CompilerModule */
-class DiCompileModule extends AbstractModule
+final class DiCompileModule extends AbstractModule
 {
     /** @var bool */
     private $doCompile;
@@ -23,6 +23,7 @@ class DiCompileModule extends AbstractModule
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected function configure(): void
     {
         $this->bind()->annotatedWith(Compile::class)->toInstance($this->doCompile);
