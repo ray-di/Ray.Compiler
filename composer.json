@@ -12,14 +12,12 @@
     ],
     "require": {
         "php": "^7.2 || ^8.0",
-        "doctrine/annotations": "^1.8 || ^2.0",
         "doctrine/cache": "^1.10 || ^2.1",
         "koriym/attributes": "^1.0",
         "koriym/null-object": "^1.0",
-        "koriym/param-reader": "^1.0",
         "koriym/printo": "^1.0",
-        "ray/aop": "^2.14",
-        "ray/di": "^2.18",
+        "ray/aop": "php82-dev",
+        "ray/di": "php82-dev",
         "symfony/polyfill-php83": "^1.33"
     },
     "require-dev": {

@@ -22,6 +22,7 @@ class FakeLoggerConsumer
     /**
      * @FakeLoggerInject(type="MEMORY")
      */
+    #[FakeLoggerInject(type: 'MEMORY')]
     public function setLogger(FakeLoggerInterface $logger)
     {
         $this->logger = $logger;
