@@ -114,14 +114,16 @@ final class CompiledInjector implements ScriptInjectorInterface
 
         if (self::$scriptDirs === []) {
             spl_autoload_register(
+                // @codeCoverageIgnoreStart
                 static function (string $class): void {
                     foreach (self::$scriptDirs as $scriptDir) {
                         $file = sprintf('%s/%s.php', $scriptDir, str_replace('\\', '_', $class));
                         if (file_exists($file)) {
-                            require_once $file; // @codeCoverageIgnore
+                            require_once $file;
                         }
                     }
                 }
+                // @codeCoverageIgnoreEnd
             );
         }
 
