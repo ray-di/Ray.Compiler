@@ -16,8 +16,8 @@
         "koriym/attributes": "^1.0",
         "koriym/null-object": "^1.0",
         "koriym/printo": "^1.0",
-        "ray/aop": "php82-dev",
-        "ray/di": "php82-dev",
+        "ray/aop": "dev-php82",
+        "ray/di": "dev-php82",
         "symfony/polyfill-php83": "^1.33"
     },
     "require-dev": {
