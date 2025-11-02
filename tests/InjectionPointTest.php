@@ -58,4 +58,24 @@ class InjectionPointTest extends TestCase
         $qualifier = $this->injectionPoint->getQualifier();
         $this->assertNull($qualifier);
     }
+
+    public function testGetQualifierReturnsMethodLevelQualifier(): void
+    {
+        // Test with FakeLoggerConsumer which has #[FakeLoggerInject] on setLogger method
+        $injectionPoint = InjectionPoint::getInstance([FakeLoggerConsumer::class, 'setLogger', 'logger']);
+        $qualifier = $injectionPoint->getQualifier();
+
+        $this->assertInstanceOf(FakeLoggerInject::class, $qualifier);
+        $this->assertSame('MEMORY', $qualifier->type);
+    }
+
+    public function testGetQualifierReturnsParameterLevelQualifier(): void
+    {
+        // Test with FakeParameterQualifierConsumer which has #[FakeParameterQualifier] on parameter
+        $injectionPoint = InjectionPoint::getInstance([FakeParameterQualifierConsumer::class, 'setRobot', 'robot']);
+        $qualifier = $injectionPoint->getQualifier();
+
+        $this->assertInstanceOf(FakeParameterQualifier::class, $qualifier);
+        $this->assertSame('special', $qualifier->value);
+    }
 }
