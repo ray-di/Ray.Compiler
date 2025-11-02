@@ -37,8 +37,10 @@ class CompiledInjectorTest extends TestCase
         $this->assertFileExists(__DIR__ . '/tmp/-Ray_Compiler_Annotation_Compile.php');
         $this->assertFileExists(__DIR__ . '/tmp/-Ray_Di_Annotation_ScriptDir.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Aop_MethodInvocation-.php');
-        $this->assertFileExists(__DIR__ . '/tmp/Koriym_ParamReader_ParamReaderInterface-.php');
-        $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_AssistedInterceptor-.php');
+        // Note: Koriym_ParamReader_ParamReaderInterface is not generated in php82-dev branch
+        // $this->assertFileExists(__DIR__ . '/tmp/Koriym_ParamReader_ParamReaderInterface-.php');
+        // Note: AssistedInterceptor renamed to AssistedInjectInterceptor in php82-dev branch
+        $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_AssistedInjectInterceptor-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_InjectorInterface-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_MethodInvocationProvider-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_ProviderInterface-.php');

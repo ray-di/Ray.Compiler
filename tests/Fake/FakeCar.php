@@ -24,9 +24,7 @@ class FakeCar implements FakeCarInterface
     public $handle;
     public $null = false;
 
-    /**
-     * @Inject
-     */
+    #[Inject]
     public function setTires(FakeTyreInterface $frontTyre, FakeTyreInterface $rearTyre, $null = null)
     {
         $this->frontTyre = $frontTyre;
@@ -34,44 +32,34 @@ class FakeCar implements FakeCarInterface
         $this->null = $null;
     }
 
-    /**
-     * @Inject(optional=true)
-     */
+    #[Inject(optional: true)]
     public function setHardtop(FakeHardtopInterface $hardtop)
     {
         $this->hardtop = $hardtop;
     }
 
-    /**
-     * @Inject
-     * @Named("rightMirror=right,leftMirror=left")
-     */
-    public function setMirrors(FakeMirrorInterface $rightMirror, FakeMirrorInterface $leftMirror)
-    {
+    #[Inject]
+    public function setMirrors(
+        #[Named('right')] FakeMirrorInterface $rightMirror,
+        #[Named('left')] FakeMirrorInterface $leftMirror
+    ) {
         $this->rightMirror = $rightMirror;
         $this->leftMirror = $leftMirror;
     }
 
-    /**
-     * @Inject
-     * @Named("right")
-     */
-    public function setSpareMirror(FakeMirrorInterface $rightMirror)
+    #[Inject]
+    public function setSpareMirror(#[Named('right')] FakeMirrorInterface $rightMirror)
     {
         $this->spareMirror = $rightMirror;
     }
 
-    /**
-     * @Inject
-     */
+    #[Inject]
     public function setHandle(FakeHandleInterface $handle)
     {
         $this->handle = $handle;
     }
 
-    /**
-     * @Inject
-     */
+    #[Inject]
     public function setOil(FakeOilInterface $oil)
     {
         $this->oil = $oil;
@@ -86,9 +74,7 @@ class FakeCar implements FakeCarInterface
     }
 
 
-    /**
-     * @PostConstruct
-     */
+    #[PostConstruct]
     public function postConstruct()
     {
         $isEngineInstalled = $this->engine instanceof FakeEngine;

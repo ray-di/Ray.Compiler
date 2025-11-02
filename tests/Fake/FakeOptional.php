@@ -10,9 +10,7 @@ class FakeOptional
 {
     public $robot = null;
 
-    /**
-     * @Inject(optional=true)
-     */
+    #[Inject(optional: true)]
     public function setOptionalRobot(FakeRobotInterface $robot)
     {
         $this->robot = $robot;

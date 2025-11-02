@@ -54,8 +54,8 @@ final class CompiledInjector implements ScriptInjectorInterface
      * @psalm-suppress UnresolvableInclude
      * @ScriptDir
      */
-    #[ScriptDir]
-    public function __construct(string $scriptDir)
+    public function __construct(#[ScriptDir]
+    string $scriptDir)
     {
         $realPath = realpath($scriptDir);
         if ($realPath === false || ! is_dir($realPath) || ! is_readable($realPath)) {
