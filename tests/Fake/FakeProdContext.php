@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
-use Ray\Di\NullCache;
 
 final class FakeProdContext extends AbstractInjectorContext
 {
@@ -16,10 +14,5 @@ final class FakeProdContext extends AbstractInjectorContext
         $module->install(new DiCompileModule(true));
 
         return $module;
-    }
-
-    function getCache(): CacheProvider
-    {
-        return new NullCache();
     }
 }
