@@ -7,7 +7,6 @@ namespace Ray\Compiler;
 use PHPUnit\Framework\TestCase;
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
-use Ray\Di\NullCache;
 
 use function spl_object_hash;
 
@@ -21,12 +20,10 @@ class CachedFactoryTest extends TestCase
         $this->assertNotSame(spl_object_hash($injector1), spl_object_hash($injector2));
     }
 
-    public function testInstanceCachedInFileCache(): void
+    public function testInstanceWithSavedSingletons(): void
     {
         $injector1 = $this->getInjector('prod');
-        $this->assertFalse(DevCache::$wasHit);
         $injector2 = $this->getInjector('prod');
-        $this->assertFalse(DevCache::$wasHit);
         $this->assertNotSame(spl_object_hash($injector1), spl_object_hash($injector2));
         $injector2->getInstance(FakeRobotInterface::class);
     }
@@ -40,7 +37,7 @@ class CachedFactoryTest extends TestCase
                 __DIR__ . '/tmp/dev',
                 static function (): AbstractModule {
                     return new FakeToBindPrototypeModule();
-                }
+                },
             );
         }
 
@@ -53,8 +50,7 @@ class CachedFactoryTest extends TestCase
 
                 return $module;
             },
-            new DevCache(new NullCache()),
-            [FakeRobotInterface::class] // FakeRobotInterface object is cached in an injector.
+            [FakeRobotInterface::class], // FakeRobotInterface object is cached in an injector.
         );
     }
 }

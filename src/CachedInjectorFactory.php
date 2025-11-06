@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Doctrine\Common\Cache\CacheProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
-use Ray\Di\NullCache;
 
 use function assert;
 use function serialize;
@@ -23,9 +21,13 @@ final class CachedInjectorFactory
     /**
      * @param non-empty-string           $scriptDir
      * @param callable(): AbstractModule $modules
+     * @param mixed                      $cache           Deprecated parameter (no longer used)
      * @param SavedSingletons            $savedSingletons
+     *
+     * @deprecated The $cache parameter is deprecated. doctrine/cache has been abandoned.
+     *             Pass null or omit this parameter.
      */
-    public static function getInstance(string $injectorId, string $scriptDir, callable $modules, ?CacheProvider $cache = null, array $savedSingletons = []): InjectorInterface
+    public static function getInstance(string $injectorId, string $scriptDir, callable $modules, mixed $cache = null, array $savedSingletons = []): InjectorInterface
     {
         if (isset(self::$injectors[$injectorId])) {
             /** @noinspection UnserializeExploitsInspection */
@@ -35,20 +37,8 @@ final class CachedInjectorFactory
             return $injector;
         }
 
-        /** @psalm-suppress DeprecatedClass */
-        $cache = $cache ?? new NullCache();
-        $cache->setNamespace($injectorId);
-        /** @var ScriptInjectorInterface|null $cachedInjector */
-        $cachedInjector = $cache->fetch(ScriptInjectorInterface::class);
-        if ($cachedInjector instanceof ScriptInjectorInterface) {
-            return $cachedInjector; // @codeCoverageIgnore
-        }
-
+        // $cache parameter is ignored for backward compatibility
         $injector = self::getInjector($modules, $scriptDir, $savedSingletons);
-        if ($injector instanceof ScriptInjectorInterface) {
-            $cache->save(ScriptInjectorInterface::class, $injector);
-        }
-
         self::$injectors[$injectorId] = serialize($injector);
 
         return $injector;
