@@ -13,14 +13,13 @@
     "require": {
         "php": "^8.2",
         "koriym/null-object": "^1.0",
-        "koriym/printo": "^1.0",
         "ray/aop": "dev-php82",
         "ray/di": "dev-php82"
     },
     "require-dev": {
         "ext-pdo": "*",
         "bamarni/composer-bin-plugin": "^1.4",
-        "phpunit/phpunit": "^8.5.41 || ^9.5"
+        "phpunit/phpunit": "^9.5"
     },
     "config": {
         "sort-packages": true,
