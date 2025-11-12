@@ -50,17 +50,8 @@ EOT;
     {
         $dependencyInstance = new Instance([1, 2, 3]);
         $code = $dependencyInstance->accept($this->visitor);
-        $expected = <<<'EOT'
-return array (
-  0 => 1,
-  1 => 2,
-  2 => 3,
-);
-EOT;
-        $this->assertSame(
-            $this->normalizeLineEndings($expected),
-            $this->normalizeLineEndings($code)
-        );
+        $expected = "return unserialize('a:3:{i:0;i:1;i:1;i:2;i:2;i:3;}');";
+        $this->assertSame($expected, $code);
     }
 
     public function testDependencyCompile(): Container
