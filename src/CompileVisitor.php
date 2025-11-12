@@ -68,11 +68,11 @@ final class CompileVisitor implements VisitorInterface
     #[Override]
     public function visitInstance($value): string
     {
-        if ($value === null || is_scalar($value) || is_array($value)) {
+        if ($value === null || is_scalar($value)) {
             return sprintf('return %s;', var_export($value, true));
         }
 
-        assert(is_object($value), 'Invalid instance type:' . gettype($value));
+        assert(is_object($value) || is_array($value), 'Invalid instance type:' . gettype($value));
 
         return sprintf('return unserialize(\'%s\');', serialize($value));
     }
