@@ -54,6 +54,23 @@ EOT;
         $this->assertSame($expected, $code);
     }
 
+    public function testInstanceCompileArrayWithObjects(): void
+    {
+        $object = new FakeEngine();
+        $dependencyInstance = new Instance([$object, '__invoke']);
+        $code = $dependencyInstance->accept($this->visitor);
+
+        // Should use unserialize and not crash with var_export
+        $this->assertStringContainsString('return unserialize(', $code);
+
+        // Verify it can be executed and reconstructed
+        $result = eval($code);
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
+        $this->assertInstanceOf(FakeEngine::class, $result[0]);
+        $this->assertSame('__invoke', $result[1]);
+    }
+
     public function testDependencyCompile(): Container
     {
         $module = new FakeCarModule();
