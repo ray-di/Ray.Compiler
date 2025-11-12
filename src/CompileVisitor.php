@@ -68,7 +68,7 @@ final class CompileVisitor implements VisitorInterface
     #[Override]
     public function visitInstance($value): string
     {
-        if ($value === null || is_scalar($value) || is_array($value)) {
+        if ($value === null || is_scalar($value)) {
             return sprintf('return %s;', var_export($value, true));
         }
 
