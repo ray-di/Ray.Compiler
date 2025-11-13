@@ -18,6 +18,7 @@ use function array_unshift;
 use function assert;
 use function implode;
 use function is_a;
+use function is_array;
 use function is_object;
 use function is_string;
 use function serialize;
@@ -101,7 +102,7 @@ final class InstanceScript
     /** @param mixed $default */
     public function addInstanceArg($default): void
     {
-        if (is_object($default)) {
+        if (is_object($default) || is_array($default)) {
             $this->args[] = sprintf('unserialize(\'%s\')', serialize($default));
 
             return;

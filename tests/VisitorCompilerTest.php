@@ -71,6 +71,26 @@ EOT;
         $this->assertSame('__invoke', $result[1]);
     }
 
+    public function testDependencyCompileWithArrayDefaultArgs(): void
+    {
+        $module = new FakeArrayDefaultModule();
+        $container = $module->getContainer();
+        $dependency = $container->getContainer()['Ray\Compiler\FakeClassWithArrayDefault-' . Name::ANY];
+        assert($dependency instanceof AcceptInterface);
+        $code = $dependency->accept(new CompileVisitor($container));
+
+        // Should use unserialize for array default arguments
+        $this->assertStringContainsString('unserialize(', $code);
+
+        // Verify the instance is created correctly with array defaults
+        $expected = <<<'EOT'
+$instance = new \Ray\Compiler\FakeClassWithArrayDefault(unserialize('a:1:{s:3:"key";s:5:"value";}'), unserialize('a:3:{i:0;i:1;i:1;i:2;i:2;i:3;}'));
+// prototype
+return $instance;
+EOT;
+        $this->assertSame($this->normalizeLineEndings($expected), $this->normalizeLineEndings($code));
+    }
+
     public function testDependencyCompile(): Container
     {
         $module = new FakeCarModule();
