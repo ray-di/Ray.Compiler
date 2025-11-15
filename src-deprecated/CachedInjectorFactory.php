@@ -11,8 +11,13 @@ use function assert;
 use function serialize;
 use function unserialize;
 
-/** @psalm-import-type ScriptDir from Types */
-/** @psalm-import-type SavedSingletons from Types */
+/**
+ * @deprecated This class is deprecated. Use InjectorFactory directly instead.
+ *             The cache functionality has been removed as doctrine/cache is abandoned.
+ *
+ * @psalm-import-type ScriptDir from Types
+ * @psalm-import-type SavedSingletons from Types
+ */
 final class CachedInjectorFactory
 {
     /** @var array<string, string> */

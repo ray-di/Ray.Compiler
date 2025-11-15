@@ -9,6 +9,9 @@ use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 
 /**
+ * @deprecated This class is deprecated. Use InjectorFactory directly instead.
+ *             The cache functionality has been removed as doctrine/cache is abandoned.
+ *
  * @psalm-import-type ScriptDir from Types
  * @psalm-import-type SavedSingletons from Types
  */
