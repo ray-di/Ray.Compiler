@@ -15,6 +15,7 @@
     "PhpParser\\PrettyPrinter\\Standard", "PhpParser\\Node\\Name\\FullyQualified",
     "Doctrine\\Common\\Annotations\\Reader",
     "Koriym\\ParamReader\\ParamReader",
-    "Koriym\\ParamReader\\ParamReaderInterface"
+    "Koriym\\ParamReader\\ParamReaderInterface",
+    "Koriym\\Printo\\Printo"
   ]
 }
