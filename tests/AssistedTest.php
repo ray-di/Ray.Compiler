@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use Ray\Di\Exception\MethodInvocationNotAvailable;
 use Ray\Di\FakeAbstractDb;
@@ -17,7 +18,7 @@ use Ray\Di\FakeToBindModule;
 use Ray\Di\Injector;
 use Ray\Di\InjectorInterface;
 
-/** @requires PHP 8.0 */
+#[RequiresPhp('8.0')]
 class AssistedTest extends TestCase
 {
     /** @var InjectorInterface */

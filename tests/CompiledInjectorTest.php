@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Di\Exception\Unbound;
@@ -48,7 +49,7 @@ class CompiledInjectorTest extends TestCase
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Compiler_FakeCar-.php');
     }
 
-    /** @depends testCompile */
+    #[Depends('testCompile')]
     public function testGetInstance(): void
     {
         $instance = $this->injector->getInstance(FakeCarInterface::class);
@@ -88,7 +89,7 @@ class CompiledInjectorTest extends TestCase
         $injector->getInstance(FakeCar2::class);
     }
 
-    /** @depends testUnbound */
+    #[Depends('testUnbound')]
     public function testUnboundCompileLogFile(): void
     {
         $this->expectException(Unbound::class);

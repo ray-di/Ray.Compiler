@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Fake\FakeCustomInjector;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
@@ -21,7 +22,7 @@ use Ray\Di\Scope;
 use function is_dir;
 use function mkdir;
 
-/** @requires PHP 8.0 */
+#[RequiresPhp('8.0')]
 class CompilerModuleOverrideTest extends TestCase
 {
     /**

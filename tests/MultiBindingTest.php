@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use LogicException;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
 use Ray\Compiler\MultiBindings\FakeEngine;
@@ -27,7 +29,7 @@ use Ray\Di\NullModule;
 use function count;
 use function mkdir;
 
-/** @requires PHP 8.0 */
+#[RequiresPhp('8.0')]
 class MultiBindingTest extends TestCase
 {
     /** @var InjectorInterface */
@@ -53,9 +55,8 @@ class MultiBindingTest extends TestCase
 
     /**
      * @param Map<FakeEngineInterface> $map
-     *
-     * @depends testInjectMap
      */
+    #[Depends('testInjectMap')]
     public function testMapInstance(Map $map): void
     {
         $this->assertInstanceOf(FakeEngine::class, $map['one']);
@@ -64,9 +65,8 @@ class MultiBindingTest extends TestCase
 
     /**
      * @param Map<FakeEngineInterface> $map
-     *
-     * @depends testInjectMap
      */
+    #[Depends('testInjectMap')]
     public function testMapIteration(Map $map): void
     {
         $this->assertContainsOnlyInstancesOf(FakeEngineInterface::class, $map);
@@ -76,9 +76,8 @@ class MultiBindingTest extends TestCase
 
     /**
      * @param Map<FakeEngineInterface> $map
-     *
-     * @depends testInjectMap
      */
+    #[Depends('testInjectMap')]
     public function testIsSet(Map $map): void
     {
         $this->assertTrue(isset($map['one']));
@@ -87,9 +86,8 @@ class MultiBindingTest extends TestCase
 
     /**
      * @param Map<FakeEngineInterface> $map
-     *
-     * @depends testInjectMap
      */
+    #[Depends('testInjectMap')]
     public function testOffsetSet(Map $map): void
     {
         $this->expectException(LogicException::class);
@@ -98,9 +96,8 @@ class MultiBindingTest extends TestCase
 
     /**
      * @param Map<FakeEngineInterface> $map
-     *
-     * @depends testInjectMap
      */
+    #[Depends('testInjectMap')]
     public function testOffsetUnset(Map $map): void
     {
         $this->expectException(LogicException::class);

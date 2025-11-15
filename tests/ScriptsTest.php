@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
@@ -16,9 +17,8 @@ use function rmdir;
 
 /**
  * Tests for the Scripts class which manages script collection and persistence.
- *
- * @covers \Ray\Compiler\Scripts
  */
+#[CoversClass(Scripts::class)]
 class ScriptsTest extends TestCase
 {
     public function testAdd(): void

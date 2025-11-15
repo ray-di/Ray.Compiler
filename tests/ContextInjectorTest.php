@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Deep\FakeDeep;
 use Ray\Compiler\Deep\FakeDemand;
@@ -42,7 +43,7 @@ class ContextInjectorTest extends TestCase
         ];
     }
 
-    /** @dataProvider contextProvider */
+    #[DataProvider('contextProvider')]
     public function testContainerIsResetWhenTheInjectorIsRetrieved(AbstractInjectorContext $context): void
     {
         $injector = ContextInjector::getInstance($context);
