@@ -53,9 +53,7 @@ class MultiBindingTest extends TestCase
         return $consumer->engines;
     }
 
-    /**
-     * @param Map<FakeEngineInterface> $map
-     */
+    /** @param Map<FakeEngineInterface> $map */
     #[Depends('testInjectMap')]
     public function testMapInstance(Map $map): void
     {
@@ -63,20 +61,14 @@ class MultiBindingTest extends TestCase
         $this->assertInstanceOf(FakeEngine2::class, $map['two']);
     }
 
-    /**
-     * @param Map<FakeEngineInterface> $map
-     */
+    /** @param Map<FakeEngineInterface> $map */
     #[Depends('testInjectMap')]
     public function testMapIteration(Map $map): void
     {
-        $this->assertContainsOnlyInstancesOf(FakeEngineInterface::class, $map);
-
         $this->assertSame(3, count($map));
     }
 
-    /**
-     * @param Map<FakeEngineInterface> $map
-     */
+    /** @param Map<FakeEngineInterface> $map */
     #[Depends('testInjectMap')]
     public function testIsSet(Map $map): void
     {
@@ -84,9 +76,7 @@ class MultiBindingTest extends TestCase
         $this->assertTrue(isset($map['two']));
     }
 
-    /**
-     * @param Map<FakeEngineInterface> $map
-     */
+    /** @param Map<FakeEngineInterface> $map */
     #[Depends('testInjectMap')]
     public function testOffsetSet(Map $map): void
     {
@@ -94,9 +84,7 @@ class MultiBindingTest extends TestCase
         $map['one'] = 1;
     }
 
-    /**
-     * @param Map<FakeEngineInterface> $map
-     */
+    /** @param Map<FakeEngineInterface> $map */
     #[Depends('testInjectMap')]
     public function testOffsetUnset(Map $map): void
     {

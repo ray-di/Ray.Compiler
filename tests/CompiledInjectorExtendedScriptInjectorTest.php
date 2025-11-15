@@ -271,9 +271,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
         return $injector;
     }
 
-    /**
-     * @runTestsInSeparateProcesses
-     */
+    /** @runTestsInSeparateProcesses */
     #[Depends('testNullObjectCompile')]
     public function testNullObjectCompileCodeRead(InjectorInterface $injector): void
     {
