@@ -34,7 +34,7 @@ class ContextInjectorTest extends TestCase
     }
 
     /** @return array<array<AbstractInjectorContext>> */
-    public function contextProvider(): array
+    public static function contextProvider(): array
     {
         return [
             [new FakeInjectorContext(__DIR__ . '/tmp')],
