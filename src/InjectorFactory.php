@@ -27,14 +27,17 @@ final class InjectorFactory
      */
     public static function getInstance(callable $modules, string $scriptDir): InjectorInterface
     {
-        ! is_dir($scriptDir) && ! @mkdir($scriptDir) && ! is_dir($scriptDir);
+        if (! is_dir($scriptDir)) {
+            @mkdir($scriptDir);
+        }
+
         $module = $modules();
         $rayInjector = new RayInjector($module, $scriptDir);
         $isProd = false;
         try {
             /** @var bool $isProd */
             $isProd = $rayInjector->getInstance('', Compile::class);
-        } catch (Unbound $e) {
+        } catch (Unbound) {
         }
 
         if ($isProd === false) {

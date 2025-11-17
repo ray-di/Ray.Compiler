@@ -28,8 +28,7 @@ use function var_export;
 
 final class CompileVisitor implements VisitorInterface
 {
-    /** @var InstanceScript */
-    private $script;
+    private readonly InstanceScript $script;
 
     public function __construct(Container $container)
     {
@@ -93,11 +92,11 @@ final class CompileVisitor implements VisitorInterface
         ?AspectBind $bind
     ): void {
         $setterMethods->accept($this);
-        if ($arguments) {
+        if ($arguments instanceof Arguments) {
             $arguments->accept($this);
         }
 
-        if ($bind) {
+        if ($bind instanceof AspectBind) {
             $bind->accept($this);
         }
 
@@ -108,7 +107,7 @@ final class CompileVisitor implements VisitorInterface
     #[Override]
     public function visitSetterMethods(
         array $setterMethods
-    ) {
+    ): void {
         foreach ($setterMethods as $setterMethod) {
             $setterMethod->accept($this);
         }

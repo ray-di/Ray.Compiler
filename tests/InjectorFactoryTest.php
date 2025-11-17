@@ -13,9 +13,7 @@ class InjectorFactoryTest extends TestCase
     public function getInstanceRayDiInjector(): void
     {
         $injector = InjectorFactory::getInstance(
-            static function (): AbstractModule {
-                return new FakeToBindPrototypeModule();
-            },
+            static fn (): AbstractModule => new FakeToBindPrototypeModule(),
             __DIR__ . '/tmp/base'
         );
         $instance = $injector->getInstance(FakeRobotInterface::class);
@@ -42,9 +40,7 @@ class InjectorFactoryTest extends TestCase
     public function testInjectComplexModule(): void
     {
         $injector = InjectorFactory::getInstance(
-            static function (): AbstractModule {
-                return new FakeCarModule();
-            },
+            static fn (): AbstractModule => new FakeCarModule(),
             __DIR__ . '/tmp/car'
         );
         $instance = $injector->getInstance(FakeCarInterface::class);
@@ -54,9 +50,7 @@ class InjectorFactoryTest extends TestCase
     public function testInjectionPoint(): void
     {
         $injector = InjectorFactory::getInstance(
-            static function (): AbstractModule {
-                return new FakeLoggerModule();
-            },
+            static fn (): AbstractModule => new FakeLoggerModule(),
             __DIR__ . '/tmp/logger'
         );
         $instance = $injector->getInstance(FakeLoggerConsumer::class);

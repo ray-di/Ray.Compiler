@@ -22,8 +22,7 @@ class CompiledInjectorTest extends TestCase
         deleteFiles(__DIR__ . '/tmp');
     }
 
-    /** @var CompiledInjector $injector */
-    private $injector;
+    private CompiledInjector $injector;
 
     protected function setUp(): void
     {

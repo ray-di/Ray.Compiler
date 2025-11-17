@@ -14,6 +14,7 @@ use function glob;
 use function is_dir;
 use function mkdir;
 use function rmdir;
+use function unlink;
 
 /**
  * Tests for the Scripts class which manages script collection and persistence.
@@ -68,7 +69,7 @@ class ScriptsTest extends TestCase
         $this->assertStringContainsString('echo "Second Script";', $secondScriptContent);
 
         // Clean up
-        array_map('unlink', (array) glob($tempDir . '/*.php')); // @phpstan-ignore-line
+        array_map(unlink(...), (array) glob($tempDir . '/*.php')); // @phpstan-ignore-line
         rmdir($tempDir);
     }
 }

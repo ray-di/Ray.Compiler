@@ -24,13 +24,9 @@ use function count;
  */
 final class InjectionPoint implements InjectionPointInterface
 {
-    /** @var ReflectionParameter */
-    private $parameter;
-
     /** @deprecated use getInstance */
-    public function __construct(ReflectionParameter $parameter)
+    public function __construct(private readonly ReflectionParameter $parameter)
     {
-        $this->parameter = $parameter;
     }
 
     /**
@@ -58,7 +54,6 @@ final class InjectionPoint implements InjectionPointInterface
     #[Override]
     public function getMethod(): ReflectionMethod
     {
-        $this->parameter = $this->getParameter();
         $class = $this->parameter->getDeclaringClass();
         $method = $this->parameter->getDeclaringFunction()->getShortName();
         assert($class instanceof \ReflectionClass);
@@ -95,14 +90,12 @@ final class InjectionPoint implements InjectionPointInterface
     /**
      * {@inheritDoc}
      *
-     * @return object|null
-     *
      * @throws ReflectionException
      */
-    public function getQualifier()
+    public function getQualifier(): ?object
     {
         // Try method attributes first
-        $parameter = $this->getParameter();
+        $parameter = $this->parameter;
         $class = $parameter->getDeclaringClass();
         $methodName = $parameter->getDeclaringFunction()->getShortName();
         assert($class instanceof \ReflectionClass);

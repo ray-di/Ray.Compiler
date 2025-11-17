@@ -61,7 +61,7 @@ class ContextInjectorTest extends TestCase
     public function testGetOverrideInstance(): void
     {
         $overrideModule = new class extends AbstractModule {
-            protected function configure()
+            protected function configure(): void
             {
                 $this->bind(FakeRobotInterface::class)->to(FakeDevRobot::class);
             }

@@ -16,8 +16,7 @@ use function str_replace;
 
 class VisitorCompilerTest extends TestCase
 {
-    /** @var CompileVisitor  */
-    private $visitor;
+    private CompileVisitor $visitor;
 
     protected function setUp(): void
     {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use Ray\Di\Exception\MethodInvocationNotAvailable;
 use Ray\Di\FakeAbstractDb;
@@ -16,13 +15,10 @@ use Ray\Di\FakeInstanceBindModule;
 use Ray\Di\FakeRobot;
 use Ray\Di\FakeToBindModule;
 use Ray\Di\Injector;
-use Ray\Di\InjectorInterface;
 
-#[RequiresPhp('8.0')]
 class AssistedTest extends TestCase
 {
-    /** @var InjectorInterface */
-    private $injector;
+    private CompiledInjector|Injector $injector;
 
     protected function setUp(): void
     {

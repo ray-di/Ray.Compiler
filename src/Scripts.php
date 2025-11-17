@@ -15,7 +15,7 @@ use function str_replace;
 final class Scripts implements Countable
 {
     /** @var Scripts */
-    private $scripts = [];
+    private array $scripts = [];
 
     public function add(string $index, string $script): void
     {

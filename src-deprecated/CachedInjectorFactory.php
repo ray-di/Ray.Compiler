@@ -21,7 +21,7 @@ use function unserialize;
 final class CachedInjectorFactory
 {
     /** @var array<string, string> */
-    private static $injectors = [];
+    private static array $injectors = [];
 
     /**
      * @param non-empty-string           $scriptDir
@@ -70,7 +70,7 @@ final class CachedInjectorFactory
      */
     private static function getInjector(callable $modules, string $scriptDir, array $savedSingletons, ?AbstractModule $module = null): InjectorInterface
     {
-        if ($module !== null) {
+        if ($module instanceof AbstractModule) {
             $modules = new OverrideLazyModule($modules, $module);
         }
 

@@ -33,14 +33,14 @@ use function str_replace;
 final class CompiledInjector implements ScriptInjectorInterface
 {
     /** @var ScriptDir */
-    private $scriptDir;
+    private readonly string $scriptDir;
 
     /**
      * Singleton instance container
      *
      * @var Singletons
      */
-    private $singletons = [];
+    private array $singletons = [];
 
     /**
      * @psalm-import-type ScriptDirs from Types

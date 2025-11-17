@@ -6,7 +6,6 @@ namespace Ray\Compiler;
 
 use LogicException;
 use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
 use Ray\Compiler\MultiBindings\FakeEngine;
@@ -20,7 +19,6 @@ use Ray\Compiler\MultiBindings\FakeSetNotFoundWithMap;
 use Ray\Compiler\MultiBindings\FakeSetNotFoundWithProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\Exception\SetNotFound;
-use Ray\Di\InjectorInterface;
 use Ray\Di\MultiBinder;
 use Ray\Di\MultiBinding\Map;
 use Ray\Di\MultiBinding\MultiBindings;
@@ -29,11 +27,9 @@ use Ray\Di\NullModule;
 use function count;
 use function mkdir;
 
-#[RequiresPhp('8.0')]
 class MultiBindingTest extends TestCase
 {
-    /** @var InjectorInterface */
-    private $injector;
+    private CompiledInjector $injector;
 
     protected function setUp(): void
     {
@@ -65,6 +61,8 @@ class MultiBindingTest extends TestCase
     #[Depends('testInjectMap')]
     public function testMapIteration(Map $map): void
     {
+        $this->assertContainsOnlyInstancesOf(FakeEngineInterface::class, $map); // @phpstan-ignore-line
+
         $this->assertSame(3, count($map));
     }
 
@@ -108,7 +106,7 @@ class MultiBindingTest extends TestCase
         $binder->addBinding('one')->to(FakeEngine::class);
         $binder->addBinding('two')->to(FakeEngine2::class);
         $module->install(new class extends AbstractModule {
-            protected function configure()
+            protected function configure(): void
             {
                 $binder = MultiBinder::newInstance($this, FakeEngineInterface::class);
                 $binder->addBinding('three')->to(FakeEngine::class);

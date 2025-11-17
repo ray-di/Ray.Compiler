@@ -35,9 +35,7 @@ class CachedFactoryTest extends TestCase
             return CachedInjectorFactory::getInstance(
                 'dev',
                 __DIR__ . '/tmp/dev',
-                static function (): AbstractModule {
-                    return new FakeToBindPrototypeModule();
-                },
+                static fn (): AbstractModule => new FakeToBindPrototypeModule(),
             );
         }
 

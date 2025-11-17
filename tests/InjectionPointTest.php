@@ -11,11 +11,8 @@ use ReflectionParameter;
 
 class InjectionPointTest extends TestCase
 {
-    /** @var InjectionPoint  */
-    private $injectionPoint;
-
-    /** @var ReflectionParameter */
-    private $parameter;
+    private InjectionPoint $injectionPoint;
+    private ReflectionParameter $parameter;
 
     protected function setUp(): void
     {
