@@ -30,7 +30,9 @@ final class InjectorFactory
     public static function getInstance(callable $modules, string $scriptDir): InjectorInterface
     {
         if (! is_dir($scriptDir) && ! mkdir($scriptDir, 0777, true)) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException(sprintf('Failed to create script directory: %s', $scriptDir));
+            // @codeCoverageIgnoreEnd
         }
 
         $module = $modules();
