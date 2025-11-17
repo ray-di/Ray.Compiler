@@ -13,11 +13,11 @@
     "require": {
         "php": "^8.2",
         "koriym/null-object": "^1.0",
-        "ray/aop": "dev-php82",
-        "ray/di": "dev-php82"
+        "ray/aop": "^2.18"
     },
     "require-dev": {
         "ext-pdo": "*",
+        "ray/di": "^2.19",
         "bamarni/composer-bin-plugin": "^1.4",
         "phpunit/phpunit": "^9.5"
     },
