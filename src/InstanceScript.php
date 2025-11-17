@@ -146,7 +146,7 @@ final class InstanceScript
         $this->formerLines[] = sprintf('$instance->bindings = [%s    %s%s];', PHP_EOL, implode(', ' . PHP_EOL . '    ', $interceptors), PHP_EOL);
     }
 
-    public function getScript(?string $postConstruct, bool $isSingleton): string
+    public function getScript(string|null $postConstruct, bool $isSingleton): string
     {
         if (is_string($postConstruct)) {
             $this->laterLines[] = sprintf('$instance->%s();', $postConstruct);

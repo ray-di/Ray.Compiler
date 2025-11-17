@@ -55,7 +55,7 @@ final class CompiledInjector implements ScriptInjectorInterface
      * @ScriptDir
      */
     public function __construct(#[ScriptDir]
-    string $scriptDir)
+    string $scriptDir,)
     {
         $realPath = realpath($scriptDir);
         if ($realPath === false || ! is_dir($realPath) || ! is_readable($realPath)) {
@@ -122,7 +122,7 @@ final class CompiledInjector implements ScriptInjectorInterface
                             require_once $file;
                         }
                     }
-                }
+                },
                 // @codeCoverageIgnoreEnd
             );
         }

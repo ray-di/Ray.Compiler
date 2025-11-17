@@ -15,7 +15,6 @@ use ReflectionParameter;
 
 use function assert;
 use function class_exists;
-use function count;
 
 /**
  * @psalm-import-type ScriptDir from Types
@@ -92,7 +91,7 @@ final class InjectionPoint implements InjectionPointInterface
      *
      * @throws ReflectionException
      */
-    public function getQualifier(): ?object
+    public function getQualifier(): object|null
     {
         // Try method attributes first
         $parameter = $this->parameter;

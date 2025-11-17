@@ -6,6 +6,8 @@ namespace Ray\Compiler;
 
 use PHPUnit\Framework\TestCase;
 
+use function file_get_contents;
+
 class FilePutContentsTest extends TestCase
 {
     public function testInvoke(): void

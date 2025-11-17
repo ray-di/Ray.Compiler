@@ -14,7 +14,7 @@ class InjectorFactoryTest extends TestCase
     {
         $injector = InjectorFactory::getInstance(
             static fn (): AbstractModule => new FakeToBindPrototypeModule(),
-            __DIR__ . '/tmp/base'
+            __DIR__ . '/tmp/base',
         );
         $instance = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobot::class, $instance);
@@ -30,7 +30,7 @@ class InjectorFactoryTest extends TestCase
 
                 return $module;
             },
-            __DIR__ . '/tmp/base'
+            __DIR__ . '/tmp/base',
         );
         $instance = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobot::class, $instance);
@@ -41,7 +41,7 @@ class InjectorFactoryTest extends TestCase
     {
         $injector = InjectorFactory::getInstance(
             static fn (): AbstractModule => new FakeCarModule(),
-            __DIR__ . '/tmp/car'
+            __DIR__ . '/tmp/car',
         );
         $instance = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $instance);
@@ -51,7 +51,7 @@ class InjectorFactoryTest extends TestCase
     {
         $injector = InjectorFactory::getInstance(
             static fn (): AbstractModule => new FakeLoggerModule(),
-            __DIR__ . '/tmp/logger'
+            __DIR__ . '/tmp/logger',
         );
         $instance = $injector->getInstance(FakeLoggerConsumer::class);
         $this->assertInstanceOf(FakeLoggerConsumer::class, $instance);
@@ -62,7 +62,7 @@ class InjectorFactoryTest extends TestCase
         $lazyModule = new FakeAopLazyModule();
         $injector = InjectorFactory::getInstance(
             $lazyModule,
-            __DIR__ . '/tmp/lazy'
+            __DIR__ . '/tmp/lazy',
         );
         $instance = $injector->getInstance(FakeAopInterface::class);
         $this->assertInstanceOf(FakeAopInterface::class, $instance);

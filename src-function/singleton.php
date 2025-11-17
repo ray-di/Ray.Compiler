@@ -23,7 +23,7 @@ use const DIRECTORY_SEPARATOR;
  *
  * @throws ScriptFileNotFound Thrown if the specified script file could not be located.
  */
-function singleton(string $scriptDir, array &$singletons, string $dependencyIndex, string $filePath, ?array $ip = null)
+function singleton(string $scriptDir, array &$singletons, string $dependencyIndex, string $filePath, array|null $ip = null)
 {
     // Get singleton when called from this singeleton function
     if (isset($singletons[$dependencyIndex])) {

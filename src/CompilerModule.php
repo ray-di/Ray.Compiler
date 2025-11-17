@@ -15,7 +15,7 @@ use function sprintf;
 
 final class CompilerModule extends AbstractModule
 {
-    public function __construct(private readonly string $scriptDir, ?AbstractModule $module = null)
+    public function __construct(private readonly string $scriptDir, AbstractModule|null $module = null)
     {
         parent::__construct($module);
     }

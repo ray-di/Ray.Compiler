@@ -112,7 +112,7 @@ return $instance;
 EOT;
         $this->assertSame(
             $this->normalizeLineEndings($expected),
-            $this->normalizeLineEndings($code)
+            $this->normalizeLineEndings($code),
         );
 
         return $container;
@@ -132,7 +132,7 @@ return $instance;
 EOT;
         $this->assertSame(
             $this->normalizeLineEndings($expected),
-            $this->normalizeLineEndings((string) $code)
+            $this->normalizeLineEndings((string) $code),
         );
     }
 
@@ -178,7 +178,7 @@ return $instance;
 EOT;
         $this->assertSame(
             $this->normalizeLineEndings($expected),
-            $this->normalizeLineEndings((string) $code)
+            $this->normalizeLineEndings((string) $code),
         );
     }
 
