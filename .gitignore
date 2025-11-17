@@ -6,6 +6,7 @@ build
 /composer.lock
 /.phpcs-cache
 .phpunit.result.cache
+.phpunit.cache/
 /coverage.xml
 *.bak
 .claude
