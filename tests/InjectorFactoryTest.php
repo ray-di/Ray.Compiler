@@ -56,4 +56,16 @@ class InjectorFactoryTest extends TestCase
         $instance = $injector->getInstance(FakeLoggerConsumer::class);
         $this->assertInstanceOf(FakeLoggerConsumer::class, $instance);
     }
+
+    public function testLazyModule(): void
+    {
+        $lazyModule = new FakeAopLazyModule();
+        $injector = InjectorFactory::getInstance(
+            $lazyModule,
+            __DIR__ . '/tmp/lazy'
+        );
+        $instance = $injector->getInstance(FakeAopInterface::class);
+        $this->assertInstanceOf(FakeAopInterface::class, $instance);
+        $this->assertInstanceOf(CompiledInjector::class, $injector);
+    }
 }
