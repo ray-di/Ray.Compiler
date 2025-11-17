@@ -10,9 +10,11 @@ use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\Exception\Unbound;
 use Ray\Di\Injector as RayInjector;
 use Ray\Di\InjectorInterface;
+use RuntimeException;
 
 use function is_dir;
 use function mkdir;
+use function sprintf;
 
 /**
  * @psalm-immutable
@@ -27,8 +29,8 @@ final class InjectorFactory
      */
     public static function getInstance(callable $modules, string $scriptDir): InjectorInterface
     {
-        if (! is_dir($scriptDir)) {
-            @mkdir($scriptDir);
+        if (! is_dir($scriptDir) && ! mkdir($scriptDir, 0777, true)) {
+            throw new RuntimeException(sprintf('Failed to create script directory: %s', $scriptDir));
         }
 
         $module = $modules();
