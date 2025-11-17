@@ -134,6 +134,6 @@ final class InjectionPoint implements InjectionPointInterface
         $reflectionClass = new \ReflectionClass($attributeClass);
         $classAttributes = $reflectionClass->getAttributes(Qualifier::class);
 
-        return count($classAttributes) > 0;
+        return $classAttributes !== [];
     }
 }
