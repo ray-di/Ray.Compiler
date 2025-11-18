@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2025-11-18
+
+### Changed
+- Require PHP 8.2+ (drop PHP 7.x support) [#129]
+- Remove deprecated Doctrine annotations
+
+### Added
+- Add demo for Ray.Compiler usage [#130]
+
+### Removed
+- Remove unused exception classes
+
 ## [1.12.3] - 2025-11-13
 
 ### Fixed
@@ -44,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Previous releases (prior to 1.11.0) are not documented in this changelog.
 
+[1.13.0]: https://github.com/ray-di/Ray.Compiler/compare/1.12.3...1.13.0
 [1.12.3]: https://github.com/ray-di/Ray.Compiler/compare/1.12.2...1.12.3
 [1.12.2]: https://github.com/ray-di/Ray.Compiler/compare/1.12.1...1.12.2
 [1.12.1]: https://github.com/ray-di/Ray.Compiler/compare/1.12.0...1.12.1
