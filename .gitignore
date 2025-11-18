@@ -10,3 +10,4 @@ build
 /coverage.xml
 *.bak
 .claude
+/demo/.compiled
