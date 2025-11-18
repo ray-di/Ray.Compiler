@@ -39,6 +39,7 @@
     "autoload-dev": {
         "psr-4": {
             "Ray\\Compiler\\": ["tests", "tests/Fake"],
+            "Ray\\Compiler\\Demo\\": "demo",
             "Ray\\Di\\": "tests/Fake/Assisted"
         },
         "files": ["tests/deleteFiles.php"]
