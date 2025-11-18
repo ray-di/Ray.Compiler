@@ -35,22 +35,18 @@ final class InstanceScript
     public const COMMENT = '// prototype';
 
     /** @var array<mixed> */
-    private $args = [];
+    private array $args = [];
 
     /** @var array<string> */
-    private $formerLines = []; // Constructor injection and AOP
+    private array $formerLines = []; // Constructor injection and AOP
 
     /** @var array<string> */
-    private $laterLines = [];  // Setter injection and postConstruct
-
-    /** @var string */
-    private $context = '';
-
-    /** @var bool */
-    private $implementsSetContext = false;
+    private array $laterLines = [];  // Setter injection and postConstruct
+    private string $context = '';
+    private bool $implementsSetContext = false;
 
     /** @var array<DependencyInterface> */
-    private $container;
+    private array $container;
 
     public function __construct(Container $container)
     {
@@ -150,7 +146,7 @@ final class InstanceScript
         $this->formerLines[] = sprintf('$instance->bindings = [%s    %s%s];', PHP_EOL, implode(', ' . PHP_EOL . '    ', $interceptors), PHP_EOL);
     }
 
-    public function getScript(?string $postConstruct, bool $isSingleton): string
+    public function getScript(string|null $postConstruct, bool $isSingleton): string
     {
         if (is_string($postConstruct)) {
             $this->laterLines[] = sprintf('$instance->%s();', $postConstruct);

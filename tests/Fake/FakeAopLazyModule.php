@@ -10,6 +10,9 @@ final class FakeAopLazyModule implements LazyModuleInterface
 {
     public function __invoke(): AbstractModule
     {
-        return new FakeAopModule();
+        $module = new FakeAopModule();
+        $module->install(new FakeProdModule());
+
+        return $module;
     }
 }

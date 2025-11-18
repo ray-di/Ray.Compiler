@@ -10,13 +10,8 @@ use Ray\Di\AbstractModule;
 
 final class DiCompileModule extends AbstractModule
 {
-    /** @var bool */
-    private $doCompile;
-
-    public function __construct(bool $doCompile, ?AbstractModule $module = null)
+    public function __construct(private readonly bool $doCompile, AbstractModule|null $module = null)
     {
-        $this->doCompile = $doCompile;
-
         parent::__construct($module);
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Di\Exception\Unbound;
@@ -21,8 +22,7 @@ class CompiledInjectorTest extends TestCase
         deleteFiles(__DIR__ . '/tmp');
     }
 
-    /** @var CompiledInjector $injector */
-    private $injector;
+    private CompiledInjector $injector;
 
     protected function setUp(): void
     {
@@ -37,8 +37,10 @@ class CompiledInjectorTest extends TestCase
         $this->assertFileExists(__DIR__ . '/tmp/-Ray_Compiler_Annotation_Compile.php');
         $this->assertFileExists(__DIR__ . '/tmp/-Ray_Di_Annotation_ScriptDir.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Aop_MethodInvocation-.php');
-        $this->assertFileExists(__DIR__ . '/tmp/Koriym_ParamReader_ParamReaderInterface-.php');
-        $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_AssistedInterceptor-.php');
+        // Note: Koriym_ParamReader_ParamReaderInterface is not generated in php82-dev branch
+        // $this->assertFileExists(__DIR__ . '/tmp/Koriym_ParamReader_ParamReaderInterface-.php');
+        // Note: AssistedInterceptor renamed to AssistedInjectInterceptor in php82-dev branch
+        $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_AssistedInjectInterceptor-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_InjectorInterface-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_MethodInvocationProvider-.php');
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Di_ProviderInterface-.php');
@@ -46,7 +48,7 @@ class CompiledInjectorTest extends TestCase
         $this->assertFileExists(__DIR__ . '/tmp/Ray_Compiler_FakeCar-.php');
     }
 
-    /** @depends testCompile */
+    #[Depends('testCompile')]
     public function testGetInstance(): void
     {
         $instance = $this->injector->getInstance(FakeCarInterface::class);
@@ -86,7 +88,7 @@ class CompiledInjectorTest extends TestCase
         $injector->getInstance(FakeCar2::class);
     }
 
-    /** @depends testUnbound */
+    #[Depends('testUnbound')]
     public function testUnboundCompileLogFile(): void
     {
         $this->expectException(Unbound::class);

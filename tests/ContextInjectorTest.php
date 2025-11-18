@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Deep\FakeDeep;
 use Ray\Compiler\Deep\FakeDemand;
@@ -34,7 +35,7 @@ class ContextInjectorTest extends TestCase
     }
 
     /** @return array<array<AbstractInjectorContext>> */
-    public function contextProvider(): array
+    public static function contextProvider(): array
     {
         return [
             [new FakeInjectorContext(__DIR__ . '/tmp')],
@@ -42,7 +43,7 @@ class ContextInjectorTest extends TestCase
         ];
     }
 
-    /** @dataProvider contextProvider */
+    #[DataProvider('contextProvider')]
     public function testContainerIsResetWhenTheInjectorIsRetrieved(AbstractInjectorContext $context): void
     {
         $injector = ContextInjector::getInstance($context);
@@ -60,7 +61,7 @@ class ContextInjectorTest extends TestCase
     public function testGetOverrideInstance(): void
     {
         $overrideModule = new class extends AbstractModule {
-            protected function configure()
+            protected function configure(): void
             {
                 $this->bind(FakeRobotInterface::class)->to(FakeDevRobot::class);
             }

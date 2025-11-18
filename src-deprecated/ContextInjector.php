@@ -7,19 +7,23 @@ namespace Ray\Compiler;
 use Ray\Di\AbstractModule;
 use Ray\Di\InjectorInterface;
 
-use function get_class;
-
-/** @psalm-immutable */
+/**
+ * @deprecated This class is deprecated. Use InjectorFactory directly instead.
+ *             The cache functionality has been removed as doctrine/cache is abandoned.
+ *
+ * @psalm-immutable
+ */
 final class ContextInjector
 {
     public static function getInstance(AbstractInjectorContext $injectorContext): InjectorInterface
     {
+        /** @psalm-suppress DeprecatedMethod */
         return CachedInjectorFactory::getInstance(
-            get_class($injectorContext),
+            $injectorContext::class,
             $injectorContext->tmpDir,
             $injectorContext,
             $injectorContext->getCache(),
-            $injectorContext->getSavedSingleton()
+            $injectorContext->getSavedSingleton(),
         );
     }
 

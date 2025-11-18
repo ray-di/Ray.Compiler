@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Doctrine\Common\Cache\CacheProvider;
 use Override;
 use Ray\Di\AbstractModule;
 use Ray\Di\Annotation\ScriptDir;
 
 /**
+ * @deprecated This class is deprecated. Use InjectorFactory directly instead.
+ *             The cache functionality has been removed as doctrine/cache is abandoned.
+ *
  * @psalm-import-type ScriptDir from Types
  * @psalm-import-type SavedSingletons from Types
  */
@@ -30,7 +32,18 @@ abstract class AbstractInjectorContext implements LazyModuleInterface
     #[Override]
     abstract public function __invoke(): AbstractModule;
 
-    abstract public function getCache(): CacheProvider;
+    /**
+     * Returns cache provider
+     *
+     * @return null Always returns null
+     *
+     * @deprecated Cache functionality has been removed because doctrine/cache is abandoned.
+     *             See: https://github.com/doctrine/cache
+     */
+    public function getCache()
+    {
+        return null;
+    }
 
     /**
      * Return array of cacheable singleton class names

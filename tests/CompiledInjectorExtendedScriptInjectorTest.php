@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Ray\Aop\WeavedInterface;
 use Ray\Di\AbstractModule;
@@ -32,7 +33,7 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
         return $car;
     }
 
-    /** @depends testGetInstance */
+    #[Depends('testGetInstance')]
     public function testDefaultValueInjected(FakeCar $car): void
     {
         $this->assertNull($car->null);
@@ -270,10 +271,8 @@ class CompiledInjectorExtendedScriptInjectorTest extends TestCase
         return $injector;
     }
 
-    /**
-     * @runTestsInSeparateProcesses
-     * @depends testNullObjectCompile
-     */
+    /** @runTestsInSeparateProcesses */
+    #[Depends('testNullObjectCompile')]
     public function testNullObjectCompileCodeRead(InjectorInterface $injector): void
     {
         $instance = $injector->getInstance(FakeTyreInterface::class);

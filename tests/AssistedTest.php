@@ -15,13 +15,10 @@ use Ray\Di\FakeInstanceBindModule;
 use Ray\Di\FakeRobot;
 use Ray\Di\FakeToBindModule;
 use Ray\Di\Injector;
-use Ray\Di\InjectorInterface;
 
-/** @requires PHP 8.0 */
 class AssistedTest extends TestCase
 {
-    /** @var InjectorInterface */
-    private $injector;
+    private CompiledInjector|Injector $injector;
 
     protected function setUp(): void
     {

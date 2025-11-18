@@ -12,6 +12,10 @@
     "PhpParser\\Node\\Expr\\PropertyFetch", "PhpParser\\Node\\Expr\\Variable", "PhpParser\\Node\\Name",
     "PhpParser\\Node\\FullyQualified", "PhpParser\\Node\\Scalar\\DNumber", "PhpParser\\Node\\Scalar\\LNumber",
     "PhpParser\\Node\\Scalar\\String_", "PhpParser\\Node\\Stmt\\Return_", "PhpParser\\ParserFactory",
-    "PhpParser\\PrettyPrinter\\Standard", "PhpParser\\Node\\Name\\FullyQualified"
+    "PhpParser\\PrettyPrinter\\Standard", "PhpParser\\Node\\Name\\FullyQualified",
+    "Doctrine\\Common\\Annotations\\Reader",
+    "Koriym\\ParamReader\\ParamReader",
+    "Koriym\\ParamReader\\ParamReaderInterface",
+    "Koriym\\Printo\\Printo"
   ]
 }

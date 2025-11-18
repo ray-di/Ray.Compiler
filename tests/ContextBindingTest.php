@@ -8,8 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 final class ContextBindingTest extends TestCase
 {
-    /** @var CompiledInjector  */
-    private $injector;
+    private CompiledInjector $injector;
 
     public function setUp(): void
     {
@@ -19,14 +18,12 @@ final class ContextBindingTest extends TestCase
         $this->injector = new CompiledInjector($scriptDir);
     }
 
-    /** @requires PHP >= 7.4 */
     public function testContextBindingWhenContextIsEmptyAndPropertyHasType(): void
     {
         $instance = $this->injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobotInterface::class, $instance);
     }
 
-    /** @requires PHP >= 7.4 */
     public function testContextBindingWhenContextIsEmpty(): void
     {
         $instance = $this->injector->getInstance(FakeRobotInterface::class);

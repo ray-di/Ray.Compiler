@@ -33,14 +33,14 @@ use function str_replace;
 final class CompiledInjector implements ScriptInjectorInterface
 {
     /** @var ScriptDir */
-    private $scriptDir;
+    private readonly string $scriptDir;
 
     /**
      * Singleton instance container
      *
      * @var Singletons
      */
-    private $singletons = [];
+    private array $singletons = [];
 
     /**
      * @psalm-import-type ScriptDirs from Types
@@ -54,8 +54,8 @@ final class CompiledInjector implements ScriptInjectorInterface
      * @psalm-suppress UnresolvableInclude
      * @ScriptDir
      */
-    #[ScriptDir]
-    public function __construct(string $scriptDir)
+    public function __construct(#[ScriptDir]
+    string $scriptDir,)
     {
         $realPath = realpath($scriptDir);
         if ($realPath === false || ! is_dir($realPath) || ! is_readable($realPath)) {
@@ -114,14 +114,16 @@ final class CompiledInjector implements ScriptInjectorInterface
 
         if (self::$scriptDirs === []) {
             spl_autoload_register(
+                // @codeCoverageIgnoreStart
                 static function (string $class): void {
                     foreach (self::$scriptDirs as $scriptDir) {
                         $file = sprintf('%s/%s.php', $scriptDir, str_replace('\\', '_', $class));
                         if (file_exists($file)) {
-                            require_once $file; // @codeCoverageIgnore
+                            require_once $file;
                         }
                     }
-                }
+                },
+                // @codeCoverageIgnoreEnd
             );
         }
 

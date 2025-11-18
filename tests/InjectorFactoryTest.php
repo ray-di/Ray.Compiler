@@ -13,10 +13,8 @@ class InjectorFactoryTest extends TestCase
     public function getInstanceRayDiInjector(): void
     {
         $injector = InjectorFactory::getInstance(
-            static function (): AbstractModule {
-                return new FakeToBindPrototypeModule();
-            },
-            __DIR__ . '/tmp/base'
+            static fn (): AbstractModule => new FakeToBindPrototypeModule(),
+            __DIR__ . '/tmp/base',
         );
         $instance = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobot::class, $instance);
@@ -32,7 +30,7 @@ class InjectorFactoryTest extends TestCase
 
                 return $module;
             },
-            __DIR__ . '/tmp/base'
+            __DIR__ . '/tmp/base',
         );
         $instance = $injector->getInstance(FakeRobotInterface::class);
         $this->assertInstanceOf(FakeRobot::class, $instance);
@@ -42,10 +40,8 @@ class InjectorFactoryTest extends TestCase
     public function testInjectComplexModule(): void
     {
         $injector = InjectorFactory::getInstance(
-            static function (): AbstractModule {
-                return new FakeCarModule();
-            },
-            __DIR__ . '/tmp/car'
+            static fn (): AbstractModule => new FakeCarModule(),
+            __DIR__ . '/tmp/car',
         );
         $instance = $injector->getInstance(FakeCarInterface::class);
         $this->assertInstanceOf(FakeCar::class, $instance);
@@ -54,12 +50,22 @@ class InjectorFactoryTest extends TestCase
     public function testInjectionPoint(): void
     {
         $injector = InjectorFactory::getInstance(
-            static function (): AbstractModule {
-                return new FakeLoggerModule();
-            },
-            __DIR__ . '/tmp/logger'
+            static fn (): AbstractModule => new FakeLoggerModule(),
+            __DIR__ . '/tmp/logger',
         );
         $instance = $injector->getInstance(FakeLoggerConsumer::class);
         $this->assertInstanceOf(FakeLoggerConsumer::class, $instance);
+    }
+
+    public function testLazyModule(): void
+    {
+        $lazyModule = new FakeAopLazyModule();
+        $injector = InjectorFactory::getInstance(
+            $lazyModule,
+            __DIR__ . '/tmp/lazy',
+        );
+        $instance = $injector->getInstance(FakeAopInterface::class);
+        $this->assertInstanceOf(FakeAopInterface::class, $instance);
+        $this->assertInstanceOf(CompiledInjector::class, $injector);
     }
 }

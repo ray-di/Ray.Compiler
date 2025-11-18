@@ -10,23 +10,9 @@ use Ray\Di\MultiBinding\Map;
 
 final class FakeMultiBindingAnnotation
 {
-    /**
-     * @var Map<FakeEngineInterface>
-     * @Set(FakeEngineInterface::class)
-     */
-    public $engines;
-
-    /**
-     * @var Map<FakeRobotInterface>
-     * @Set(FakeRobotInterface::class)
-     */
-    public $robots;
-
     public function __construct(
-        Map $engines,
-        Map $robots
+        #[Set(FakeEngineInterface::class)] public Map $engines,
+        #[Set(FakeRobotInterface::class)] public Map $robots
     ){
-        $this->engines = $engines;
-        $this->robots = $robots;
     }
 }

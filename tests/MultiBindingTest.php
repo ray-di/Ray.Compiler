@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use LogicException;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
 use Ray\Compiler\MultiBindings\FakeEngine;
@@ -18,7 +19,6 @@ use Ray\Compiler\MultiBindings\FakeSetNotFoundWithMap;
 use Ray\Compiler\MultiBindings\FakeSetNotFoundWithProvider;
 use Ray\Di\AbstractModule;
 use Ray\Di\Exception\SetNotFound;
-use Ray\Di\InjectorInterface;
 use Ray\Di\MultiBinder;
 use Ray\Di\MultiBinding\Map;
 use Ray\Di\MultiBinding\MultiBindings;
@@ -27,11 +27,9 @@ use Ray\Di\NullModule;
 use function count;
 use function mkdir;
 
-/** @requires PHP 8.0 */
 class MultiBindingTest extends TestCase
 {
-    /** @var InjectorInterface */
-    private $injector;
+    private CompiledInjector $injector;
 
     protected function setUp(): void
     {
@@ -51,56 +49,41 @@ class MultiBindingTest extends TestCase
         return $consumer->engines;
     }
 
-    /**
-     * @param Map<FakeEngineInterface> $map
-     *
-     * @depends testInjectMap
-     */
+    /** @param Map<FakeEngineInterface> $map */
+    #[Depends('testInjectMap')]
     public function testMapInstance(Map $map): void
     {
         $this->assertInstanceOf(FakeEngine::class, $map['one']);
         $this->assertInstanceOf(FakeEngine2::class, $map['two']);
     }
 
-    /**
-     * @param Map<FakeEngineInterface> $map
-     *
-     * @depends testInjectMap
-     */
+    /** @param Map<FakeEngineInterface> $map */
+    #[Depends('testInjectMap')]
     public function testMapIteration(Map $map): void
     {
-        $this->assertContainsOnlyInstancesOf(FakeEngineInterface::class, $map);
+        $this->assertContainsOnlyInstancesOf(FakeEngineInterface::class, $map); // @phpstan-ignore-line
 
         $this->assertSame(3, count($map));
     }
 
-    /**
-     * @param Map<FakeEngineInterface> $map
-     *
-     * @depends testInjectMap
-     */
+    /** @param Map<FakeEngineInterface> $map */
+    #[Depends('testInjectMap')]
     public function testIsSet(Map $map): void
     {
         $this->assertTrue(isset($map['one']));
         $this->assertTrue(isset($map['two']));
     }
 
-    /**
-     * @param Map<FakeEngineInterface> $map
-     *
-     * @depends testInjectMap
-     */
+    /** @param Map<FakeEngineInterface> $map */
+    #[Depends('testInjectMap')]
     public function testOffsetSet(Map $map): void
     {
         $this->expectException(LogicException::class);
         $map['one'] = 1;
     }
 
-    /**
-     * @param Map<FakeEngineInterface> $map
-     *
-     * @depends testInjectMap
-     */
+    /** @param Map<FakeEngineInterface> $map */
+    #[Depends('testInjectMap')]
     public function testOffsetUnset(Map $map): void
     {
         $this->expectException(LogicException::class);
@@ -123,7 +106,7 @@ class MultiBindingTest extends TestCase
         $binder->addBinding('one')->to(FakeEngine::class);
         $binder->addBinding('two')->to(FakeEngine2::class);
         $module->install(new class extends AbstractModule {
-            protected function configure()
+            protected function configure(): void
             {
                 $binder = MultiBinder::newInstance($this, FakeEngineInterface::class);
                 $binder->addBinding('three')->to(FakeEngine::class);

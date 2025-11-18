@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
@@ -13,12 +14,12 @@ use function glob;
 use function is_dir;
 use function mkdir;
 use function rmdir;
+use function unlink;
 
 /**
  * Tests for the Scripts class which manages script collection and persistence.
- *
- * @covers \Ray\Compiler\Scripts
  */
+#[CoversClass(Scripts::class)]
 class ScriptsTest extends TestCase
 {
     public function testAdd(): void
@@ -68,7 +69,7 @@ class ScriptsTest extends TestCase
         $this->assertStringContainsString('echo "Second Script";', $secondScriptContent);
 
         // Clean up
-        array_map('unlink', (array) glob($tempDir . '/*.php')); // @phpstan-ignore-line
+        array_map(unlink(...), (array) glob($tempDir . '/*.php')); // @phpstan-ignore-line
         rmdir($tempDir);
     }
 }

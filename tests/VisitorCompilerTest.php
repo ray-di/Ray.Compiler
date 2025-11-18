@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Ray\Di\AcceptInterface;
 use Ray\Di\Container;
@@ -15,8 +16,7 @@ use function str_replace;
 
 class VisitorCompilerTest extends TestCase
 {
-    /** @var CompileVisitor  */
-    private $visitor;
+    private CompileVisitor $visitor;
 
     protected function setUp(): void
     {
@@ -112,13 +112,13 @@ return $instance;
 EOT;
         $this->assertSame(
             $this->normalizeLineEndings($expected),
-            $this->normalizeLineEndings($code)
+            $this->normalizeLineEndings($code),
         );
 
         return $container;
     }
 
-    /** @depends testDependencyCompile */
+    #[Depends('testDependencyCompile')]
     public function testDependencyProviderCompile(Container $container): void
     {
         $dependency = $container->getContainer()['Ray\Compiler\FakeHandleInterface-' . Name::ANY];
@@ -132,11 +132,11 @@ return $instance;
 EOT;
         $this->assertSame(
             $this->normalizeLineEndings($expected),
-            $this->normalizeLineEndings((string) $code)
+            $this->normalizeLineEndings((string) $code),
         );
     }
 
-    /** @depends testDependencyCompile */
+    #[Depends('testDependencyCompile')]
     public function testDependencyInstanceCompile(Container $container): void
     {
         $dependency = $container->getContainer()['-logo'];
@@ -148,7 +148,7 @@ EOT;
         $this->assertSame($expected, $code);
     }
 
-    /** @depends testDependencyCompile */
+    #[Depends('testDependencyCompile')]
     public function testDependencyObjectInstanceCompile(Container $container): void
     {
         $dependency = new Instance(new FakeEngine());
@@ -178,7 +178,7 @@ return $instance;
 EOT;
         $this->assertSame(
             $this->normalizeLineEndings($expected),
-            $this->normalizeLineEndings((string) $code)
+            $this->normalizeLineEndings((string) $code),
         );
     }
 

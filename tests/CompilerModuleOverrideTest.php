@@ -21,7 +21,6 @@ use Ray\Di\Scope;
 use function is_dir;
 use function mkdir;
 
-/** @requires PHP 8.0 */
 class CompilerModuleOverrideTest extends TestCase
 {
     /**

@@ -28,8 +28,7 @@ use function var_export;
 
 final class CompileVisitor implements VisitorInterface
 {
-    /** @var InstanceScript */
-    private $script;
+    private readonly InstanceScript $script;
 
     public function __construct(Container $container)
     {
@@ -40,8 +39,8 @@ final class CompileVisitor implements VisitorInterface
     #[Override]
     public function visitDependency(
         NewInstance $newInstance,
-        ?string $postConstruct,
-        bool $isSingleton
+        string|null $postConstruct,
+        bool $isSingleton,
     ): string {
         $newInstance->accept($this);
 
@@ -53,7 +52,7 @@ final class CompileVisitor implements VisitorInterface
     public function visitProvider(
         Dependency $dependency,
         string $context,
-        bool $isSingleton
+        bool $isSingleton,
     ): string {
         $this->script->pushProviderContext($context);
         $script = $dependency->accept($this);
@@ -89,15 +88,15 @@ final class CompileVisitor implements VisitorInterface
     public function visitNewInstance(
         string $class,
         SetterMethods $setterMethods,
-        ?Arguments $arguments,
-        ?AspectBind $bind
+        Arguments|null $arguments,
+        AspectBind|null $bind,
     ): void {
         $setterMethods->accept($this);
-        if ($arguments) {
+        if ($arguments instanceof Arguments) {
             $arguments->accept($this);
         }
 
-        if ($bind) {
+        if ($bind instanceof AspectBind) {
             $bind->accept($this);
         }
 
@@ -107,8 +106,8 @@ final class CompileVisitor implements VisitorInterface
     /** @inheritDoc */
     #[Override]
     public function visitSetterMethods(
-        array $setterMethods
-    ) {
+        array $setterMethods,
+    ): void {
         foreach ($setterMethods as $setterMethod) {
             $setterMethod->accept($this);
         }
@@ -137,7 +136,7 @@ final class CompileVisitor implements VisitorInterface
         string $index,
         bool $isDefaultAvailable,
         $defaultValue,
-        ReflectionParameter $parameter
+        ReflectionParameter $parameter,
     ): void {
         $this->script->addArg($index, $isDefaultAvailable, $defaultValue, $parameter);
     }

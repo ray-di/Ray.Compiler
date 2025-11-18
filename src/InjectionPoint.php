@@ -9,7 +9,7 @@ use Ray\Aop\ReflectionClass;
 use Ray\Aop\ReflectionMethod;
 use Ray\Di\Di\Qualifier;
 use Ray\Di\InjectionPointInterface;
-use Ray\ServiceLocator\ServiceLocator;
+use ReflectionAttribute;
 use ReflectionException;
 use ReflectionParameter;
 
@@ -23,13 +23,9 @@ use function class_exists;
  */
 final class InjectionPoint implements InjectionPointInterface
 {
-    /** @var ReflectionParameter */
-    private $parameter;
-
     /** @deprecated use getInstance */
-    public function __construct(ReflectionParameter $parameter)
+    public function __construct(private readonly ReflectionParameter $parameter)
     {
-        $this->parameter = $parameter;
     }
 
     /**
@@ -57,7 +53,6 @@ final class InjectionPoint implements InjectionPointInterface
     #[Override]
     public function getMethod(): ReflectionMethod
     {
-        $this->parameter = $this->getParameter();
         $class = $this->parameter->getDeclaringClass();
         $method = $this->parameter->getDeclaringFunction()->getShortName();
         assert($class instanceof \ReflectionClass);
@@ -94,21 +89,50 @@ final class InjectionPoint implements InjectionPointInterface
     /**
      * {@inheritDoc}
      *
-     * @return object|null
+     * @throws ReflectionException
      */
-    public function getQualifier()
+    public function getQualifier(): object|null
     {
-        $reader = ServiceLocator::getReader();
-        $annotations = $reader->getMethodAnnotations($this->getMethod());
-        foreach ($annotations as $annotation) {
-            $maybeQualifers = $reader->getClassAnnotations(new \ReflectionClass($annotation));
-            foreach ($maybeQualifers as $maybeQualifer) {
-                if ($maybeQualifer instanceof Qualifier) {
-                    return $annotation;
-                }
+        // Try method attributes first
+        $parameter = $this->parameter;
+        $class = $parameter->getDeclaringClass();
+        $methodName = $parameter->getDeclaringFunction()->getShortName();
+        assert($class instanceof \ReflectionClass);
+
+        $nativeMethod = new \ReflectionMethod($class->getName(), $methodName);
+        $methodAttributes = $nativeMethod->getAttributes();
+
+        foreach ($methodAttributes as $attribute) {
+            if ($this->isQualifier($attribute)) {
+                return $attribute->newInstance();
+            }
+        }
+
+        // Try parameter attributes
+        $paramAttributes = $parameter->getAttributes();
+
+        foreach ($paramAttributes as $attribute) {
+            if ($this->isQualifier($attribute)) {
+                return $attribute->newInstance();
             }
         }
 
         return null;
+    }
+
+    /**
+     * @phpstan-param ReflectionAttribute<object> $attribute
+     *
+     * @throws ReflectionException
+     *
+     * @psalm-suppress TooManyTemplateParams
+     */
+    private function isQualifier(ReflectionAttribute $attribute): bool
+    {
+        $attributeClass = $attribute->getName();
+        $reflectionClass = new \ReflectionClass($attributeClass);
+        $classAttributes = $reflectionClass->getAttributes(Qualifier::class);
+
+        return $classAttributes !== [];
     }
 }
