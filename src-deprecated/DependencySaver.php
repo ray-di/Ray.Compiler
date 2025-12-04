@@ -45,7 +45,7 @@ final class DependencySaver
 
     private function saveQualifier(IpQualifier $qualifer): void
     {
-        $qualifier = $this->scriptDir . '/qualifer';
+        $qualifier = $this->scriptDir . '/qualifier';
         ! file_exists($qualifier) && ! @mkdir($qualifier) && ! is_dir($qualifier);
         $class = $qualifer->param->getDeclaringClass();
         if (! $class instanceof ReflectionClass) {
