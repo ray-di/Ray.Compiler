@@ -236,10 +236,24 @@ AOP (Aspect-Oriented Programming)
 - Bindings stored in $instance->bindings array: ['methodName' => [interceptor1, interceptor2]]
 - Interceptors are themselves dependencies loaded via singleton() with - suffix
 
+Performance & OPcache
+---------------------
+
+CompiledInjector is the fastest of the runtime strategies (the reflection injector, a serialized injector, or the compiled injector) — but only when its generated scripts are served from OPcache.
+
+- A cached require (with opcache.validate_timestamps=0) performs NO filesystem access; it executes cached opcodes. This is what makes compiled code fast.
+- Without warm OPcache, every require re-parses the script and the compiled injector appears several times slower than it actually is.
+- opcache.file_update_protection (default 2s) refuses to cache files younger than that, so a process that compiles and immediately runs re-parses everything. In production the gap between deploy-time compilation and the first request is far larger than 2s, so this never bites; in a benchmark it always does — back-date the generated scripts (touch) or set file_update_protection=0.
+- For php-fpm (shared-nothing), compiled scripts/classes can be preloaded into OPcache shared memory and reused across workers; a serialized injector cannot — it is data and must be unserialized into per-process memory on every request.
+
+Because a cached require touches no filesystem, prototype() and singleton() require the script directly and run file_exists() only inside the catch, so the happy path stays stat-free while a missing script is reported as the domain ScriptFileNotFound rather than a leaked generic Error (PHP 8 makes a failed require a catchable Error). CompiledInjector::getInstance() keeps its file_exists() pre-check so unbound interfaces are reported as Unbound.
+
+See docs/performance.md for the full rationale and measurements, and benchmark/di_benchmark.php for a self-validating benchmark (it prints the OPcache hit rate so you can tell a valid run from a re-parse artifact).
+
 PHP Version Support
 -------------------
 
-Requires PHP 7.2+ or 8.0+. Code uses both annotations and attributes (PHP 8 attributes via #[...] syntax).
+Requires PHP 8.2+. Code uses both annotations and attributes (PHP 8 attributes via #[...] syntax).
 
 Related Documentation
 ---------------------
