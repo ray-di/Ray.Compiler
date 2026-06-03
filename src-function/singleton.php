@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use Ray\Compiler\Exception\ScriptFileNotFound;
+use Throwable;
 
 use function file_exists;
 
@@ -21,20 +22,25 @@ use const DIRECTORY_SEPARATOR;
  *
  * @return object The resolved dependency instance from the required script file.
  *
- * @throws ScriptFileNotFound Thrown if the specified script file could not be located.
+ * @throws ScriptFileNotFound When the script file does not exist.
  */
 function singleton(string $scriptDir, array &$singletons, string $dependencyIndex, string $filePath, array|null $ip = null)
 {
-    // Get singleton when called from this singeleton function
     if (isset($singletons[$dependencyIndex])) {
         return $singletons[$dependencyIndex];
     }
 
     $scriptFile = $scriptDir . DIRECTORY_SEPARATOR . $filePath;
-    if (! file_exists($scriptFile)) {
-        throw new ScriptFileNotFound($scriptFile);
-    }
 
-        // $scriptDir, $Singletons, $dependencyIndex and $ip can be used in the included file
+    try {
+        // $scriptDir, $singletons, $dependencyIndex and $ip are available to the required script.
         return require $scriptFile;
+    } catch (Throwable $e) {
+        // Check existence only on failure, so an OPcache-cached require stays stat-free on the happy path.
+        if (! file_exists($scriptFile)) {
+            throw new ScriptFileNotFound($scriptFile, 0, $e);
+        }
+
+        throw $e;
+    }
 }

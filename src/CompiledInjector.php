@@ -95,7 +95,7 @@ final class CompiledInjector implements ScriptInjectorInterface
 
         /** @psalm-suppress  UnsupportedPropertyReferenceUsage */
         $singletons = &$this->singletons;
-        $scriptDir = realpath($this->scriptDir);
+        $scriptDir = $this->scriptDir; // already realpath()d in the constructor
 
         // $scriptDir, $Singletons, and $dependencyIndex can be used in the included file
         /** @var mixed $instance */
