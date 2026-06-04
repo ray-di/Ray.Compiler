@@ -33,7 +33,7 @@ function prototype(string $scriptDir, array &$singletons, string $dependencyInde
     } catch (Throwable $e) {
         // Check existence only on failure, so an OPcache-cached require stays stat-free on the happy path.
         if (! file_exists($file)) {
-            throw new ScriptFileNotFound($filePath, 0, $e);
+            throw new ScriptFileNotFound($file, 0, $e);
         }
 
         throw $e;
