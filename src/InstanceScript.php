@@ -32,6 +32,7 @@ final class InstanceScript
 {
     public const RAY_DI_INJECTOR_INTERFACE = 'Ray\Di\InjectorInterface-';
     public const RAY_DI_INJECTION_POINT_INTERFACE = 'Ray\Di\InjectionPointInterface-';
+    public const RAY_DI_SCRIPT_DIR = '-Ray\Di\Annotation\ScriptDir';
     public const COMMENT = '// prototype';
 
     /** @var array<mixed> */
@@ -57,6 +58,14 @@ final class InstanceScript
     /** @param mixed $defaultValue */
     public function addArg(string $index, bool $isDefaultAvailable, $defaultValue, ReflectionParameter $parameter): void
     {
+        // The script dir is where the generated scripts live: resolve it at
+        // runtime, never bake the compile-time path.
+        if ($index === self::RAY_DI_SCRIPT_DIR) {
+            $this->args[] = '__DIR__';
+
+            return;
+        }
+
         if (! isset($this->container[$index])) {
             if ($isDefaultAvailable) {
                 $this->addInstanceArg($defaultValue);
