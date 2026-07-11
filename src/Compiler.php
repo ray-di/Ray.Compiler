@@ -62,6 +62,12 @@ final class Compiler
         $compileVisitor = new CompileVisitor($container);
         $container->map(static function (DependencyInterface $dependency, string $key) use ($scripts, $compileVisitor): DependencyInterface {
             assert($dependency instanceof AcceptInterface);
+            if ($key === InstanceScript::RAY_DI_SCRIPT_DIR) {
+                $scripts->add($key, 'return __DIR__;');
+
+                return $dependency;
+            }
+
             $script = $dependency->accept($compileVisitor);
             assert(is_string($script));
             $scripts->add($key, $script);
