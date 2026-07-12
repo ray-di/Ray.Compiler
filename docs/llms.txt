@@ -76,6 +76,12 @@ Scope Handling:
 - Prototype: New instance created on each getInstance() call
 - Scope determined during compilation and embedded in generated scripts
 
+Performance & OPcache
+---------------------
+CompiledInjector is fastest only when its scripts are served from OPcache. A cached require (opcache.validate_timestamps=0) does no filesystem access—it executes cached opcodes; without warm OPcache every require re-parses and compiled looks several times slower than it is. In production this is automatic (compile at deploy time; opcodes stay in shared memory and can be preloaded across php-fpm workers). Pitfall: opcache.file_update_protection (default 2s) won't cache files younger than that, so benchmarks must back-date the generated scripts or set it to 0.
+
+Because a cached require touches no filesystem, prototype()/singleton() require the script directly with no file_exists() guard, so the happy path stays stat-free. A missing compiled script is a build invariant violation; PHP 8 makes a failed require a catchable Error. See docs/performance.md and demo/benchmark/ for details and measurements.
+
 Version Control
 ---------------
 Compiled DI code is considered an environment-specific build artifact and should NOT be committed to version control.
@@ -85,7 +91,7 @@ Add the compile directory to your .gitignore:
 
 PHP Version Support
 -------------------
-Requires PHP 7.2+ or 8.0+
+Requires PHP 8.2+
 
 Full Documentation
 ------------------

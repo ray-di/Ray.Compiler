@@ -85,6 +85,7 @@ Add the compile directory to your `.gitignore`:
 
 ## Documentation
 
+- **[Performance & OPcache](docs/performance.md)** - Why the compiled injector is fast, the OPcache prerequisite, and how to benchmark it correctly
 - **[LLM Documentation](https://ray-di.github.io/Ray.Compiler/llms.txt)** - Brief documentation optimized for LLMs
 - **[Complete LLM Documentation](https://ray-di.github.io/Ray.Compiler/llms-full.txt)** - Full documentation with architecture details
 
