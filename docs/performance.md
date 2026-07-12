@@ -47,23 +47,14 @@ must be `unserialize()`d into per-process memory on every request.
 
 Because a cached `require` touches no filesystem, an eager `file_exists()` guard before it would be the
 **only** `stat()` syscall left on the hot path — roughly **30% of the per-build cost** for a small
-graph. So `prototype()` and `singleton()` `require` the script directly and check existence only on
-failure:
+graph. So `prototype()` and `singleton()` `require` the script directly with no guard:
 
 ```php
-try {
-    return require $file;            // happy path: no stat(), just cached opcodes
-} catch (Throwable $e) {
-    if (! file_exists($file)) {      // stat() only on failure
-        throw new ScriptFileNotFound($filePath, 0, $e);
-    }
-    throw $e;                        // file exists -> error came from inside the script
-}
+return require $file;               // happy path: no stat(), just cached opcodes
 ```
 
-PHP 8 makes a failed `require` a catchable `Error`, and `try`/`catch` is zero-cost when nothing is
-thrown, so the happy path pays nothing while a missing script is still reported as the domain
-`ScriptFileNotFound` (rather than a leaked generic `Error`). `CompiledInjector::getInstance()` keeps its
+A missing compiled script is a build invariant violation (corrupt or incomplete build); PHP 8 makes a
+failed `require` a catchable `Error` that surfaces naturally. `CompiledInjector::getInstance()` keeps its
 `file_exists()` pre-check (it reports unbound interfaces as `Unbound`); its redundant
 `realpath($this->scriptDir)` — already canonicalised in the constructor — was removed.
 

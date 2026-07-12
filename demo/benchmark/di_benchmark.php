@@ -115,6 +115,5 @@ printf("%-12s | %-22s | %16.1f us | %s\n", 'serialize', sprintf('%.2f ms (unseri
 printf("%-12s | %-22s | %16.1f us | %s\n", 'compiled', sprintf('%.2f ms (new injector)', $compiledColdMs), $compiledSteadyUs, sprintf('%d scripts (compile %.0f ms)', $scriptCount, $compileMs));
 printf("\npeak memory: %.1f MB\n", $peakMb);
 
-// cleanup
 array_map('unlink', (array) glob($tmp . '/{,*/}*.*', GLOB_BRACE));
 @array_map('rmdir', [$aopDir, $diDir, $tmp]);

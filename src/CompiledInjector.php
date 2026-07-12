@@ -90,14 +90,14 @@ final class CompiledInjector implements ScriptInjectorInterface
 
         $scriptFile = sprintf('%s/%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
         if (! file_exists($scriptFile)) {
-            throw new Unbound($dependencyIndex); // Binding not found
+            throw new Unbound($dependencyIndex);
         }
 
         /** @psalm-suppress  UnsupportedPropertyReferenceUsage */
         $singletons = &$this->singletons;
         $scriptDir = $this->scriptDir; // already realpath()d in the constructor
 
-        // $scriptDir, $Singletons, and $dependencyIndex can be used in the included file
+        // $scriptDir, $singletons, and $dependencyIndex can be used in the included file
         /** @var mixed $instance */
         $instance = require $scriptFile;
 
