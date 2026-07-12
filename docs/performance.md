@@ -69,7 +69,7 @@ thrown, so the happy path pays nothing while a missing script is still reported 
 
 ## Benchmarking correctly
 
-`benchmark/di_benchmark.php` compares the three strategies and **prints the OPcache hit rate so you can
+`demo/benchmark/di_benchmark.php` compares the three strategies and **prints the OPcache hit rate so you can
 tell a valid run from a bogus one**. Pitfalls it (and you) must control for:
 
 1. **OPcache must actually cache the compiled scripts.** Back-date generated scripts
@@ -104,5 +104,5 @@ without warm OPcache show `compiled` at ~178 µs — the re-parse trap. Always c
 Run it yourself:
 
 ```bash
-php -d xdebug.mode=off -d opcache.enable_cli=1 -d opcache.validate_timestamps=0 benchmark/di_benchmark.php
+php -d xdebug.mode=off -d opcache.enable_cli=1 -d opcache.validate_timestamps=0 demo/benchmark/di_benchmark.php
 ```

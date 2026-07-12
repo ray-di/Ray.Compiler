@@ -14,7 +14,7 @@ cold-start and steady-state (per-build) cost.
 Requires `vendor/` (`composer install`). Use production-like settings (Xdebug off, OPcache on):
 
 ```bash
-php -d xdebug.mode=off -d opcache.enable_cli=1 -d opcache.validate_timestamps=0 benchmark/di_benchmark.php
+php -d xdebug.mode=off -d opcache.enable_cli=1 -d opcache.validate_timestamps=0 demo/benchmark/di_benchmark.php
 ```
 
 ## Reading the output
@@ -33,4 +33,4 @@ files to avoid this automatically; if it still reports `INVALID`, re-run with
 ## Background
 
 For the three strategies, why OPcache is the prerequisite, the measured results, and the full list
-of benchmarking pitfalls, see **[docs/performance.md](../docs/performance.md)**.
+of benchmarking pitfalls, see **[docs/performance.md](../../docs/performance.md)**.

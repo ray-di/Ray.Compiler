@@ -13,10 +13,10 @@
  *   - steady state  : build a PROTOTYPE object repeatedly (the "build-many" regime, e.g. Grapher / entity hydration)
  *
  * NOT part of the library. Not autoloaded. Do not use in production.
- * See benchmark/README.md.
+ * See demo/benchmark/README.md.
  *
  * Run with realistic settings (Xdebug off, OPcache on):
- *   php -d xdebug.mode=off -d opcache.enable_cli=1 -d opcache.validate_timestamps=0 benchmark/di_benchmark.php
+ *   php -d xdebug.mode=off -d opcache.enable_cli=1 -d opcache.validate_timestamps=0 demo/benchmark/di_benchmark.php
  */
 
 declare(strict_types=1);
@@ -27,7 +27,7 @@ use Ray\Compiler\FakeCarInterface;
 use Ray\Compiler\FakeCarModule;
 use Ray\Di\Injector;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 const ITERATIONS = 50000;
 

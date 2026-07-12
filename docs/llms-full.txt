@@ -248,7 +248,7 @@ CompiledInjector is the fastest of the runtime strategies (the reflection inject
 
 Because a cached require touches no filesystem, prototype() and singleton() require the script directly and run file_exists() only inside the catch, so the happy path stays stat-free while a missing script is reported as the domain ScriptFileNotFound rather than a leaked generic Error (PHP 8 makes a failed require a catchable Error). CompiledInjector::getInstance() keeps its file_exists() pre-check so unbound interfaces are reported as Unbound.
 
-See docs/performance.md for the full rationale and measurements, and benchmark/di_benchmark.php for a self-validating benchmark (it prints the OPcache hit rate so you can tell a valid run from a re-parse artifact).
+See docs/performance.md for the full rationale and measurements, and demo/benchmark/di_benchmark.php for a self-validating benchmark (it prints the OPcache hit rate so you can tell a valid run from a re-parse artifact).
 
 PHP Version Support
 -------------------
