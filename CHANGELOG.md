@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2026-07-12
+
+### Changed
+- Skip `file_exists()` guard on the hot path in `prototype()`/`singleton()` — an OPcache-cached `require` performs no filesystem access, so the guard was the only `stat()` syscall left [#134]
+- `prototype()`/`singleton()` now `require` the script directly without try/catch; a missing compiled script is a build invariant violation that surfaces as PHP 8's native catchable `Error` [#134]
+- Deprecate `ScriptFileNotFound` exception (kept for BC) [#134]
+- Remove redundant `realpath()` call in `CompiledInjector::getInstance()` [#134]
+- Resolve `#[ScriptDir]` to `__DIR__` instead of baking the compile-time absolute path [#136]
+
+### Added
+- Add performance documentation (`docs/performance.md`) covering OPcache prerequisites and benchmarking methodology [#134]
+- Add self-validating DI benchmark under `demo/benchmark/` [#134]
+
+### Fixed
+- Add `--memory-limit=256M` to phpstan in composer scripts
+
 ## [1.13.1] - 2025-12-04
 
 ### Fixed
