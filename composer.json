@@ -52,7 +52,7 @@
         "cs": ["phpcs --standard=./phpcs.xml src tests"],
         "cs-fix": ["phpcbf src src-function tests"],
         "clean": ["phpstan clear-result-cache", "psalm --clear-cache", "rm -rf tests/tmp/*.php"],
-        "sa": ["psalm --show-info=false", "phpstan analyse -c phpstan.neon --no-progress"],
+        "sa": ["psalm --show-info=false", "phpstan analyse -c phpstan.neon --no-progress --memory-limit=256M"],
         "metrics": ["@test", "phpmetrics --report-html=build/metrics --exclude=Exception --log-junit=build/junit.xml --junit=build/junit.xml src"],
         "phpmd": ["phpmd src text ./phpmd.xml"],
         "build": ["@cs", "@sa", "@pcov", "@metrics"]
