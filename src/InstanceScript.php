@@ -161,7 +161,7 @@ final class InstanceScript
     public function getScript(string|null $postConstruct, bool $isSingleton): string
     {
         if (is_string($postConstruct)) {
-            $this->laterLines[] = sprintf('$instance->%s();', $postConstruct);
+            $this->pushPostConstruct($postConstruct, $isSingleton);
         }
 
         if ($this->implementsSetContext) {
@@ -169,7 +169,7 @@ final class InstanceScript
         }
 
         $this->laterLines[] = self::COMMENT;
-        if ($isSingleton) {
+        if ($isSingleton && ! is_string($postConstruct)) {
             $this->laterLines[] = '$singletons[$dependencyIndex] = $instance;';
         }
 
@@ -180,5 +180,22 @@ final class InstanceScript
         $this->laterLines = [];
 
         return $script;
+    }
+
+    private function pushPostConstruct(string $postConstruct, bool $isSingleton): void
+    {
+        if (! $isSingleton) {
+            $this->laterLines[] = sprintf('$instance->%s();', $postConstruct);
+
+            return;
+        }
+
+        $this->laterLines[] = '$singletons[$dependencyIndex] = $instance;';
+        $this->laterLines[] = 'try {';
+        $this->laterLines[] = sprintf('    $instance->%s();', $postConstruct);
+        $this->laterLines[] = '} catch (\Throwable $e) {';
+        $this->laterLines[] = '    unset($singletons[$dependencyIndex]);';
+        $this->laterLines[] = '    throw $e;';
+        $this->laterLines[] = '}';
     }
 }
