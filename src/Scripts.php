@@ -29,7 +29,7 @@ final class Scripts implements Countable
 EOL;
         $filePutContents = new FilePutContents();
         foreach ($this->scripts as $index => $script) {
-            $file = sprintf('%s/%s.php', $scriptDir, ScriptName::from($index));
+            $file = sprintf('%s/%s.php', $scriptDir, ScriptName::forIndex($index));
             $script = sprintf($template, $script);
             $filePutContents($file, $script);
         }

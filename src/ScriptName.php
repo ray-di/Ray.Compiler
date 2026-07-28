@@ -21,7 +21,7 @@ final class ScriptName
 {
     private const SAFE = '/\A[A-Za-z0-9_.\-\x80-\xFF]+\z/';
 
-    public static function from(string $index): string
+    public static function forIndex(string $index): string
     {
         $name = str_replace('\\', '_', $index);
         if (preg_match(self::SAFE, $name) !== 1) {

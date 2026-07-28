@@ -89,7 +89,7 @@ final class CompiledInjector implements ScriptInjectorInterface
         }
 
         try {
-            $scriptFile = sprintf('%s/%s.php', $this->scriptDir, ScriptName::from($dependencyIndex));
+            $scriptFile = sprintf('%s/%s.php', $this->scriptDir, ScriptName::forIndex($dependencyIndex));
         } catch (InvalidQualifier) {
             // An unsafe index can never have been compiled
             throw new Unbound($dependencyIndex);
@@ -123,7 +123,7 @@ final class CompiledInjector implements ScriptInjectorInterface
                 // @codeCoverageIgnoreStart
                 static function (string $class): void {
                     foreach (self::$scriptDirs as $scriptDir) {
-                        $file = sprintf('%s/%s.php', $scriptDir, ScriptName::from($class));
+                        $file = sprintf('%s/%s.php', $scriptDir, ScriptName::forIndex($class));
                         if (file_exists($file)) {
                             require_once $file;
                         }

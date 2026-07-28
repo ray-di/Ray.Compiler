@@ -19,7 +19,7 @@ class ScriptNameTest extends TestCase
     #[DataProvider('ordinaryIndex')]
     public function testOrdinaryIndexKeepsItsCurrentName(string $index, string $expected): void
     {
-        $this->assertSame($expected, ScriptName::from($index));
+        $this->assertSame($expected, ScriptName::forIndex($index));
     }
 
     /** @return array<string, array{string, string}> */
@@ -39,7 +39,7 @@ class ScriptNameTest extends TestCase
     public function testUnsafeIndexIsRejected(string $index): void
     {
         $this->expectException(InvalidQualifier::class);
-        ScriptName::from($index);
+        ScriptName::forIndex($index);
     }
 
     /** @return array<string, array{string}> */

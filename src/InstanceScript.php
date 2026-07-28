@@ -96,8 +96,8 @@ final class InstanceScript
     {
         /** @psalm-suppress PossiblyNullReference / The $parameter here can never be null */
         $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->getName(), $parameter->getDeclaringFunction()->getName(), $parameter->name); //@phpstan-ignore-line
-        // ScriptName::from() rejects an unsafe index, so the interpolation below is safe
-        $filePath = sprintf('/%s.php', ScriptName::from($index));
+        // ScriptName::forIndex() rejects an unsafe index, so the interpolation below is safe
+        $filePath = sprintf('/%s.php', ScriptName::forIndex($index));
         // Add prototype or singleton
         $this->args[] = $isSingleton ?
             sprintf("\Ray\Compiler\singleton(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip) :
@@ -142,7 +142,7 @@ final class InstanceScript
             /** @var array<int, string> $bindings */
             foreach ($bindings as &$binding) {
                 $index = $binding . '-';
-                $filePath = sprintf('/%s.php', ScriptName::from($index));
+                $filePath = sprintf('/%s.php', ScriptName::forIndex($index));
                 $binding = sprintf("\\Ray\\Compiler\\singleton(\$scriptDir, \$singletons, '%s', '%s')", $index, $filePath);
             }
         }
