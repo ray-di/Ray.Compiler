@@ -108,7 +108,7 @@ final class InstanceScript
     public function addInstanceArg($default): void
     {
         if (is_object($default) || is_array($default)) {
-            $this->args[] = sprintf('unserialize(\'%s\')', serialize($default));
+            $this->args[] = sprintf('unserialize(%s)', var_export(serialize($default), true));
 
             return;
         }
