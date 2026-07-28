@@ -17,7 +17,6 @@ use function is_readable;
 use function realpath;
 use function spl_autoload_register;
 use function sprintf;
-use function str_replace;
 
 /**
  * Compiled Injector
@@ -88,7 +87,7 @@ final class CompiledInjector implements ScriptInjectorInterface
             return $this->singletons[$dependencyIndex];
         }
 
-        $scriptFile = sprintf('%s/%s.php', $this->scriptDir, str_replace('\\', '_', $dependencyIndex));
+        $scriptFile = sprintf('%s/%s.php', $this->scriptDir, ScriptName::from($dependencyIndex));
         if (! file_exists($scriptFile)) {
             throw new Unbound($dependencyIndex);
         }
@@ -117,7 +116,7 @@ final class CompiledInjector implements ScriptInjectorInterface
                 // @codeCoverageIgnoreStart
                 static function (string $class): void {
                     foreach (self::$scriptDirs as $scriptDir) {
-                        $file = sprintf('%s/%s.php', $scriptDir, str_replace('\\', '_', $class));
+                        $file = sprintf('%s/%s.php', $scriptDir, ScriptName::from($class));
                         if (file_exists($file)) {
                             require_once $file;
                         }

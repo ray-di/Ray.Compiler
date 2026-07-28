@@ -23,7 +23,6 @@ use function is_object;
 use function is_string;
 use function serialize;
 use function sprintf;
-use function str_replace;
 use function var_export;
 
 use const PHP_EOL;
@@ -97,7 +96,7 @@ final class InstanceScript
     {
         /** @psalm-suppress PossiblyNullReference / The $parameter here can never be null */
         $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->getName(), $parameter->getDeclaringFunction()->getName(), $parameter->name); //@phpstan-ignore-line
-        $filePath = sprintf('/%s.php', str_replace('\\', '_', $index));
+        $filePath = sprintf('/%s.php', ScriptName::from($index));
         // Add prototype or singleton
         $this->args[] = $isSingleton ?
             sprintf("\\Ray\\Compiler\\singleton(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip) :
@@ -141,8 +140,9 @@ final class InstanceScript
         foreach ($aopBindings as &$bindings) {
             /** @var array<int, string> $bindings */
             foreach ($bindings as &$binding) {
-                $filePath = sprintf('/%s-.php', str_replace('\\', '_', $binding));
-                $binding = sprintf("\Ray\Compiler\singleton(\$scriptDir, \$singletons, '%s-', '%s')", $binding, $filePath);
+                $index = $binding . '-';
+                $filePath = sprintf('/%s.php', ScriptName::from($index));
+                $binding = sprintf("\Ray\Compiler\singleton(\$scriptDir, \$singletons, '%s', '%s')", $index, $filePath);
             }
         }
 
