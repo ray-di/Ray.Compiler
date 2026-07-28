@@ -67,6 +67,44 @@ class QualifierScriptTest extends TestCase
         (new CompiledInjector($scriptDir))->getInstance(FakeEngineInterface::class, 'a/b');
     }
 
+    /**
+     * A trailing backslash passes name validation ('q\' becomes the safe file name 'q_'),
+     * but emitted raw it escapes the closing quote of the generated literal.
+     */
+    public function testTrailingBackslashQualifierCompilesAndResolves(): void
+    {
+        $scriptDir = $this->scriptDir('backslash');
+        $module = new FakeQualifierModule(
+            [FakeBackslashQualifierConsumer::QUALIFIER],
+            FakeBackslashQualifierConsumer::class,
+        );
+        (new Compiler())->compile($module, $scriptDir);
+
+        $instance = (new CompiledInjector($scriptDir))->getInstance(FakeQualifierConsumerInterface::class);
+
+        $this->assertInstanceOf(FakeBackslashQualifierConsumer::class, $instance);
+        $this->assertInstanceOf(FakeEngine::class, $instance->engine);
+    }
+
+    /** Consecutive backslashes must not alter the index between compile time and runtime. */
+    public function testConsecutiveBackslashesKeepTheSingletonKey(): void
+    {
+        $scriptDir = $this->scriptDir('backslashes');
+        $module = new FakeQualifierModule(
+            [FakeDoubleBackslashQualifierConsumer::QUALIFIER],
+            FakeDoubleBackslashQualifierConsumer::class,
+            true,
+        );
+        (new Compiler())->compile($module, $scriptDir);
+
+        $injector = new CompiledInjector($scriptDir);
+        $consumer = $injector->getInstance(FakeQualifierConsumerInterface::class);
+        $this->assertInstanceOf(FakeDoubleBackslashQualifierConsumer::class, $consumer);
+        $direct = $injector->getInstance(FakeEngineInterface::class, FakeDoubleBackslashQualifierConsumer::QUALIFIER);
+
+        $this->assertSame($consumer->engine, $direct);
+    }
+
     /** @return non-empty-string */
     private function scriptDir(string $name): string
     {

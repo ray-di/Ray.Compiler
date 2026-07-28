@@ -96,12 +96,14 @@ final class InstanceScript
     {
         /** @psalm-suppress PossiblyNullReference / The $parameter here can never be null */
         $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->getName(), $parameter->getDeclaringFunction()->getName(), $parameter->name); //@phpstan-ignore-line
-        // ScriptName::forIndex() rejects an unsafe index, so the interpolation below is safe
+        // A backslash is legal in an index (class-string qualifiers), so the literal must be
+        // escaped: emitted raw, a trailing backslash would escape the closing quote.
+        $indexLiteral = var_export($index, true);
         $filePath = sprintf('/%s.php', ScriptName::forIndex($index));
         // Add prototype or singleton
         $this->args[] = $isSingleton ?
-            sprintf("\Ray\Compiler\singleton(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip) :
-            sprintf("\Ray\Compiler\prototype(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip);
+            sprintf("\Ray\Compiler\singleton(\$scriptDir, \$singletons, %s, '%s', %s)", $indexLiteral, $filePath, $ip) :
+            sprintf("\Ray\Compiler\prototype(\$scriptDir, \$singletons, %s, '%s', %s)", $indexLiteral, $filePath, $ip);
     }
 
     /** @param mixed $default */
@@ -143,7 +145,7 @@ final class InstanceScript
             foreach ($bindings as &$binding) {
                 $index = $binding . '-';
                 $filePath = sprintf('/%s.php', ScriptName::forIndex($index));
-                $binding = sprintf("\\Ray\\Compiler\\singleton(\$scriptDir, \$singletons, '%s', '%s')", $index, $filePath);
+                $binding = sprintf("\\Ray\\Compiler\\singleton(\$scriptDir, \$singletons, %s, '%s')", var_export($index, true), $filePath);
             }
         }
 
