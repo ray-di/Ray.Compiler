@@ -17,13 +17,13 @@ class FakeQualifierPathsRoot implements FakeQualifierConsumerInterface
     public $setter;
 
     public function __construct(
-        #[Named('ctor/slash')]
+        #[Named('ctor.path')]
         FakeEngineInterface $engine,
         #[FakePathQualifier]
         FakeEngineInterface $qualifierClass,
-        #[Named('prov/slash')]
+        #[Named('prov.path')]
         FakeEngineInterface $provided,
-        #[Named('inst/slash')]
+        #[Named('inst.path')]
         string $instance
     ) {
         $this->engine = $engine;
@@ -33,7 +33,7 @@ class FakeQualifierPathsRoot implements FakeQualifierConsumerInterface
     }
 
     #[Inject]
-    public function setEngine(#[Named('setter/slash')] FakeEngineInterface $engine): void
+    public function setEngine(#[Named('setter.path')] FakeEngineInterface $engine): void
     {
         $this->setter = $engine;
     }

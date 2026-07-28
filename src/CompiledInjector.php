@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use Override;
+use Ray\Compiler\Exception\InvalidQualifier;
 use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Annotation\ScriptDir;
@@ -87,7 +88,13 @@ final class CompiledInjector implements ScriptInjectorInterface
             return $this->singletons[$dependencyIndex];
         }
 
-        $scriptFile = sprintf('%s/%s.php', $this->scriptDir, ScriptName::from($dependencyIndex));
+        try {
+            $scriptFile = sprintf('%s/%s.php', $this->scriptDir, ScriptName::from($dependencyIndex));
+        } catch (InvalidQualifier) {
+            // An unsafe index can never have been compiled
+            throw new Unbound($dependencyIndex);
+        }
+
         if (! file_exists($scriptFile)) {
             throw new Unbound($dependencyIndex);
         }

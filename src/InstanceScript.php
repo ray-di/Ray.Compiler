@@ -96,12 +96,12 @@ final class InstanceScript
     {
         /** @psalm-suppress PossiblyNullReference / The $parameter here can never be null */
         $ip = sprintf("['%s', '%s', '%s']", $parameter->getDeclaringClass()->getName(), $parameter->getDeclaringFunction()->getName(), $parameter->name); //@phpstan-ignore-line
+        // ScriptName::from() rejects an unsafe index, so the interpolation below is safe
         $filePath = sprintf('/%s.php', ScriptName::from($index));
-        $args = sprintf('$scriptDir, $singletons, %s, %s, %s', var_export($index, true), var_export($filePath, true), $ip);
         // Add prototype or singleton
         $this->args[] = $isSingleton ?
-            sprintf('\Ray\Compiler\singleton(%s)', $args) :
-            sprintf('\Ray\Compiler\prototype(%s)', $args);
+            sprintf("\Ray\Compiler\singleton(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip) :
+            sprintf("\Ray\Compiler\prototype(\$scriptDir, \$singletons, '%s', '%s', %s)", $index, $filePath, $ip);
     }
 
     /** @param mixed $default */
@@ -143,7 +143,7 @@ final class InstanceScript
             foreach ($bindings as &$binding) {
                 $index = $binding . '-';
                 $filePath = sprintf('/%s.php', ScriptName::from($index));
-                $binding = sprintf('\Ray\Compiler\singleton($scriptDir, $singletons, %s, %s)', var_export($index, true), var_export($filePath, true));
+                $binding = sprintf("\\Ray\\Compiler\\singleton(\$scriptDir, \$singletons, '%s', '%s')", $index, $filePath);
             }
         }
 

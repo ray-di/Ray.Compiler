@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Ray\Compiler\Exception\InvalidQualifier;
 
 #[CoversClass(ScriptName::class)]
 class ScriptNameTest extends TestCase
@@ -33,50 +34,24 @@ class ScriptNameTest extends TestCase
         ];
     }
 
+    /** An unsafe byte must be rejected, not sanitized, so it cannot reach the filesystem or the generated code. */
     #[DataProvider('unsafeIndex')]
-    public function testUnsafeByteIsPercentEncoded(string $index, string $expected): void
+    public function testUnsafeIndexIsRejected(string $index): void
     {
-        $this->assertSame($expected, ScriptName::from($index));
+        $this->expectException(InvalidQualifier::class);
+        ScriptName::from($index);
     }
 
-    /** The encoded name is one path segment, so it can neither nest nor walk upwards. */
-    #[DataProvider('unsafeIndex')]
-    public function testEncodedNameIsASinglePathSegment(string $index, string $expected): void
-    {
-        $this->assertSame($expected, ScriptName::from($index));
-        $this->assertStringNotContainsString('/', $expected);
-        $this->assertStringNotContainsString('\\', $expected);
-    }
-
-    /** @return array<string, array{string, string}> */
+    /** @return array<string, array{string}> */
     public static function unsafeIndex(): array
     {
         return [
-            'slash' => ['I-a/b', 'I-a%2Fb'],
-            'parent reference' => ['I-x/../../escaped', 'I-x%2F..%2F..%2Fescaped'],
-            'leading slash' => ['I-/etc/x', 'I-%2Fetc%2Fx'],
-            'nul byte' => ["I-bad\0name", 'I-bad%00name'],
-            'quote' => ["I-q'x", 'I-q%27x'],
-            'percent' => ['I-a%b', 'I-a%25b'],
+            'slash' => ['I-a/b'],
+            'parent reference' => ['I-x/../../escaped'],
+            'leading slash' => ['I-/etc/x'],
+            'nul byte' => ["I-bad\0name"],
+            'quote' => ["I-q'x"],
+            'percent' => ['I-a%b'],
         ];
-    }
-
-    /** An encoded index never lands on the file of an index that needed no encoding. */
-    public function testEncodedIndexNeverCollidesWithAnUnencodedOne(): void
-    {
-        $this->assertNotSame(ScriptName::from('I-a/b'), ScriptName::from('I-a_b'));
-        $this->assertNotSame(ScriptName::from('I-a%2Fb'), ScriptName::from('I-a/b'));
-    }
-
-    /**
-     * Characterises what this mapping deliberately does not fix.
-     *
-     * `\` to `_` predates it and is not injective, so a class-string qualifier collides with
-     * the string qualifier spelling the same name with underscores. Encoding `\` or `_` to
-     * close the gap would rename every compiled script, which is not worth it.
-     */
-    public function testBackslashAndUnderscoreStillShareAName(): void
-    {
-        $this->assertSame(ScriptName::from('I-Ray\Foo'), ScriptName::from('I-Ray_Foo'));
     }
 }
