@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 use function array_filter;
 use function array_values;
+use function file_get_contents;
 use function glob;
 use function is_dir;
 use function mkdir;
@@ -106,6 +107,28 @@ class QualifierScriptTest extends TestCase
         (new Compiler())->compile(new FakeQualifierModule(["bad\0name"]), $scriptDir);
 
         $this->assertFileExists($scriptDir . '/Ray_Compiler_FakeEngineInterface-bad%00name.php');
+    }
+
+    /**
+     * An apostrophe used to close the index literal, so what followed was compiled as PHP in a
+     * scope holding $scriptDir and $singletons; a trailing backslash escaped the closing quote.
+     */
+    public function testQuoteOrBackslashInQualifierCannotEscapeTheGeneratedLiteral(): void
+    {
+        $scriptDir = $this->scriptDir('quote');
+        $module = new FakeQualifierModule(
+            [FakeQuoteQualifierConsumer::QUALIFIER],
+            FakeQuoteQualifierConsumer::class,
+        );
+        (new Compiler())->compile($module, $scriptDir);
+
+        $code = (string) file_get_contents($scriptDir . '/Ray_Compiler_FakeQualifierConsumerInterface-.php');
+        $this->assertStringNotContainsString(FakeQuoteQualifierConsumer::QUALIFIER, $code);
+
+        $instance = (new CompiledInjector($scriptDir))->getInstance(FakeQualifierConsumerInterface::class);
+
+        $this->assertInstanceOf(FakeQuoteQualifierConsumer::class, $instance);
+        $this->assertInstanceOf(FakeEngine::class, $instance->engine);
     }
 
     /** @return non-empty-string */
