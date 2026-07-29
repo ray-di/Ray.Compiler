@@ -73,7 +73,7 @@ final class CompileVisitor implements VisitorInterface
 
         assert(is_object($value) || is_array($value), 'Invalid instance type:' . gettype($value));
 
-        return sprintf('return unserialize(\'%s\');', serialize($value));
+        return sprintf('return unserialize(%s);', var_export(serialize($value), true));
     }
 
     /** @inheritDoc */

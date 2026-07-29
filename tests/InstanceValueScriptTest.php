@@ -32,4 +32,24 @@ class InstanceValueScriptTest extends TestCase
         $this->assertInstanceOf(FakeInstanceValueConsumer::class, $instance);
         $this->assertSame(FakeInstanceValueModule::PAYLOAD, $instance->value);
     }
+
+    /**
+     * A binding requested directly (not injected as a constructor arg) gets its own compiled
+     * script from CompileVisitor::visitInstance(), a separate code path from addInstanceArg().
+     * It had the same unescaped-literal defect.
+     */
+    public function testQuoteInATopLevelInstanceBindingCannotEscapeTheGeneratedLiteral(): void
+    {
+        $scriptDir = __DIR__ . '/tmp/instance-value';
+        deleteFiles($scriptDir);
+        if (! is_dir($scriptDir) && ! mkdir($scriptDir, 0777, true)) {
+            self::fail(sprintf('Could not create %s', $scriptDir));
+        }
+
+        (new Compiler())->compile(new FakeInstanceValueModule(), $scriptDir);
+
+        $value = (new CompiledInjector($scriptDir))->getInstance('', 'payload');
+
+        $this->assertSame(FakeInstanceValueModule::PAYLOAD, $value);
+    }
 }
