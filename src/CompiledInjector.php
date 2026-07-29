@@ -90,9 +90,9 @@ final class CompiledInjector implements ScriptInjectorInterface
 
         try {
             $scriptFile = sprintf('%s/%s.php', $this->scriptDir, ScriptName::forIndex($dependencyIndex));
-        } catch (InvalidQualifier) {
+        } catch (InvalidQualifier $e) {
             // An unsafe index can never have been compiled
-            throw new Unbound($dependencyIndex);
+            throw new Unbound($dependencyIndex, 0, $e);
         }
 
         if (! file_exists($scriptFile)) {

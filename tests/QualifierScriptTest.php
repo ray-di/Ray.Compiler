@@ -63,8 +63,12 @@ class QualifierScriptTest extends TestCase
         $scriptDir = $this->scriptDir('runtime');
         (new Compiler())->compile(new FakeQualifierModule(['safe']), $scriptDir);
 
-        $this->expectException(Unbound::class);
-        (new CompiledInjector($scriptDir))->getInstance(FakeEngineInterface::class, 'a/b');
+        try {
+            (new CompiledInjector($scriptDir))->getInstance(FakeEngineInterface::class, 'a/b');
+            $this->fail('Expected Unbound');
+        } catch (Unbound $e) {
+            $this->assertInstanceOf(InvalidQualifier::class, $e->getPrevious());
+        }
     }
 
     /**
