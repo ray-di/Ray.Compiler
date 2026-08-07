@@ -26,6 +26,7 @@ final class SingletonPostConstructTest extends TestCase
 
         deleteFiles($scriptDir);
         FakeFailingPostConstructSingleton::reset();
+        FakeFailingSetContextSingleton::reset();
         FakePostConstructSingleton::reset();
 
         $module = new class extends AbstractModule {
@@ -34,6 +35,7 @@ final class SingletonPostConstructTest extends TestCase
                 $this->bind(FakePostConstructSingleton::class)->in(Scope::SINGLETON);
                 $this->bind(FakePostConstructDependent::class);
                 $this->bind(FakeFailingPostConstructSingleton::class)->in(Scope::SINGLETON);
+                $this->bind(FakeFailingSetContextSingleton::class)->in(Scope::SINGLETON);
             }
         };
         (new Compiler())->compile($module, $scriptDir);
@@ -65,5 +67,23 @@ final class SingletonPostConstructTest extends TestCase
         $this->assertSame(2, FakeFailingPostConstructSingleton::$constructorCalls);
         $this->assertSame(2, FakeFailingPostConstructSingleton::$postConstructCalls);
         $this->assertSame($singleton, $this->injector->getInstance(FakeFailingPostConstructSingleton::class));
+    }
+
+    /** setContext() runs after PostConstruct, so it shares the same rollback. */
+    public function testFailedSetContextIsRemovedFromSingletonCache(): void
+    {
+        try {
+            $this->injector->getInstance(FakeFailingSetContextSingleton::class);
+            $this->fail('The first setContext() call must fail.');
+        } catch (RuntimeException $e) {
+            $this->assertSame('setContext failed', $e->getMessage());
+        }
+
+        $singleton = $this->injector->getInstance(FakeFailingSetContextSingleton::class);
+        $this->assertInstanceOf(FakeFailingSetContextSingleton::class, $singleton);
+        $this->assertTrue($singleton->initialized);
+        $this->assertSame(2, FakeFailingSetContextSingleton::$constructorCalls);
+        $this->assertSame(2, FakeFailingSetContextSingleton::$setContextCalls);
+        $this->assertSame($singleton, $this->injector->getInstance(FakeFailingSetContextSingleton::class));
     }
 }
