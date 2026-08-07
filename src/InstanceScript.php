@@ -160,16 +160,17 @@ final class InstanceScript
 
     public function getScript(string|null $postConstruct, bool $isSingleton): string
     {
-        if (is_string($postConstruct)) {
-            $this->laterLines[] = sprintf('$instance->%s();', $postConstruct);
-        }
-
-        if ($this->implementsSetContext) {
-            $this->laterLines[] = sprintf('$instance->setContext(%s);', var_export($this->context, true));
+        $initLines = $this->initializationLines($postConstruct);
+        // A singleton must be resolvable from its own initialization, so it is cached before
+        // initialization runs. Every step after that assignment shares one rollback: the cache
+        // entry must never outlive a failed initialization.
+        $isProvisional = $isSingleton && $initLines !== [];
+        foreach ($isProvisional ? self::provisionalLines($initLines) : $initLines as $line) {
+            $this->laterLines[] = $line;
         }
 
         $this->laterLines[] = self::COMMENT;
-        if ($isSingleton) {
+        if ($isSingleton && ! $isProvisional) {
             $this->laterLines[] = '$singletons[$dependencyIndex] = $instance;';
         }
 
@@ -180,5 +181,44 @@ final class InstanceScript
         $this->laterLines = [];
 
         return $script;
+    }
+
+    /**
+     * Lifecycle calls that run on the constructed instance
+     *
+     * @return list<string>
+     */
+    private function initializationLines(string|null $postConstruct): array
+    {
+        $lines = [];
+        if (is_string($postConstruct)) {
+            $lines[] = sprintf('$instance->%s();', $postConstruct);
+        }
+
+        if ($this->implementsSetContext) {
+            $lines[] = sprintf('$instance->setContext(%s);', var_export($this->context, true));
+        }
+
+        return $lines;
+    }
+
+    /**
+     * @param list<string> $initLines
+     *
+     * @return list<string>
+     */
+    private static function provisionalLines(array $initLines): array
+    {
+        $lines = ['$singletons[$dependencyIndex] = $instance;', 'try {'];
+        foreach ($initLines as $line) {
+            $lines[] = '    ' . $line;
+        }
+
+        $lines[] = '} catch (\Throwable $e) {';
+        $lines[] = '    unset($singletons[$dependencyIndex]);';
+        $lines[] = '    throw $e;';
+        $lines[] = '}';
+
+        return $lines;
     }
 }

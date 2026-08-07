@@ -9,6 +9,7 @@ use Ray\Compiler\Exception\InvalidQualifier;
 use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Annotation\ScriptDir;
+use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
 use function file_exists;
@@ -66,11 +67,13 @@ final class CompiledInjector implements ScriptInjectorInterface
 
         /** @psalm-var ScriptDir $realPath */
         $this->scriptDir = $realPath;
+        $this->cacheInjector();
         $this->registerLoader();
     }
 
     public function __wakeup()
     {
+        $this->cacheInjector();
         $this->registerLoader();
     }
 
@@ -109,6 +112,11 @@ final class CompiledInjector implements ScriptInjectorInterface
 
         /** @psalm-var T $instance */
         return $instance;
+    }
+
+    private function cacheInjector(): void
+    {
+        $this->singletons[InjectorInterface::class . '-' . Name::ANY] = $this;
     }
 
     private function registerLoader(): void
