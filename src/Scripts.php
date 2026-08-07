@@ -9,7 +9,6 @@ use Override;
 
 use function count;
 use function sprintf;
-use function str_replace;
 
 /** @psalm-import-type Scripts from Types */
 final class Scripts implements Countable
@@ -30,7 +29,7 @@ final class Scripts implements Countable
 EOL;
         $filePutContents = new FilePutContents();
         foreach ($this->scripts as $index => $script) {
-            $file = sprintf('%s/%s.php', $scriptDir, str_replace('\\', '_', $index));
+            $file = sprintf('%s/%s.php', $scriptDir, ScriptName::forIndex($index));
             $script = sprintf($template, $script);
             $filePutContents($file, $script);
         }
