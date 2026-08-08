@@ -85,7 +85,6 @@ EOT;
         // Verify the instance is created correctly with array defaults
         $expected = <<<'EOT'
 $instance = new \Ray\Compiler\FakeClassWithArrayDefault(unserialize('a:1:{s:3:"key";s:5:"value";}'), unserialize('a:3:{i:0;i:1;i:1;i:2;i:2;i:3;}'));
-// prototype
 return $instance;
 EOT;
         $this->assertSame($this->normalizeLineEndings($expected), $this->normalizeLineEndings($code));
@@ -107,7 +106,6 @@ $instance->setSpareMirror(\Ray\Compiler\singleton($scriptDir, $singletons, 'Ray\
 $instance->setHandle(\Ray\Compiler\prototype($scriptDir, $singletons, 'Ray\\Compiler\\FakeHandleInterface-', '/Ray_Compiler_FakeHandleInterface-.php', ['Ray\Compiler\FakeCar', 'setHandle', 'handle']));
 $instance->setOil(\Ray\Compiler\prototype($scriptDir, $singletons, 'Ray\\Compiler\\FakeOilInterface-', '/Ray_Compiler_FakeOilInterface-.php', ['Ray\Compiler\FakeCar', 'setOil', 'oil']));
 $instance->postConstruct();
-// prototype
 return $instance;
 EOT;
         $this->assertSame(
@@ -127,7 +125,6 @@ EOT;
         $expected = <<<'EOT'
 $instance = new \Ray\Compiler\FakeHandleProvider('momo');
 $instance = $instance->get();
-// prototype
 return $instance;
 EOT;
         $this->assertSame(
@@ -173,7 +170,6 @@ EOT;
 $instance = new \Ray\Compiler\FakeContextualProvider();
 $instance->setContext('context');
 $instance = $instance->get();
-// prototype
 return $instance;
 EOT;
         $this->assertSame(

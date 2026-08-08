@@ -44,6 +44,18 @@ $injector = new CompiledInjector($scriptDir);
 $instance = $injector->getInstance(YourInterface::class);
 ```
 
+Warming Up Singletons
+---------------------
+Compilation also generates singletons.json, a list of singleton bindings that can be instantiated without caller context. In a coroutine runtime (Swoole, OpenSwoole), lazy singleton initialization can race when construction yields; call warmup() once at worker startup to remove that window. Standard PHP-FPM workers normally process one request at a time, so no warm-up is required there.
+
+```php
+$injector = new CompiledInjector($scriptDir);
+$injector->warmup();
+```
+
+- Compilation throws SingletonRequiresInjectionPoint if a singleton requires a caller injection point. Use prototype scope or remove the injection-point dependency.
+- warmup() throws SingletonsFileNotFound if singletons.json is missing. Recompile with the current Ray.Compiler version.
+
 Core Components
 ---------------
 
@@ -57,6 +69,7 @@ Core Components
    - Does NOT use reflection - all necessary metadata embedded in compiled scripts
    - getInstance() simply constructs file path and executes script via require
    - Manages singleton instances in $singletons array
+   - warmup() eagerly instantiates every singleton listed in singletons.json
 
 3. Scope Functions (src-function/):
    - singleton(): Returns cached instance or requires script file (singleton scope)

@@ -50,6 +50,11 @@ This document explains Ray.Di's module system, dependency resolution, scope mana
    - Stores script index -> PHP code mapping
    - Writes scripts to files named by dependency index (e.g., `Interface-name.php`)
 
+6. **Singleton metadata** (`singletons.json`): Written by Compiler alongside the scripts
+   - Lists every singleton dependency index that can be built without caller context
+   - AOP `MethodInvocation` bindings are excluded because they exist only during interception
+   - Compilation rejects injection-point-dependent singletons
+
 ### Runtime Execution
 
 1. **CompiledInjector** (`src/CompiledInjector.php`): Minimal injector that executes pre-compiled code
@@ -60,6 +65,8 @@ This document explains Ray.Di's module system, dependency resolution, scope mana
    - Registers autoloader for compiled classes
    - Script files named as: `ClassName-bindingName.php`
    - This minimal approach eliminates all Ray.Di runtime overhead
+   - `warmup()` eagerly instantiates every singleton listed in `singletons.json`; call it before concurrent request handling (e.g. coroutine worker start) so lazy singleton initialization cannot race
+   - Compilation throws `SingletonRequiresInjectionPoint` when a singleton requires caller context; use prototype scope or remove the injection-point dependency
 
 2. **Scope Functions** (`src-function/`): Helper functions used in compiled scripts
    - `singleton()`: Returns cached instance or requires script file (singleton scope)
@@ -145,6 +152,15 @@ InjectionPoint class reconstructs ReflectionParameter from this array.
 
 ## PHP Version Support
 Requires PHP 7.2+ or 8.0+. Code uses both annotations and attributes (PHP 8 attributes via `#[...]` syntax).
+
+## Comments
+
+Keep comments sparse. This codebase favors near-zero comment density (e.g. `src/Scripts.php` has none).
+
+- Comment only the *why* that the code cannot express; never narrate *what* the code does.
+- Prefer one-line docblocks. Multi-paragraph explanations belong in commit messages or docs, not source.
+- Add `@param`/`@return`/`@var` only when they carry type information the signature cannot (Psalm/PHPStan types).
+- No restating the method name in prose, no conversational or changelog-style comments.
 
 ## Compiled Output Should Not Be Committed
 The `/tmp/di/` or similar compiled script directories should be in `.gitignore`. Compilation happens during deployment/build, not development.
