@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] - 2026-08-08
+
+### Added
+- Add `CompiledInjector::warmup()` — eagerly instantiates every singleton listed in the compiler-generated `singletons.json`, closing the lazy-initialization race window in coroutine runtimes (Swoole, OpenSwoole); call once at worker start. Not needed under PHP-FPM [#137] [#140]
+- Add `SingletonRequiresInjectionPoint` exception — `compile()` rejects singletons whose construction needs a caller-supplied injection point (first-consumer-wins bindings); use prototype scope instead [#140]
+- Add `InjectionPointNotAvailable` exception — resolving an injection-point binding without a consumer context fails with a dedicated exception instead of a bare `TypeError` [#140]
+- Add `SingletonsFileNotFound` exception — `warmup()` fails loudly when the singleton metadata is missing (recompile) [#140]
+
+### Changed
+- Reject an unsafe dependency index instead of encoding it; escape the index and export serialized values in generated code [#139]
+- Generated scripts no longer carry `// prototype` / `// singleton` scope comments; the `$singletons` write line already expresses the scope [#140]
+
+### Fixed
+- Align the singleton PostConstruct lifecycle with Ray.Di: the injector caches itself, and a failed setter/`setContext()` rolls back the provisional cache entry instead of leaving a half-initialized singleton behind [#138]
+
 ## [1.14.0] - 2026-07-12
 
 ### Changed
@@ -77,6 +92,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Previous releases (prior to 1.11.0) are not documented in this changelog.
 
+[1.15.0]: https://github.com/ray-di/Ray.Compiler/compare/1.14.0...1.15.0
+[1.14.0]: https://github.com/ray-di/Ray.Compiler/compare/1.13.1...1.14.0
 [1.13.1]: https://github.com/ray-di/Ray.Compiler/compare/1.13.0...1.13.1
 [1.13.0]: https://github.com/ray-di/Ray.Compiler/compare/1.12.3...1.13.0
 [1.12.3]: https://github.com/ray-di/Ray.Compiler/compare/1.12.2...1.12.3
