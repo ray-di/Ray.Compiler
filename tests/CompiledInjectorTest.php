@@ -6,6 +6,7 @@ namespace Ray\Compiler;
 
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
+use Ray\Compiler\Exception\InjectionPointNotAvailable;
 use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Di\Exception\Unbound;
 
@@ -59,6 +60,13 @@ class CompiledInjectorTest extends TestCase
     {
         $instance = $this->injector->getInstance(FakeLoggerConsumer::class);
         $this->assertInstanceOf(FakeLoggerConsumer::class, $instance);
+    }
+
+    public function testInjectionPointNotAvailableWithoutConsumer(): void
+    {
+        $this->expectException(InjectionPointNotAvailable::class);
+        $this->expectExceptionMessage(FakeLoggerInterface::class . '-' . FakeLoggerInject::class);
+        $this->injector->getInstance(FakeLoggerInterface::class, FakeLoggerInject::class);
     }
 
     public function testSingleton(): void

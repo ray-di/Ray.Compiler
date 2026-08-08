@@ -7,18 +7,24 @@ namespace Ray\Compiler;
 use Override;
 use Ray\Compiler\Exception\InvalidQualifier;
 use Ray\Compiler\Exception\ScriptDirNotReadable;
+use Ray\Compiler\Exception\SingletonsFileNotFound;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Di\Annotation\ScriptDir;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
 
+use function explode;
 use function file_exists;
+use function file_get_contents;
 use function in_array;
 use function is_dir;
 use function is_readable;
+use function json_decode;
 use function realpath;
 use function spl_autoload_register;
 use function sprintf;
+
+use const JSON_THROW_ON_ERROR;
 
 /**
  * Compiled Injector
@@ -33,6 +39,8 @@ use function sprintf;
  */
 final class CompiledInjector implements ScriptInjectorInterface
 {
+    public const SINGLETONS_FILE = 'singletons.json';
+
     /** @var ScriptDir */
     private readonly string $scriptDir;
 
@@ -112,6 +120,30 @@ final class CompiledInjector implements ScriptInjectorInterface
 
         /** @psalm-var T $instance */
         return $instance;
+    }
+
+    /**
+     * Call before concurrent request handling (e.g. coroutine worker start) so that lazy
+     * singleton initialization cannot race. A failure aborts with the original exception.
+     *
+     * @throws SingletonsFileNotFound The script dir was not compiled with singleton metadata.
+     */
+    public function warmup(): void
+    {
+        $file = $this->scriptDir . '/' . self::SINGLETONS_FILE;
+        if (! file_exists($file)) {
+            // A silent no-op would leave the caller believing the race protection is active
+            throw new SingletonsFileNotFound($file);
+        }
+
+        /** @var list<string> $indexes */
+        $indexes = json_decode((string) file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
+        foreach ($indexes as $index) {
+            $parts = explode('-', $index, 2);
+            /** @var ''|class-string $interface */
+            $interface = $parts[0];
+            $this->getInstance($interface, $parts[1] ?? Name::ANY);
+        }
     }
 
     private function cacheInjector(): void

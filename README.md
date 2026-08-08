@@ -73,6 +73,24 @@ Add compile script to your `composer.json`:
 }
 ```
 
+### Warming Up Singletons
+
+Compilation also generates `singletons.json`, a list of singleton bindings that can be instantiated without caller context. `CompiledInjector::warmup()` instantiates them all eagerly:
+
+```php
+$injector = new CompiledInjector($scriptDir);
+$injector->warmup(); // call once at worker startup
+```
+
+In a long-lived or coroutine runtime (Swoole, OpenSwoole), lazy singleton initialization can race when construction yields, producing duplicate instances. Calling `warmup()` before concurrent request handling begins removes that window.
+
+This is only needed for runtimes that handle requests concurrently within one process. Standard PHP-FPM workers normally process one request at a time, so no warm-up is required there.
+
+An injection-point-dependent singleton would capture whichever consumer constructs it first, making the shared instance order-dependent. Such bindings must use prototype scope or remove the injection-point dependency.
+
+- Compilation throws `SingletonRequiresInjectionPoint` for an injection-point-dependent singleton.
+- `warmup()` throws `SingletonsFileNotFound` if `singletons.json` is missing. Recompile with the current Ray.Compiler version.
+
 ## Version Control
 
 Compiled DI code is considered an environment-specific build artifact and **should not** be committed to version control. This approach ensures that your repository remains clean and build artifacts do not cause merge conflicts or unexpected behavior across different environments.
@@ -88,4 +106,3 @@ Add the compile directory to your `.gitignore`:
 - **[Performance & OPcache](docs/performance.md)** - Why the compiled injector is fast, the OPcache prerequisite, and how to benchmark it correctly
 - **[LLM Documentation](https://ray-di.github.io/Ray.Compiler/llms.txt)** - Brief documentation optimized for LLMs
 - **[Complete LLM Documentation](https://ray-di.github.io/Ray.Compiler/llms-full.txt)** - Full documentation with architecture details
-

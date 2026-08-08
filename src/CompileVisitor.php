@@ -17,14 +17,18 @@ use ReflectionParameter;
 
 use function assert;
 use function gettype;
+use function implode;
 use function is_array;
 use function is_object;
 use function is_scalar;
 use function is_string;
 use function serialize;
 use function sprintf;
-use function str_replace;
+use function strrpos;
+use function substr;
 use function var_export;
+
+use const PHP_EOL;
 
 final class CompileVisitor implements VisitorInterface
 {
@@ -33,6 +37,11 @@ final class CompileVisitor implements VisitorInterface
     public function __construct(Container $container)
     {
         $this->script = new InstanceScript($container);
+    }
+
+    public function consumeInjectionPointUsage(): bool
+    {
+        return $this->script->consumeInjectionPointUsage();
     }
 
     /** @inheritDoc */
@@ -57,10 +66,10 @@ final class CompileVisitor implements VisitorInterface
         $this->script->pushProviderContext($context);
         $script = $dependency->accept($this);
         assert(is_string($script));
+        $pos = strrpos($script, InstanceScript::RETURN_INSTANCE);
+        assert($pos !== false);
 
-        $providerScript = $this->getProviderScript($isSingleton);
-
-        return str_replace(InstanceScript::COMMENT, $providerScript, $script);
+        return substr($script, 0, $pos) . $this->getProviderScript($isSingleton);
     }
 
     /** @inheritDoc */
@@ -143,17 +152,13 @@ final class CompileVisitor implements VisitorInterface
 
     private function getProviderScript(bool $isSingleton): string
     {
+        $lines = ['$instance = $instance->get();'];
         if ($isSingleton) {
-            return <<<'EOT'
-$instance = $instance->get();
-// singleton
-$singletons[$dependencyIndex] = $instance;
-EOT;
+            $lines[] = '$singletons[$dependencyIndex] = $instance;';
         }
 
-        return <<<'EOT'
-$instance = $instance->get();
-// prototype
-EOT;
+        $lines[] = InstanceScript::RETURN_INSTANCE;
+
+        return implode(PHP_EOL, $lines);
     }
 }

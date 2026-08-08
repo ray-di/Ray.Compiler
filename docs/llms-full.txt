@@ -57,6 +57,11 @@ Compilation Flow
    - Stores script index -> PHP code mapping
    - Writes scripts to files named by dependency index (e.g., Interface-name.php)
 
+6. Singleton metadata (singletons.json): Written by Compiler alongside the scripts
+   - Lists every singleton dependency index that can be built without caller context
+   - AOP MethodInvocation bindings are excluded because they exist only during interception
+   - Compilation rejects injection-point-dependent singletons
+
 Runtime Execution
 ~~~~~~~~~~~~~~~~~
 
@@ -68,6 +73,7 @@ Runtime Execution
    - Registers autoloader for compiled classes
    - Script files named as: ClassName-bindingName.php
    - This minimal approach eliminates all Ray.Di runtime overhead
+   - warmup() eagerly instantiates every singleton listed in singletons.json; call it before concurrent request handling (e.g. coroutine worker start) so lazy singleton initialization cannot race
 
 2. Scope Functions (src-function/): Helper functions used in compiled scripts
    - singleton(): Returns cached instance or requires script file (singleton scope)
@@ -138,6 +144,23 @@ Add compile script to your composer.json:
     }
 }
 ```
+
+Warming Up Singletons
+~~~~~~~~~~~~~~~~~~~~~
+
+Compilation also generates singletons.json, a list of singleton bindings that can be instantiated without caller context. CompiledInjector::warmup() instantiates them all eagerly:
+
+```php
+$injector = new CompiledInjector($scriptDir);
+$injector->warmup(); // call once at worker startup
+```
+
+In a long-lived or coroutine runtime (Swoole, OpenSwoole), lazy singleton initialization can race when construction yields, producing duplicate instances. Calling warmup() before concurrent request handling begins removes that window.
+
+This is only needed for runtimes that handle requests concurrently within one process. Standard PHP-FPM workers normally process one request at a time, so no warm-up is required there.
+
+- Compilation throws SingletonRequiresInjectionPoint if a singleton requires a caller injection point. Use prototype scope or remove the injection-point dependency.
+- warmup() throws SingletonsFileNotFound if singletons.json is missing. Recompile with the current Ray.Compiler version.
 
 Deployment
 ----------

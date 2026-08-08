@@ -32,7 +32,7 @@ final class InstanceScript
     public const RAY_DI_INJECTOR_INTERFACE = 'Ray\Di\InjectorInterface-';
     public const RAY_DI_INJECTION_POINT_INTERFACE = 'Ray\Di\InjectionPointInterface-';
     public const RAY_DI_SCRIPT_DIR = '-Ray\Di\Annotation\ScriptDir';
-    public const COMMENT = '// prototype';
+    public const RETURN_INSTANCE = 'return $instance;';
 
     /** @var array<mixed> */
     private array $args = [];
@@ -44,6 +44,7 @@ final class InstanceScript
     private array $laterLines = [];  // Setter injection and postConstruct
     private string $context = '';
     private bool $implementsSetContext = false;
+    private bool $injectionPointUsed = false;
 
     /** @var array<DependencyInterface> */
     private array $container;
@@ -73,7 +74,8 @@ final class InstanceScript
             }
 
             if ($index === self::RAY_DI_INJECTION_POINT_INTERFACE) {
-                $this->args[] = '\Ray\Compiler\InjectionPoint::getInstance($ip)';
+                $this->args[] = '\Ray\Compiler\InjectionPoint::getInstance($ip ?? throw new \Ray\Compiler\Exception\InjectionPointNotAvailable($dependencyIndex))';
+                $this->injectionPointUsed = true;
 
                 return;
             }
@@ -158,6 +160,14 @@ final class InstanceScript
         $this->formerLines[] = sprintf('$instance->bindings = [%s    %s%s];', PHP_EOL, implode(', ' . PHP_EOL . '    ', $interceptors), PHP_EOL);
     }
 
+    public function consumeInjectionPointUsage(): bool
+    {
+        $used = $this->injectionPointUsed;
+        $this->injectionPointUsed = false;
+
+        return $used;
+    }
+
     public function getScript(string|null $postConstruct, bool $isSingleton): string
     {
         $initLines = $this->initializationLines($postConstruct);
@@ -169,12 +179,11 @@ final class InstanceScript
             $this->laterLines[] = $line;
         }
 
-        $this->laterLines[] = self::COMMENT;
         if ($isSingleton && ! $isProvisional) {
             $this->laterLines[] = '$singletons[$dependencyIndex] = $instance;';
         }
 
-        $this->laterLines[] = 'return $instance;';
+        $this->laterLines[] = self::RETURN_INSTANCE;
 
         $script = implode(PHP_EOL, $this->formerLines) . PHP_EOL . implode(PHP_EOL, $this->laterLines);
         $this->formerLines = [];
