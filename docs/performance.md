@@ -121,3 +121,10 @@ In a warm worker `unserialize()` drops to ~1–2 ms (classes already loaded), so
 compiled both land in the low-millisecond range; the dramatic gap is the cold first request and the
 linear-vs-sub-linear scaling. These are indicative single-run figures on one machine; treat warm
 numbers as approximate.
+
+The structure behind these numbers: `compiled` moves work from request time to build time, makes the
+runtime cost proportional to what a request actually uses rather than to the total binding set, and
+produces artifacts OPcache can share across processes — the same principle OPcache itself applies to
+PHP code. Under php-fpm this is decisive, because per-process work is a per-request tax. In
+long-lived workers (Swoole, RoadRunner) that cost is amortized over the worker lifetime instead, and
+`CompiledInjector::warmup()` can front-load even the lazy part at worker start.
