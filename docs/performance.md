@@ -126,5 +126,4 @@ The structure behind these numbers: `compiled` moves work from request time to b
 runtime cost proportional to what a request actually uses rather than to the total binding set, and
 produces artifacts OPcache can share across processes — the same principle OPcache itself applies to
 PHP code. Under php-fpm this is decisive, because per-process work is a per-request tax. In
-long-lived workers (Swoole, RoadRunner) that cost is amortized over the worker lifetime instead, and
-`CompiledInjector::warmup()` can front-load even the lazy part at worker start.
+long-lived workers (Swoole, RoadRunner) that cost is amortized over the worker lifetime instead.
