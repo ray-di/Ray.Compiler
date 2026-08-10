@@ -44,8 +44,8 @@ $injector = new CompiledInjector($scriptDir);
 $instance = $injector->getInstance(YourInterface::class);
 ```
 
-Warming Up Singletons
----------------------
+Warming Up Singletons on Coroutine Runtime Servers
+--------------------------------------------------
 Compilation also generates singletons.json, a list of singleton bindings that can be instantiated without caller context. In a coroutine runtime (Swoole, OpenSwoole), lazy singleton initialization can race when construction yields; call warmup() once at worker startup to remove that window. Standard PHP-FPM workers normally process one request at a time, so no warm-up is required there.
 
 ```php
