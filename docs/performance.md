@@ -97,3 +97,33 @@ Run it yourself:
 ```bash
 php -d xdebug.mode=off -d opcache.enable_cli=1 -d opcache.validate_timestamps=0 demo/benchmark/di_benchmark.php
 ```
+
+## Measured at production scale
+
+The fixture above is small. These numbers are from a large production BEAR.Sunday application
+(~600 compiled DI scripts; PHP 8.3, OPcache on, Xdebug off), measuring the per-process cost to
+acquire the application root — i.e. one cold php-fpm request [#135]:
+
+| Strategy | Cost | Breakdown |
+|---|---|---|
+| reflection | **~0.4–0.6 s** | Container build (annotation reading + binding analysis + AOP weaving) dominates |
+| serialize | **~29 ms** | ≈ `unserialize()` of the whole Container (~25 ms, mostly class autoload) + build (~4 ms); blob ~0.5 MB |
+| compiled | **~5 ms** | lazy `require` of only the scripts the root touches (~30 of ~600); offline compile ~0.5 s |
+
+- **reflection** rebuilds the entire Container every process — untenable for shared-nothing. This is
+  the cost the other two exist to avoid.
+- **serialize** scales ~linearly with the binding set, and the blob cannot live in shared OPcache —
+  it is re-`unserialize()`d per process.
+- **compiled** loads only what a request needs — cost tracks the scripts a request touches, not the
+  total binding set — and its scripts can be preloaded into shared OPcache across workers.
+
+In a warm worker `unserialize()` drops to ~1–2 ms (classes already loaded), so warm serialize and
+compiled both land in the low-millisecond range; the dramatic gap is the cold first request and how
+the per-request work scales. These are indicative single-run figures on one machine — warm steady
+state was not cleanly isolated — so treat warm numbers as approximate.
+
+The structure behind these numbers: `compiled` moves work from request time to build time, makes the
+runtime cost proportional to what a request actually uses rather than to the total binding set, and
+produces artifacts OPcache can share across processes — the same principle OPcache itself applies to
+PHP code. Under php-fpm this is decisive, because per-process work is a per-request tax. In
+long-lived workers (Swoole, RoadRunner) that cost is amortized over the worker lifetime instead.
