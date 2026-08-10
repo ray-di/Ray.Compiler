@@ -114,13 +114,13 @@ acquire the application root — i.e. one cold php-fpm request [#135]:
   the cost the other two exist to avoid.
 - **serialize** scales ~linearly with the binding set, and the blob cannot live in shared OPcache —
   it is re-`unserialize()`d per process.
-- **compiled** loads only what a request needs (sub-linear), and its scripts can be preloaded into
-  shared OPcache across workers.
+- **compiled** loads only what a request needs — cost tracks the scripts a request touches, not the
+  total binding set — and its scripts can be preloaded into shared OPcache across workers.
 
 In a warm worker `unserialize()` drops to ~1–2 ms (classes already loaded), so warm serialize and
-compiled both land in the low-millisecond range; the dramatic gap is the cold first request and the
-linear-vs-sub-linear scaling. These are indicative single-run figures on one machine; treat warm
-numbers as approximate.
+compiled both land in the low-millisecond range; the dramatic gap is the cold first request and how
+the per-request work scales. These are indicative single-run figures on one machine — warm steady
+state was not cleanly isolated — so treat warm numbers as approximate.
 
 The structure behind these numbers: `compiled` moves work from request time to build time, makes the
 runtime cost proportional to what a request actually uses rather than to the total binding set, and
