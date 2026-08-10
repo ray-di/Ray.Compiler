@@ -145,8 +145,8 @@ Add compile script to your composer.json:
 }
 ```
 
-Warming Up Singletons
-~~~~~~~~~~~~~~~~~~~~~
+Warming Up Singletons on Coroutine Runtime Servers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Compilation also generates singletons.json, a list of singleton bindings that can be instantiated without caller context. CompiledInjector::warmup() instantiates them all eagerly:
 
