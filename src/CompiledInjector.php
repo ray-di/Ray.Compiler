@@ -68,18 +68,18 @@ final class CompiledInjector implements ScriptInjectorInterface
     {
         // realpath() cannot resolve stream URIs such as phar://; keep those as given
         $realPath = realpath($scriptDir);
-        if ($realPath === false) {
-            $realPath = $scriptDir;
+        if ($realPath !== false) {
+            $scriptDir = $realPath;
         }
 
-        if (! is_dir($realPath) || ! is_readable($realPath)) {
+        if (! is_dir($scriptDir) || ! is_readable($scriptDir)) {
             $message = sprintf('Script directory "%s" is not readable. See https://ray-di.github.io/Ray.Compiler/error/ScriptDirNotReadable', $scriptDir);
 
             throw new ScriptDirNotReadable($message);
         }
 
-        /** @psalm-var ScriptDir $realPath */
-        $this->scriptDir = $realPath;
+        /** @psalm-var ScriptDir $scriptDir */
+        $this->scriptDir = $scriptDir;
         $this->cacheInjector();
         $this->registerLoader();
     }
