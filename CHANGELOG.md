@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0] - 2026-08-14
+
+### Added
+- Accept `phar://` script directories — `realpath()` cannot resolve stream URIs, so validation falls back to `is_dir()`/`is_readable()`; AOT scripts can now boot from inside a phar archive [#144]
+
 ## [1.15.0] - 2026-08-08
 
 ### Added
@@ -92,6 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Previous releases (prior to 1.11.0) are not documented in this changelog.
 
+[1.16.0]: https://github.com/ray-di/Ray.Compiler/compare/1.15.0...1.16.0
 [1.15.0]: https://github.com/ray-di/Ray.Compiler/compare/1.14.0...1.15.0
 [1.14.0]: https://github.com/ray-di/Ray.Compiler/compare/1.13.1...1.14.0
 [1.13.1]: https://github.com/ray-di/Ray.Compiler/compare/1.13.0...1.13.1
