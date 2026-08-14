@@ -10,6 +10,7 @@
 
 declare(strict_types=1);
 
+@unlink($argv[2]); // Phar appends to an existing archive; start clean
 $phar = new Phar($argv[2]);
 $phar->startBuffering();
 foreach (array_filter((array) glob($argv[1] . '/*')) as $file) {

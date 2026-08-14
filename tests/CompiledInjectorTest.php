@@ -127,7 +127,7 @@ class CompiledInjectorTest extends TestCase
         $scriptDir = __DIR__ . '/tmp/' . __FUNCTION__;
         @mkdir($scriptDir);
         (new Compiler())->compile(new FakeModule(), $scriptDir);
-        $pharFile = $scriptDir . '/app.phar';
+        $pharFile = $scriptDir . '.phar'; // outside $scriptDir so the build never globs its own output
         // The test process runs with phar.readonly=1; build in a child that does not
         exec(sprintf(
             '%s -d phar.readonly=0 %s %s %s 2>&1',
