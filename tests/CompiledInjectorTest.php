@@ -10,10 +10,16 @@ use Ray\Compiler\Exception\InjectionPointNotAvailable;
 use Ray\Compiler\Exception\ScriptDirNotReadable;
 use Ray\Di\Exception\Unbound;
 
+use function escapeshellarg;
+use function exec;
+use function implode;
 use function mkdir;
 use function serialize;
 use function spl_object_hash;
+use function sprintf;
 use function unserialize;
+
+use const PHP_BINARY;
 
 /** @psalm-import-type ScriptDir from CompiledInjector */
 class CompiledInjectorTest extends TestCase
@@ -110,5 +116,30 @@ class CompiledInjectorTest extends TestCase
         $this->expectException(ScriptDirNotReadable::class);
         $this->expectExceptionMessage($scriptDir);
         new CompiledInjector($scriptDir);
+    }
+
+    /**
+     * realpath() returns false for phar:// paths, but compiled scripts are
+     * relocatable (see ScriptDirRelocationTest) and phars can carry them.
+     */
+    public function testScriptDirInsidePhar(): void
+    {
+        $scriptDir = __DIR__ . '/tmp/' . __FUNCTION__;
+        @mkdir($scriptDir);
+        (new Compiler())->compile(new FakeModule(), $scriptDir);
+        $pharFile = $scriptDir . '/app.phar';
+        // The test process runs with phar.readonly=1; build in a child that does not
+        exec(sprintf(
+            '%s -d phar.readonly=0 %s %s %s 2>&1',
+            escapeshellarg(PHP_BINARY),
+            escapeshellarg(__DIR__ . '/script/build_phar.php'),
+            escapeshellarg($scriptDir),
+            escapeshellarg($pharFile),
+        ), $output, $exitCode);
+        $this->assertSame(0, $exitCode, implode("\n", $output));
+
+        $injector = new CompiledInjector('phar://' . $pharFile . '/di');
+        $instance = $injector->getInstance(FakeCarInterface::class);
+        $this->assertInstanceOf(FakeCarInterface::class, $instance);
     }
 }

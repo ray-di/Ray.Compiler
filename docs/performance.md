@@ -56,7 +56,7 @@ return require $file;               // happy path: no stat(), just cached opcode
 A missing compiled script is a build invariant violation (corrupt or incomplete build); PHP 8 makes a
 failed `require` a catchable `Error` that surfaces naturally. `CompiledInjector::getInstance()` keeps its
 `file_exists()` pre-check (it reports unbound interfaces as `Unbound`); its redundant
-`realpath($this->scriptDir)` — already canonicalised in the constructor — was removed.
+`realpath($this->scriptDir)` — already validated in the constructor — was removed.
 
 ## Benchmarking correctly
 

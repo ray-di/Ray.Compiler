@@ -66,8 +66,13 @@ final class CompiledInjector implements ScriptInjectorInterface
     public function __construct(#[ScriptDir]
     string $scriptDir,)
     {
+        // realpath() cannot resolve stream URIs such as phar://; keep those as given
         $realPath = realpath($scriptDir);
-        if ($realPath === false || ! is_dir($realPath) || ! is_readable($realPath)) {
+        if ($realPath === false) {
+            $realPath = $scriptDir;
+        }
+
+        if (! is_dir($realPath) || ! is_readable($realPath)) {
             $message = sprintf('Script directory "%s" is not readable. See https://ray-di.github.io/Ray.Compiler/error/ScriptDirNotReadable', $scriptDir);
 
             throw new ScriptDirNotReadable($message);
@@ -112,7 +117,7 @@ final class CompiledInjector implements ScriptInjectorInterface
 
         /** @psalm-suppress  UnsupportedPropertyReferenceUsage */
         $singletons = &$this->singletons;
-        $scriptDir = $this->scriptDir; // already realpath()d in the constructor
+        $scriptDir = $this->scriptDir; // validated in the constructor
 
         // $scriptDir, $singletons, and $dependencyIndex can be used in the included file
         /** @var mixed $instance */
