@@ -85,7 +85,7 @@ final class CompiledInjector implements ScriptInjectorInterface
     }
 
     /**
-     * Resolved singletons are left out, as in Ray\Di\Injector; each is built again on first use after restore.
+     * Singletons are not serialized, as in Ray\Di\Injector
      *
      * @return list<string>
      */
