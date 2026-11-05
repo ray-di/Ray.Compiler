@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- `CompiledInjector` leaves resolved singletons out of its serialized form, as `Ray\Di\Injector` does; the restored injector builds each again on first use. A compiled injector holding a singleton PHP cannot serialize (a PDO connection, a closure) failed to serialize, and so did any object holding an injected `#[Set]` provider once the provider had been used
+- `CompiledInjector` leaves resolved singletons out of its serialized form, as `Ray\Di\Injector` does; the restored injector builds each again on first use. A compiled injector holding a singleton PHP cannot serialize (a PDO connection, a closure) failed to serialize, and so did any object holding an injected `#[Set]` provider once the provider had been used. A restored injector starts with no singletons even if `warmup()` ran before it was serialized; call `warmup()` again after restoring it in a coroutine runtime [#147]
 
 ## [1.16.0] - 2026-08-14
 
