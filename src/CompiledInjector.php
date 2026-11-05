@@ -84,7 +84,11 @@ final class CompiledInjector implements ScriptInjectorInterface
         $this->registerLoader();
     }
 
-    /** Resolved singletons are left out, as in Ray\Di\Injector; each is built again on first use after restore. */
+    /**
+     * Resolved singletons are left out, as in Ray\Di\Injector; each is built again on first use after restore.
+     *
+     * @return list<string>
+     */
     public function __sleep(): array
     {
         return ['scriptDir'];
