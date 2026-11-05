@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CompiledInjector` leaves resolved singletons out of its serialized form, as `Ray\Di\Injector` does; the restored injector builds each again on first use, running its constructor and `#[PostConstruct]`, and does not keep state those singletons had before serialization. A restored injector starts with no singletons even if `warmup()` ran before it was serialized; call `warmup()` again after restoring it in a coroutine runtime. BEAR.Package 1.23 and earlier, which cached the injector after resolving the application, now build the application graph again in each process, as BEAR.Package 1.24 and later do [#147]
 
 ### Fixed
-- A `CompiledInjector` that has resolved a singleton PHP cannot serialize (a PDO connection, a closure) can be serialized, and so can an object holding an injected `#[Set]` provider of that injector [#147]
+- A `CompiledInjector` can now be serialized after resolving a singleton that PHP cannot serialize (a PDO connection, a closure), as can an object holding an injected `#[Set]` provider of that injector [#147]
 
 ## [1.16.0] - 2026-08-14
 

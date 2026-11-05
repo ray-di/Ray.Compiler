@@ -93,7 +93,6 @@ class CompiledInjectorTest extends TestCase
         $this->assertInstanceOf(FakeCarInterface::class, $instance);
     }
 
-    /** Resolved singletons are left out, as Ray\Di\Injector leaves them out, and built again once after restore. */
     public function testSerializeAfterResolvingASingletonThatCannotBeSerialized(): void
     {
         $scriptDir = __DIR__ . '/tmp/' . __FUNCTION__;
