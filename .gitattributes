@@ -1,4 +1,8 @@
+/.coderabbit.yaml                export-ignore
 /.github                         export-ignore
+/bin                             export-ignore
+/CLAUDE.md                       export-ignore
+/demo                            export-ignore
 /docs                            export-ignore
 /tests                           export-ignore
 /.gitattributes                  export-ignore
@@ -6,13 +10,14 @@
 /.scrutinizer.yml                export-ignore
 /build.xml                       export-ignore
 /codecov.yml                     export-ignore
-/php-require-checker.config.json export-ignore
+/composer-require-checker.json   export-ignore
 /phpcs.xml                       export-ignore
 /phpmd.xml                       export-ignore
 /phpstan.neon                    export-ignore
 /phpunit.xml.dist                export-ignore
 /psalm.xml                       export-ignore
 /psalm.compiler.xml              export-ignore
+/rector.php                      export-ignore
 /vendor-bin                      export-ignore
 
 # Configure diff output for .php and .phar files.
