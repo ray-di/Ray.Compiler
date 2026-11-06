@@ -93,6 +93,22 @@ class CompiledInjectorTest extends TestCase
         $this->assertInstanceOf(FakeCarInterface::class, $instance);
     }
 
+    public function testSerializeAfterResolvingASingletonThatCannotBeSerialized(): void
+    {
+        $scriptDir = __DIR__ . '/tmp/' . __FUNCTION__;
+        @mkdir($scriptDir);
+        (new Compiler())->compile(new FakeUnserializableSingletonModule(), $scriptDir);
+        $injector = new CompiledInjector($scriptDir);
+        $injector->getInstance(FakeUnserializableSingleton::class);
+
+        $restored = unserialize(serialize($injector));
+
+        $this->assertInstanceOf(CompiledInjector::class, $restored);
+        $instance = $restored->getInstance(FakeUnserializableSingleton::class);
+        $this->assertInstanceOf(FakeUnserializableSingleton::class, $instance);
+        $this->assertSame($instance, $restored->getInstance(FakeUnserializableSingleton::class));
+    }
+
     public function testUnbound(): void
     {
         $scriptDir = __DIR__ . '/tmp/' . __FUNCTION__;

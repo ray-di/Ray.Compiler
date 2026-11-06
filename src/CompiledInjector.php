@@ -84,6 +84,16 @@ final class CompiledInjector implements ScriptInjectorInterface
         $this->registerLoader();
     }
 
+    /**
+     * Singletons are not serialized, as in Ray\Di\Injector
+     *
+     * @return list<string>
+     */
+    public function __sleep(): array
+    {
+        return ['scriptDir'];
+    }
+
     public function __wakeup()
     {
         $this->cacheInjector();
