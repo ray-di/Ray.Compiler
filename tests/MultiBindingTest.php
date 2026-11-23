@@ -167,6 +167,7 @@ class MultiBindingTest extends TestCase
         (new Compiler())->compile(new FakeUnboundTargetMultiBindingsModule(false), $this->scriptDir('multi-bindings-unbound-dependency'));
     }
 
+    /** @return non-empty-string */
     private function scriptDir(string $name): string
     {
         $scriptDir = __DIR__ . '/tmp/' . $name;
