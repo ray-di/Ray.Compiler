@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A qualifier with a byte outside `[A-Za-z0-9_.-]`, such as `Foo::class . ':keep'`, compiles again; Ray.Di accepts any string in `annotatedWith()`, and the script file name percent-encodes such bytes [#150]
 
 ### Deprecated
-- `InvalidQualifier` exception; nothing throws it any more (kept for BC) [#150]
+- Deprecate `InvalidQualifier`; nothing throws it (kept for BC) [#150]
 
 ## [1.17.0] - 2026-11-06
 
