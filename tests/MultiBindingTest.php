@@ -8,6 +8,7 @@ use LogicException;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
+use Ray\Compiler\Fake\MultiBindings\FakeUnboundTargetMultiBindingsModule;
 use Ray\Compiler\MultiBindings\FakeEngine;
 use Ray\Compiler\MultiBindings\FakeEngine2;
 use Ray\Compiler\MultiBindings\FakeEngineInterface;
@@ -141,5 +142,19 @@ class MultiBindingTest extends TestCase
     {
         $this->expectException(SetNotFound::class);
         $this->injector->getInstance(FakeSetNotFoundWithProvider::class);
+    }
+
+    public function testUnboundTargetIsCompiled(): void
+    {
+        $scriptDir = __DIR__ . '/tmp/multi-bindings-unbound-target';
+        deleteFiles($scriptDir);
+        @mkdir($scriptDir);
+        (new Compiler())->compile(new FakeUnboundTargetMultiBindingsModule(), $scriptDir);
+
+        $consumer = (new CompiledInjector($scriptDir))->getInstance(FakeMultiBindingConsumer::class);
+
+        $this->assertInstanceOf(FakeMultiBindingConsumer::class, $consumer);
+        $this->assertInstanceOf(FakeEngine::class, $consumer->engines['one']);
+        $this->assertInstanceOf(FakeRobot::class, $consumer->robots['provider']);
     }
 }
