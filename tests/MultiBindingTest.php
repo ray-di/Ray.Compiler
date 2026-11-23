@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use LogicException;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
+use Ray\Aop\WeavedInterface;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
 use Ray\Compiler\Fake\MultiBindings\FakeUnboundTargetMultiBindingsModule;
@@ -158,6 +159,7 @@ class MultiBindingTest extends TestCase
         $named = $consumer->engines['named'];
         $this->assertInstanceOf(FakeNamedEngine::class, $named);
         $this->assertSame('qiq', $named->name);
+        $this->assertInstanceOf(WeavedInterface::class, $named);
         $this->assertInstanceOf(FakeRobot::class, $consumer->robots['provider']);
     }
 

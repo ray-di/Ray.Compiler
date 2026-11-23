@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ray\Compiler\Fake\MultiBindings;
 
+use Ray\Compiler\FakeDoubleInterceptor;
 use Ray\Compiler\MultiBindings\FakeEngine;
 use Ray\Compiler\MultiBindings\FakeEngineInterface;
 use Ray\Compiler\MultiBindings\FakeMultiBindingConsumer;
@@ -29,6 +30,7 @@ final class FakeUnboundTargetMultiBindingsModule extends AbstractModule
         $engines->addBinding('named')->to(FakeNamedEngine::class);
         MultiBinder::newInstance($this, FakeRobotInterface::class)->addBinding('provider')->toProvider(FakeRobotProvider::class);
         $this->bind(FakeMultiBindingConsumer::class);
+        $this->bindInterceptor($this->matcher->subclassesOf(FakeNamedEngine::class), $this->matcher->any(), [FakeDoubleInterceptor::class]);
         if ($this->bindTargetDependency) {
             $this->bind()->annotatedWith(FakeNamedEngine::NAME)->toInstance('qiq');
         }
