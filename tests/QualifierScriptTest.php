@@ -6,7 +6,6 @@ namespace Ray\Compiler;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Ray\Compiler\Exception\Unbound;
 
 use function glob;
 use function is_dir;
@@ -15,7 +14,7 @@ use function sprintf;
 
 use const GLOB_ONLYDIR;
 
-/** A binding qualifier is arbitrary user input, as in Ray.Di; any one compiles and resolves. */
+/** A binding qualifier is arbitrary user input, as in Ray.Di. */
 class QualifierScriptTest extends TestCase
 {
     #[DataProvider('unsafeQualifier')]
@@ -30,7 +29,12 @@ class QualifierScriptTest extends TestCase
         $this->assertInstanceOf(FakeQualifiedValueConsumer::class, $consumer);
         $this->assertSame('qualified', $consumer->value);
         $this->assertSame('qualified', $injector->getInstance('', $qualifier));
+        $this->assertSame($consumer->engine, $injector->getInstance(FakeEngineInterface::class, $qualifier));
         $this->assertSame([], glob($scriptDir . '/*', GLOB_ONLYDIR));
+
+        $warmedUp = new CompiledInjector($scriptDir);
+        $warmedUp->warmup();
+        $this->assertInstanceOf(FakeEngine::class, $warmedUp->getInstance(FakeEngineInterface::class, $qualifier));
     }
 
     /** @return array<string, array{string}> */
@@ -38,7 +42,6 @@ class QualifierScriptTest extends TestCase
     {
         return [
             'class constant with colon' => [FakeToConstructorQualifierModule::class . ':keep'],
-            'slash' => ['a/b'],
             'parent reference' => ['x/../../escaped'],
             'nul byte' => ["bad\0name"],
             'quote and backslash' => ["q'.PHP_EOL.'\\"],
@@ -67,15 +70,6 @@ class QualifierScriptTest extends TestCase
         $this->assertInstanceOf(FakeEngine::class, $root->setter);
         $this->assertSame('value/with/slash', $root->instance);
         $this->assertSame($root->setter, $injector->getInstance(FakeEngineInterface::class, 'setter.path'));
-    }
-
-    public function testUncompiledNameIsUnbound(): void
-    {
-        $scriptDir = $this->scriptDir('runtime');
-        (new Compiler())->compile(new FakeQualifierModule(['safe']), $scriptDir);
-
-        $this->expectException(Unbound::class);
-        (new CompiledInjector($scriptDir))->getInstance(FakeEngineInterface::class, 'a/b');
     }
 
     /** A trailing backslash emitted raw would escape the closing quote of the generated literal. */

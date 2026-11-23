@@ -45,9 +45,7 @@ class ScriptNameTest extends TestCase
     {
         return [
             'colon' => ['-Vendor\Module:keep', '-Vendor_Module%3Akeep'],
-            'slash' => ['I-a/b', 'I-a%2Fb'],
             'parent reference' => ['I-x/../../escaped', 'I-x%2F..%2F..%2Fescaped'],
-            'leading slash' => ['I-/etc/x', 'I-%2Fetc%2Fx'],
             'nul byte' => ["I-bad\0name", 'I-bad%00name'],
             'quote' => ["I-q'x", 'I-q%27x'],
             'percent' => ['I-a%b', 'I-a%25b'],

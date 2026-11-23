@@ -12,7 +12,7 @@ use function str_replace;
 /**
  * Maps a dependency index (`Interface-qualifier`) to a script file base name
  *
- * A byte other than `[A-Za-z0-9_.-]` or >= 0x80 is percent-encoded, so the name stays
+ * Every byte except `[A-Za-z0-9_.-]` and 0x80-0xFF is percent-encoded, so the name stays
  * one path segment and safe inside a quoted PHP literal.
  */
 final class ScriptName
