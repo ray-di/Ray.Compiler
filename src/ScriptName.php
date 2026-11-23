@@ -4,30 +4,28 @@ declare(strict_types=1);
 
 namespace Ray\Compiler;
 
-use Ray\Compiler\Exception\InvalidQualifier;
-
-use function preg_match;
+use function ord;
+use function preg_replace_callback;
 use function sprintf;
 use function str_replace;
 
 /**
  * Maps a dependency index (`Interface-qualifier`) to a script file base name
  *
- * The qualifier is arbitrary user input (`->annotatedWith()`), so a byte outside
- * `[A-Za-z0-9_.-]` (and >= 0x80) is rejected rather than sanitized: it would
- * otherwise reach the filesystem and the generated code raw.
+ * Every byte except `[A-Za-z0-9_.-]` and 0x80-0xFF is percent-encoded, so the name stays
+ * one path segment and safe inside a quoted PHP literal.
  */
 final class ScriptName
 {
-    private const SAFE = '/\A[A-Za-z0-9_.\-\x80-\xFF]+\z/';
+    private const UNSAFE_BYTE = '/[^A-Za-z0-9_.\-\x80-\xFF]/';
 
     public static function forIndex(string $index): string
     {
-        $name = str_replace('\\', '_', $index);
-        if (preg_match(self::SAFE, $name) !== 1) {
-            throw new InvalidQualifier(sprintf('Unsafe dependency index: "%s"', $index));
-        }
-
-        return $name;
+        return (string) preg_replace_callback(
+            self::UNSAFE_BYTE,
+            /** @param array{0: string} $matches */
+            static fn (array $matches): string => sprintf('%%%02X', ord($matches[0])),
+            str_replace('\\', '_', $index),
+        );
     }
 }

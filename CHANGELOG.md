@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `compile()` throws `Unbound` for a class added with `MultiBinder` `to()` or `toProvider()` that has no unnamed binding. Bind it explicitly, e.g. `$this->bind(FooStep::class)`, or the provider class for `toProvider()` [#148]
+- Conflict with bear/qiq-module 2.1.0–2.1.2, whose `QiqProdModule` does not bind its compile step; update it to 2.1.3 [#148]
+
+## [1.17.1] - 2026-11-23
+
+### Fixed
+- A qualifier with a byte outside `[A-Za-z0-9_.-]`, such as `Foo::class . ':keep'`, compiles again; Ray.Di accepts any string in `annotatedWith()`, and the script file name percent-encodes such bytes [#150]
+
+### Deprecated
+- Deprecate `InvalidQualifier`; nothing throws it (kept for BC) [#150]
 
 ## [1.17.0] - 2026-11-06
 
@@ -111,6 +120,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Previous releases (prior to 1.11.0) are not documented in this changelog.
 
+[Unreleased]: https://github.com/ray-di/Ray.Compiler/compare/1.17.1...HEAD
+[1.17.1]: https://github.com/ray-di/Ray.Compiler/compare/1.17.0...1.17.1
 [1.17.0]: https://github.com/ray-di/Ray.Compiler/compare/1.16.0...1.17.0
 [1.16.0]: https://github.com/ray-di/Ray.Compiler/compare/1.15.0...1.16.0
 [1.15.0]: https://github.com/ray-di/Ray.Compiler/compare/1.14.0...1.15.0
