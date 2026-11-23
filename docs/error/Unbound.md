@@ -110,6 +110,7 @@ $this->bind(FooStep::class);
 2. ✓ Compilation was successful
 3. ✓ Compiled files exist in the correct location
 4. ✓ Paths are consistent between environments
+5. ✓ Every `MultiBinder` `to()` / `toProvider()` class is bound
 
 ## Related Errors
 

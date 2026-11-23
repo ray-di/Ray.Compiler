@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `compile()` throws `Unbound` for a class added with `MultiBinder` `to()` or `toProvider()` that has no unnamed binding. Bind it explicitly, e.g. `$this->bind(FooStep::class)`, or the provider class for `toProvider()` [#148]
-- Conflict with bear/qiq-module 2.1.0–2.1.2, whose `QiqProdModule` does not bind its compile step; update it to 2.1.3 [#148]
+- Conflict with bear/qiq-module 2.1.0–2.1.2 and madapaja/twig-module 2.8.0, which do not bind their compile step; update them together with ray/compiler (`composer update ray/compiler bear/qiq-module`) [#148]
 
 ## [1.17.1] - 2026-11-23
 
