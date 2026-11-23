@@ -111,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Previous releases (prior to 1.11.0) are not documented in this changelog.
 
+[Unreleased]: https://github.com/ray-di/Ray.Compiler/compare/1.17.0...HEAD
 [1.17.0]: https://github.com/ray-di/Ray.Compiler/compare/1.16.0...1.17.0
 [1.16.0]: https://github.com/ray-di/Ray.Compiler/compare/1.15.0...1.16.0
 [1.15.0]: https://github.com/ray-di/Ray.Compiler/compare/1.14.0...1.15.0
