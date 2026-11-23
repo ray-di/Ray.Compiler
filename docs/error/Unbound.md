@@ -88,6 +88,22 @@ $this->bind(BarInterface::class)->to(Bar::class);
 class BarInterface_Bar implements BarInterface
 ```
 
+### 4. Unbound Multibinding Target
+
+`compile()` throws `Unbound` when a class added with `MultiBinder::addBinding()->to()` or `->toProvider()` has no unnamed binding:
+
+```php
+MultiBinder::newInstance($this, StepInterface::class)->addBinding('foo')->to(FooStep::class);
+```
+
+#### Solution:
+
+Bind the class itself (the provider class for `toProvider()`):
+
+```php
+$this->bind(FooStep::class);
+```
+
 ## Quick Checklist
 
 1. ✓ Required bindings are defined in your module

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- `compile()` throws `Unbound` for a multibinding target added with `to()` or `toProvider()` that the module does not bind. Bind the target explicitly (`$this->bind(Target::class)`), as Ray.Di 2.24 asks for [#148]
+- `compile()` throws `Unbound` for a class added with `MultiBinder` `to()` or `toProvider()` that has no unnamed binding. Bind it explicitly, e.g. `$this->bind(FooStep::class)`, or the provider class for `toProvider()` [#148]
 
 ## [1.17.0] - 2026-11-06
 

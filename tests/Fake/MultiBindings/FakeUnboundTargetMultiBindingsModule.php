@@ -15,7 +15,8 @@ use Ray\Di\MultiBinder;
 final class FakeUnboundTargetMultiBindingsModule extends AbstractModule
 {
     public function __construct(
-        private bool $provider
+        private bool $provider,
+        private bool $qualifiedOnly = false
     ) {
         parent::__construct();
     }
@@ -29,5 +30,8 @@ final class FakeUnboundTargetMultiBindingsModule extends AbstractModule
         }
 
         MultiBinder::newInstance($this, FakeEngineInterface::class)->addBinding('one')->to(FakeEngine::class);
+        if ($this->qualifiedOnly) {
+            $this->bind(FakeEngine::class)->annotatedWith('one')->to(FakeEngine::class);
+        }
     }
 }

@@ -149,19 +149,20 @@ class MultiBindingTest extends TestCase
 
     /** CompiledInjector has no just-in-time binding, so an unbound target would fail only when the Map is read */
     #[DataProvider('unboundTarget')]
-    public function testUnboundTargetIsRejectedAtCompileTime(bool $provider, string $index): void
+    public function testUnboundTargetIsRejectedAtCompileTime(bool $provider, bool $qualifiedOnly, string $index): void
     {
         $this->expectException(Unbound::class);
         $this->expectExceptionMessage($index);
-        (new Compiler())->compile(new FakeUnboundTargetMultiBindingsModule($provider), $this->scriptDir('multi-bindings-unbound-target'));
+        (new Compiler())->compile(new FakeUnboundTargetMultiBindingsModule($provider, $qualifiedOnly), $this->scriptDir('multi-bindings-unbound-target'));
     }
 
-    /** @return array<string, array{bool, string}> */
+    /** @return array<string, array{bool, bool, string}> */
     public static function unboundTarget(): array
     {
         return [
-            'to' => [false, FakeEngine::class . '-'],
-            'toProvider' => [true, FakeRobotProvider::class . '-'],
+            'to' => [false, false, FakeEngine::class . '-'],
+            'toProvider' => [true, false, FakeRobotProvider::class . '-'],
+            'bound only with a qualifier' => [false, true, FakeEngine::class . '-'],
         ];
     }
 
