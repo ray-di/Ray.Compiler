@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- A multibinding target added with `to()` or `toProvider()` resolves without binding it in the module, as with `Ray\Di\Injector`; such a target is compiled, so an unbound dependency of it fails the compile [#148]
+### Changed
+- `compile()` throws `Unbound` for a multibinding target added with `to()` or `toProvider()` that the module does not bind. Bind the target explicitly (`$this->bind(Target::class)`), as Ray.Di 2.24 asks for [#148]
 
 ## [1.17.0] - 2026-11-06
 

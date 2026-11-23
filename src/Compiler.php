@@ -6,10 +6,10 @@ namespace Ray\Compiler;
 
 use Ray\Compiler\Exception\CompileLockFailed;
 use Ray\Compiler\Exception\SingletonRequiresInjectionPoint;
+use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\AcceptInterface;
 use Ray\Di\Annotation\ScriptDir;
-use Ray\Di\Bind;
 use Ray\Di\Container;
 use Ray\Di\ContainerFactory;
 use Ray\Di\Dependency;
@@ -56,7 +56,7 @@ final class Compiler
     public function compile(AbstractModule $module, string $scriptDir): Scripts
     {
         $module->override(new CompilerModule($scriptDir));
-        $this->bindMultiBindingTargets($module->getContainer());
+        $this->assertMultiBindingTargetsBound($module->getContainer());
 
         $fp = fopen($scriptDir . '/compile.lock', 'a+');
         if ($fp === false || ! flock($fp, LOCK_EX)) {
@@ -118,9 +118,10 @@ final class Compiler
         return ($dependency instanceof Dependency || $dependency instanceof DependencyProvider) && $dependency->isSingleton();
     }
 
-    /** LazyTo and LazyProvider resolve their target through the injector at runtime, so the target needs a script */
-    private function bindMultiBindingTargets(Container $container): void
+    /** LazyTo and LazyProvider resolve their target through the injector at runtime, which has no just-in-time binding */
+    private function assertMultiBindingTargetsBound(Container $container): void
     {
+        $bindings = $container->getContainer();
         foreach ($container->multiBindings as $lazyBindings) {
             foreach ($lazyBindings as $lazy) {
                 if (! $lazy instanceof LazyTo && ! $lazy instanceof LazyProvider) {
@@ -129,8 +130,9 @@ final class Compiler
 
                 /** @var class-string $target */
                 $target = (new ReflectionProperty($lazy, 'class'))->getValue($lazy);
-                // An unbound concrete class becomes an untargeted binding when Bind is destructed
-                new Bind($container, $target, self::class);
+                if (! isset($bindings[$target . '-'])) {
+                    throw new Unbound($target . '-');
+                }
             }
         }
     }

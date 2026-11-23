@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use LogicException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
-use Ray\Aop\WeavedInterface;
 use Ray\Compiler\Exception\Unbound;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
 use Ray\Compiler\Fake\MultiBindings\FakeUnboundTargetMultiBindingsModule;
@@ -16,9 +16,9 @@ use Ray\Compiler\MultiBindings\FakeEngine2;
 use Ray\Compiler\MultiBindings\FakeEngineInterface;
 use Ray\Compiler\MultiBindings\FakeMultiBindingAnnotation;
 use Ray\Compiler\MultiBindings\FakeMultiBindingConsumer;
-use Ray\Compiler\MultiBindings\FakeNamedEngine;
 use Ray\Compiler\MultiBindings\FakeRobot;
 use Ray\Compiler\MultiBindings\FakeRobotInterface;
+use Ray\Compiler\MultiBindings\FakeRobotProvider;
 use Ray\Compiler\MultiBindings\FakeSetNotFoundWithMap;
 use Ray\Compiler\MultiBindings\FakeSetNotFoundWithProvider;
 use Ray\Di\AbstractModule;
@@ -147,26 +147,22 @@ class MultiBindingTest extends TestCase
         $this->injector->getInstance(FakeSetNotFoundWithProvider::class);
     }
 
-    public function testUnboundTargetIsCompiled(): void
-    {
-        $scriptDir = $this->scriptDir('multi-bindings-unbound-target');
-        (new Compiler())->compile(new FakeUnboundTargetMultiBindingsModule(), $scriptDir);
-
-        $consumer = (new CompiledInjector($scriptDir))->getInstance(FakeMultiBindingConsumer::class);
-
-        $this->assertInstanceOf(FakeMultiBindingConsumer::class, $consumer);
-        $this->assertInstanceOf(FakeEngine::class, $consumer->engines['one']);
-        $named = $consumer->engines['named'];
-        $this->assertInstanceOf(FakeNamedEngine::class, $named);
-        $this->assertSame('qiq', $named->name);
-        $this->assertInstanceOf(WeavedInterface::class, $named);
-        $this->assertInstanceOf(FakeRobot::class, $consumer->robots['provider']);
-    }
-
-    public function testUnboundTargetDependencyFailsAtCompileTime(): void
+    /** CompiledInjector has no just-in-time binding, so an unbound target would fail only when the Map is read */
+    #[DataProvider('unboundTarget')]
+    public function testUnboundTargetIsRejectedAtCompileTime(bool $provider, string $index): void
     {
         $this->expectException(Unbound::class);
-        (new Compiler())->compile(new FakeUnboundTargetMultiBindingsModule(false), $this->scriptDir('multi-bindings-unbound-dependency'));
+        $this->expectExceptionMessage($index);
+        (new Compiler())->compile(new FakeUnboundTargetMultiBindingsModule($provider), $this->scriptDir('multi-bindings-unbound-target'));
+    }
+
+    /** @return array<string, array{bool, string}> */
+    public static function unboundTarget(): array
+    {
+        return [
+            'to' => [false, FakeEngine::class . '-'],
+            'toProvider' => [true, FakeRobotProvider::class . '-'],
+        ];
     }
 
     /** @return non-empty-string */
