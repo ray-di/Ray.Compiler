@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- A qualifier with a byte outside `[A-Za-z0-9_.-]`, such as `Foo::class . ':keep'`, compiles again; Ray.Di accepts any string in `annotatedWith()`, and the script file name percent-encodes such bytes [#150]
+
+### Deprecated
+- Deprecate `InvalidQualifier`; nothing throws it (kept for BC) [#150]
+
 ## [1.17.0] - 2026-11-06
 
 ### Changed
@@ -106,6 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Previous releases (prior to 1.11.0) are not documented in this changelog.
 
+[Unreleased]: https://github.com/ray-di/Ray.Compiler/compare/1.17.0...HEAD
 [1.17.0]: https://github.com/ray-di/Ray.Compiler/compare/1.16.0...1.17.0
 [1.16.0]: https://github.com/ray-di/Ray.Compiler/compare/1.15.0...1.16.0
 [1.15.0]: https://github.com/ray-di/Ray.Compiler/compare/1.14.0...1.15.0
