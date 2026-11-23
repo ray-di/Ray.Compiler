@@ -7,6 +7,7 @@ namespace Ray\Compiler;
 use LogicException;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
+use Ray\Compiler\Exception\Unbound;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
 use Ray\Compiler\Fake\MultiBindings\FakeUnboundTargetMultiBindingsModule;
 use Ray\Compiler\MultiBindings\FakeEngine;
@@ -14,6 +15,7 @@ use Ray\Compiler\MultiBindings\FakeEngine2;
 use Ray\Compiler\MultiBindings\FakeEngineInterface;
 use Ray\Compiler\MultiBindings\FakeMultiBindingAnnotation;
 use Ray\Compiler\MultiBindings\FakeMultiBindingConsumer;
+use Ray\Compiler\MultiBindings\FakeNamedEngine;
 use Ray\Compiler\MultiBindings\FakeRobot;
 use Ray\Compiler\MultiBindings\FakeRobotInterface;
 use Ray\Compiler\MultiBindings\FakeSetNotFoundWithMap;
@@ -146,15 +148,31 @@ class MultiBindingTest extends TestCase
 
     public function testUnboundTargetIsCompiled(): void
     {
-        $scriptDir = __DIR__ . '/tmp/multi-bindings-unbound-target';
-        deleteFiles($scriptDir);
-        @mkdir($scriptDir);
+        $scriptDir = $this->scriptDir('multi-bindings-unbound-target');
         (new Compiler())->compile(new FakeUnboundTargetMultiBindingsModule(), $scriptDir);
 
         $consumer = (new CompiledInjector($scriptDir))->getInstance(FakeMultiBindingConsumer::class);
 
         $this->assertInstanceOf(FakeMultiBindingConsumer::class, $consumer);
         $this->assertInstanceOf(FakeEngine::class, $consumer->engines['one']);
+        $named = $consumer->engines['named'];
+        $this->assertInstanceOf(FakeNamedEngine::class, $named);
+        $this->assertSame('qiq', $named->name);
         $this->assertInstanceOf(FakeRobot::class, $consumer->robots['provider']);
+    }
+
+    public function testUnboundTargetDependencyFailsAtCompileTime(): void
+    {
+        $this->expectException(Unbound::class);
+        (new Compiler())->compile(new FakeUnboundTargetMultiBindingsModule(false), $this->scriptDir('multi-bindings-unbound-dependency'));
+    }
+
+    private function scriptDir(string $name): string
+    {
+        $scriptDir = __DIR__ . '/tmp/' . $name;
+        deleteFiles($scriptDir);
+        @mkdir($scriptDir);
+
+        return $scriptDir;
     }
 }
