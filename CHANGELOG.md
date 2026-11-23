@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- A multibinding target added with `to()` or `toProvider()` resolves without binding it in the module, as with `Ray\Di\Injector` [#148]
+- A multibinding target added with `to()` or `toProvider()` resolves without binding it in the module, as with `Ray\Di\Injector`; such a target is compiled, so an unbound dependency of it fails the compile [#148]
 
 ## [1.17.0] - 2026-11-06
 
