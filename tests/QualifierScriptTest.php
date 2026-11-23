@@ -6,32 +6,44 @@ namespace Ray\Compiler;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Ray\Compiler\Exception\InvalidQualifier;
 use Ray\Compiler\Exception\Unbound;
 
+use function glob;
 use function is_dir;
 use function mkdir;
 use function sprintf;
 
-/** A binding qualifier is arbitrary user input; an unsafe one is rejected at compile time. */
+use const GLOB_ONLYDIR;
+
+/** A binding qualifier is arbitrary user input, as in Ray.Di; any one compiles and resolves. */
 class QualifierScriptTest extends TestCase
 {
     #[DataProvider('unsafeQualifier')]
-    public function testUnsafeQualifierIsRejectedAtCompileTime(string $qualifier): void
+    public function testUnsafeQualifierCompilesAndResolves(string $qualifier): void
     {
-        $this->expectException(InvalidQualifier::class);
-        (new Compiler())->compile(new FakeQualifierModule([$qualifier]), $this->scriptDir('rejected'));
+        $scriptDir = $this->scriptDir('unsafe');
+        (new Compiler())->compile(new FakeToConstructorQualifierModule($qualifier), $scriptDir);
+
+        $injector = new CompiledInjector($scriptDir);
+        $consumer = $injector->getInstance(FakeQualifierConsumerInterface::class);
+
+        $this->assertInstanceOf(FakeQualifiedValueConsumer::class, $consumer);
+        $this->assertSame('qualified', $consumer->value);
+        $this->assertSame('qualified', $injector->getInstance('', $qualifier));
+        $this->assertSame([], glob($scriptDir . '/*', GLOB_ONLYDIR));
     }
 
     /** @return array<string, array{string}> */
     public static function unsafeQualifier(): array
     {
         return [
+            'class constant with colon' => [FakeToConstructorQualifierModule::class . ':keep'],
             'slash' => ['a/b'],
             'parent reference' => ['x/../../escaped'],
             'nul byte' => ["bad\0name"],
             'quote and backslash' => ["q'.PHP_EOL.'\\"],
             'percent' => ['a%b'],
+            'space' => ['a b'],
         ];
     }
 
@@ -57,24 +69,16 @@ class QualifierScriptTest extends TestCase
         $this->assertSame($root->setter, $injector->getInstance(FakeEngineInterface::class, 'setter.path'));
     }
 
-    /** A name that could never compile cannot resolve at runtime either. */
-    public function testUnsafeNameAtRuntimeIsUnbound(): void
+    public function testUncompiledNameIsUnbound(): void
     {
         $scriptDir = $this->scriptDir('runtime');
         (new Compiler())->compile(new FakeQualifierModule(['safe']), $scriptDir);
 
-        try {
-            (new CompiledInjector($scriptDir))->getInstance(FakeEngineInterface::class, 'a/b');
-            $this->fail('Expected Unbound');
-        } catch (Unbound $e) {
-            $this->assertInstanceOf(InvalidQualifier::class, $e->getPrevious());
-        }
+        $this->expectException(Unbound::class);
+        (new CompiledInjector($scriptDir))->getInstance(FakeEngineInterface::class, 'a/b');
     }
 
-    /**
-     * A trailing backslash passes name validation ('q\' becomes the safe file name 'q_'),
-     * but emitted raw it escapes the closing quote of the generated literal.
-     */
+    /** A trailing backslash emitted raw would escape the closing quote of the generated literal. */
     public function testTrailingBackslashQualifierCompilesAndResolves(): void
     {
         $scriptDir = $this->scriptDir('backslash');

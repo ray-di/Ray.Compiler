@@ -7,7 +7,6 @@ namespace Ray\Compiler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Ray\Compiler\Exception\InvalidQualifier;
 
 #[CoversClass(ScriptName::class)]
 class ScriptNameTest extends TestCase
@@ -34,24 +33,24 @@ class ScriptNameTest extends TestCase
         ];
     }
 
-    /** An unsafe byte must be rejected, not sanitized, so it cannot reach the filesystem or the generated code. */
+    /** The name stays one path segment and carries no quote, so it cannot escape the script dir or a generated literal. */
     #[DataProvider('unsafeIndex')]
-    public function testUnsafeIndexIsRejected(string $index): void
+    public function testUnsafeByteIsPercentEncoded(string $index, string $expected): void
     {
-        $this->expectException(InvalidQualifier::class);
-        ScriptName::forIndex($index);
+        $this->assertSame($expected, ScriptName::forIndex($index));
     }
 
-    /** @return array<string, array{string}> */
+    /** @return array<string, array{string, string}> */
     public static function unsafeIndex(): array
     {
         return [
-            'slash' => ['I-a/b'],
-            'parent reference' => ['I-x/../../escaped'],
-            'leading slash' => ['I-/etc/x'],
-            'nul byte' => ["I-bad\0name"],
-            'quote' => ["I-q'x"],
-            'percent' => ['I-a%b'],
+            'colon' => ['-Vendor\Module:keep', '-Vendor_Module%3Akeep'],
+            'slash' => ['I-a/b', 'I-a%2Fb'],
+            'parent reference' => ['I-x/../../escaped', 'I-x%2F..%2F..%2Fescaped'],
+            'leading slash' => ['I-/etc/x', 'I-%2Fetc%2Fx'],
+            'nul byte' => ["I-bad\0name", 'I-bad%00name'],
+            'quote' => ["I-q'x", 'I-q%27x'],
+            'percent' => ['I-a%b', 'I-a%25b'],
         ];
     }
 }
