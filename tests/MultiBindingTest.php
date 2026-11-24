@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Ray\Compiler;
 
 use LogicException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
+use Ray\Compiler\Exception\Unbound;
 use Ray\Compiler\Fake\MultiBindings\FakeMultiBindingsModule;
+use Ray\Compiler\Fake\MultiBindings\FakeUnboundTargetMultiBindingsModule;
 use Ray\Compiler\MultiBindings\FakeEngine;
 use Ray\Compiler\MultiBindings\FakeEngine2;
 use Ray\Compiler\MultiBindings\FakeEngineInterface;
@@ -15,6 +18,7 @@ use Ray\Compiler\MultiBindings\FakeMultiBindingAnnotation;
 use Ray\Compiler\MultiBindings\FakeMultiBindingConsumer;
 use Ray\Compiler\MultiBindings\FakeRobot;
 use Ray\Compiler\MultiBindings\FakeRobotInterface;
+use Ray\Compiler\MultiBindings\FakeRobotProvider;
 use Ray\Compiler\MultiBindings\FakeSetNotFoundWithMap;
 use Ray\Compiler\MultiBindings\FakeSetNotFoundWithProvider;
 use Ray\Di\AbstractModule;
@@ -141,5 +145,34 @@ class MultiBindingTest extends TestCase
     {
         $this->expectException(SetNotFound::class);
         $this->injector->getInstance(FakeSetNotFoundWithProvider::class);
+    }
+
+    /** CompiledInjector has no just-in-time binding, so an unbound target would fail only when the Map is read */
+    #[DataProvider('unboundTarget')]
+    public function testUnboundTargetIsRejectedAtCompileTime(bool $provider, bool $qualifiedOnly, string $index): void
+    {
+        $this->expectException(Unbound::class);
+        $this->expectExceptionMessage($index);
+        (new Compiler())->compile(new FakeUnboundTargetMultiBindingsModule($provider, $qualifiedOnly), $this->scriptDir('multi-bindings-unbound-target'));
+    }
+
+    /** @return array<string, array{bool, bool, string}> */
+    public static function unboundTarget(): array
+    {
+        return [
+            'to' => [false, false, FakeEngine::class . '-'],
+            'toProvider' => [true, false, FakeRobotProvider::class . '-'],
+            'bound only with a qualifier' => [false, true, FakeEngine::class . '-'],
+        ];
+    }
+
+    /** @return non-empty-string */
+    private function scriptDir(string $name): string
+    {
+        $scriptDir = __DIR__ . '/tmp/' . $name;
+        deleteFiles($scriptDir);
+        @mkdir($scriptDir);
+
+        return $scriptDir;
     }
 }

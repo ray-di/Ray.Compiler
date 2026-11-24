@@ -6,13 +6,18 @@ namespace Ray\Compiler;
 
 use Ray\Compiler\Exception\CompileLockFailed;
 use Ray\Compiler\Exception\SingletonRequiresInjectionPoint;
+use Ray\Compiler\Exception\Unbound;
 use Ray\Di\AbstractModule;
 use Ray\Di\AcceptInterface;
 use Ray\Di\Annotation\ScriptDir;
+use Ray\Di\Container;
 use Ray\Di\ContainerFactory;
 use Ray\Di\Dependency;
 use Ray\Di\DependencyInterface;
 use Ray\Di\DependencyProvider;
+use Ray\Di\MultiBinding\LazyProvider;
+use Ray\Di\MultiBinding\LazyTo;
+use ReflectionProperty;
 
 use function assert;
 use function fclose;
@@ -51,6 +56,7 @@ final class Compiler
     public function compile(AbstractModule $module, string $scriptDir): Scripts
     {
         $module->override(new CompilerModule($scriptDir));
+        $this->assertMultiBindingTargetsBound($module->getContainer());
 
         $fp = fopen($scriptDir . '/compile.lock', 'a+');
         if ($fp === false || ! flock($fp, LOCK_EX)) {
@@ -110,5 +116,24 @@ final class Compiler
     private static function isSingletonDependency(DependencyInterface $dependency): bool
     {
         return ($dependency instanceof Dependency || $dependency instanceof DependencyProvider) && $dependency->isSingleton();
+    }
+
+    /** LazyTo and LazyProvider resolve their target through the injector at runtime, which has no just-in-time binding */
+    private function assertMultiBindingTargetsBound(Container $container): void
+    {
+        $bindings = $container->getContainer();
+        foreach ($container->multiBindings as $lazyBindings) {
+            foreach ($lazyBindings as $lazy) {
+                if (! $lazy instanceof LazyTo && ! $lazy instanceof LazyProvider) {
+                    continue;
+                }
+
+                /** @var class-string $target */
+                $target = (new ReflectionProperty($lazy, 'class'))->getValue($lazy);
+                if (! isset($bindings[$target . '-'])) {
+                    throw new Unbound($target . '-');
+                }
+            }
+        }
     }
 }
